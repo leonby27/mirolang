@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "59797860773",
+    "firebase_url": "https://mirolang-fab62-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "mirolang-fab62",
+    "storage_bucket": "mirolang-fab62.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59797860773:android:b5881b95e2c9ac59c9784c",
+        "android_client_info": {
+          "package_name": "ru.mirolang"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "59797860773-qgoed229unck2int9tfvbcur2tobdmf9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.mirolang",
+            "certificate_hash": "a0345bb524d0569e3578b1b0562f3da4927aaed9"
+          }
+        },
+        {
+          "client_id": "59797860773-2qd4m5qdqc571jf3odchg71n5v4spva7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpu6oJxKoq7hoXHo0E8A7ZK_PDcAEJX1M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "59797860773-2qd4m5qdqc571jf3odchg71n5v4spva7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "59797860773-hjgip13pjhs93gs5g7mu0ivd2n6k6uij.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ru.mirolang"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
