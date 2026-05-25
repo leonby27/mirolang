@@ -26,28 +26,34 @@ function Prestart({navigation, route}) {
   });
   useEffect(() => {
     const blurHandler = navigation.addListener('blur', async () => {
-      now = new Date();
-      let updatedProgress = progress;
+      const now = new Date();
+      const updatedProgress = JSON.parse(JSON.stringify(progress));
       if (
-        getWordsCount('passed', false) / level.words.length >= 0.9 &&
+        level.id < 25 &&
+        getWordsCount('passed', false) / (level.words?.length || 1) >= 0.9 &&
         !updatedProgress.data?.[level.id + 1]
       ) {
         updatedProgress.data[level.id + 1] = {};
       }
-      await AsyncStorage.setItem('progress', JSON.stringify(updatedProgress));
-      if (progress?.user?.id) {
-        await firestore().collection('users').doc(progress?.user?.id).set({
-          data: progress,
-        });
+      try {
+        await AsyncStorage.setItem('progress', JSON.stringify(updatedProgress));
+        if (updatedProgress?.user?.id) {
+          await firestore().collection('users').doc(updatedProgress.user.id).set({
+            data: updatedProgress,
+          });
+        }
+      } catch (e) {
+        console.warn('blurHandler save failed:', e);
       }
     });
     const handleAppStateChange = async newState => {
       if (newState === 'background') {
         try {
-          now = new Date();
-          let updatedProgress = progress;
+          const now = new Date();
+          const updatedProgress = JSON.parse(JSON.stringify(progress));
           if (
-            getWordsCount('passed', false) / level.words.length >= 0.9 &&
+            level.id < 25 &&
+            getWordsCount('passed', false) / (level.words?.length || 1) >= 0.9 &&
             !updatedProgress.data?.[level.id + 1]
           ) {
             updatedProgress.data[level.id + 1] = {};
@@ -56,9 +62,9 @@ function Prestart({navigation, route}) {
             'progress',
             JSON.stringify(updatedProgress),
           );
-          if (progress?.user?.id) {
-            await firestore().collection('users').doc(progress?.user?.id).set({
-              data: progress,
+          if (updatedProgress?.user?.id) {
+            await firestore().collection('users').doc(updatedProgress.user.id).set({
+              data: updatedProgress,
             });
           }
         } catch (error) {
@@ -74,7 +80,7 @@ function Prestart({navigation, route}) {
 
     return () => {
       appStateSubscription.remove();
-      blurHandler;
+      blurHandler();
     };
   }, [progress, navigation]);
 
@@ -104,8 +110,8 @@ function Prestart({navigation, route}) {
 
   const AskForDeleteProgress = () =>
     Alert.alert(
-      'Сбросить весь прогресс?',
-      'Это действие сбросить весь ваш текущий прогресс к 0%',
+      'Сбросить прогресс уровня?',
+      'Это действие сбросит прогресс по этому уровню к 0%',
       [
         {
           text: 'Нет',
@@ -114,12 +120,16 @@ function Prestart({navigation, route}) {
         {
           text: 'Сбросить',
           onPress: async () => {
-            var updatedProgress = {...progress};
-            if (updatedProgress.data[level.id]) {
+            const updatedProgress = JSON.parse(JSON.stringify(progress));
+            if (updatedProgress.data?.[level.id]) {
               updatedProgress.data[level.id] = {};
             }
             setProgress(updatedProgress);
-            await AsyncStorage.setItem('en', JSON.stringify(updatedProgress));
+            try {
+              await AsyncStorage.setItem('progress', JSON.stringify(updatedProgress));
+            } catch (e) {
+              console.warn('AskForDeleteProgress save failed:', e);
+            }
           },
         },
       ],
@@ -170,13 +180,13 @@ function Prestart({navigation, route}) {
   const filterSnapPoints = useMemo(() => ['55%'], []);
 
   const getWordsCount = (filter, available) => {
-    now = new Date();
+    const now = new Date();
     if (filter == 'passed') {
       if (!progress.data?.[level.id]) {
         return 0;
       }
       return Object.values(progress.data?.[level.id]).reduce(
-        (count, value) => count + (value.status >= 6 ? 1 : 0),
+        (count, value) => count + (value.status === 6 ? 1 : 0),
         0,
       );
     } else if (filter == 'all') {
@@ -265,7 +275,7 @@ function Prestart({navigation, route}) {
         0,
       );
     } else if (filter == 'skipped') {
-      if (!progress.data[level.id]) {
+      if (!progress.data?.[level.id]) {
         return 0;
       }
       return Object.values(progress.data?.[level.id]).reduce(
@@ -482,7 +492,7 @@ function Prestart({navigation, route}) {
           <Text style={styles.title}>
             Прогресс:{' '}
             {Math.round(
-              (100 * getWordsCount('passed', false)) / level.words.length,
+              (100 * getWordsCount('passed', false)) / (level.words?.length || 1),
             )}
             %
           </Text>
@@ -637,7 +647,7 @@ function Prestart({navigation, route}) {
             }
             windowSize={2}
             contentContainerStyle={{gap: 4}}
-            keyExtractor={item => item.id}
+            keyExtractor={item => String(item.id)}
             ListHeaderComponent={
               <View style={{width: '100%', alignItems: 'center'}}>
                 <View
@@ -1242,7 +1252,7 @@ function Prestart({navigation, route}) {
               {translateMode == 'english'
                 ? 'Будет показано слово на английском языке, а вы должны будете вспомнить его перевод'
                 : translateMode == 'russian'
-                ? 'Будет показано слово на russkom языке, а вы должны будете вспомнить его перевод'
+                ? 'Будет показано слово на русском языке, а вы должны будете вспомнить его перевод'
                 : translateMode == 'swap'
                 ? 'Вам будут показаны те слова, которые осталось повторить один или несколько раз.'
                 : 'Вам будут показаны выученные слова. Это полезно, чтобы проверить усвоенный материал.'}
@@ -1574,7 +1584,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
   },
   description: {
-    color: 'rgba(255, 255, 255, 0.50))',
+    color: 'rgba(255, 255, 255, 0.50)',
     fontSize: 14,
     lineHeight: 16,
     fontFamily: 'Inter-Regular',

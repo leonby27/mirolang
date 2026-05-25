@@ -74,6 +74,15 @@ function AccountSettings({navigation, route}) {
     });
   }, [navigation, showOptions]);
 
+  const clearUserKeepData = async () => {
+    const stored = await AsyncStorage.getItem('progress');
+    const parsed = stored ? JSON.parse(stored) : { data: {} };
+    await AsyncStorage.setItem('progress', JSON.stringify({
+      user: null,
+      data: parsed.data || {},
+    }));
+  };
+
   const logOutApple = async () =>
     Alert.alert(
       'Выйти из аккаунта?',
@@ -83,21 +92,13 @@ function AccountSettings({navigation, route}) {
           text: 'Да',
           style: 'dark',
           onPress: async () => {
-            await auth()
-              .signOut()
-              .then(() => {
-                AsyncStorage.setItem(
-                  'progress',
-                  JSON.stringify({
-                    user: null,
-                    data: {},
-                  }),
-                );
-                navigation.goBack();
-              })
-              .catch(error => {
-                console.error(error);
-              });
+            try {
+              await auth().signOut();
+            } catch (e) {
+              console.warn('signOut failed:', e);
+            }
+            await clearUserKeepData();
+            navigation.goBack();
           },
         },
         {
@@ -118,13 +119,21 @@ function AccountSettings({navigation, route}) {
           style: 'default',
           onPress: async () => {
             try {
-              const currentUser = await GoogleSignin.currentUser();
-              if (currentUser) {
+              try {
                 await GoogleSignin.signOut();
+              } catch (e) {
+                console.warn('GoogleSignin.signOut failed:', e);
+              }
+              try {
+                await auth().signOut();
+              } catch (e) {
+                console.warn('auth().signOut failed:', e);
               }
             } catch (error) {
-              console.error('Error during sign out:', error);
+              console.warn('Error during sign out:', error);
             }
+            await clearUserKeepData();
+            navigation.goBack();
           },
         },
         {
@@ -137,8 +146,10 @@ function AccountSettings({navigation, route}) {
 
   async function deleteDataFirestore() {
     const progress = await AsyncStorage.getItem('progress');
-    const userData = JSON.parse(progress);
-
+    const userData = progress ? JSON.parse(progress) : null;
+    if (!userData?.user?.id) {
+      throw new Error('No signed-in user');
+    }
     await firestore().collection('users').doc(userData.user.id).delete();
   }
 
@@ -157,6 +168,12 @@ function AccountSettings({navigation, route}) {
           onPress: async () => {
             try {
               await deleteDataFirestore();
+              try {
+                await auth().currentUser?.delete();
+              } catch (authErr) {
+                console.warn('auth currentUser.delete failed:', authErr);
+                try { await auth().signOut(); } catch {}
+              }
               await AsyncStorage.setItem(
                 'progress',
                 JSON.stringify({
@@ -165,7 +182,10 @@ function AccountSettings({navigation, route}) {
                 }),
               );
               navigation.goBack();
-            } catch {}
+            } catch (e) {
+              console.warn('deleteAccount failed:', e);
+              Alert.alert('Ошибка', 'Не удалось удалить аккаунт. Попробуйте позже.');
+            }
           },
         },
       ],
@@ -356,6 +376,7 @@ function AccountSettings({navigation, route}) {
           alignItems: 'center',
           borderRadius: 16,
           borderWidth: 1,
+          borderColor: '#313843',
           backgroundColor: 'rgba(34, 37, 46, 0.5)',
         }}>
         <Text

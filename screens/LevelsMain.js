@@ -1,15 +1,5 @@
 import React, {useRef, useState, useEffect, useMemo, useCallback} from 'react';
-import {
-  View,
-  Text,
-  SafeAreaView,
-  SectionList,
-  StyleSheet,
-  Image,
-  Modal,
-  Dimensions,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, SafeAreaView, SectionList, StyleSheet, Image, Modal, Dimensions, TouchableOpacity, Alert} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 import data from '../src/data';
@@ -79,10 +69,10 @@ function LevelsMain({navigation}) {
   const [categories, setCategories] = useState([]);
 
   const processData = progress => {
-    activateLastLevel = true;
+    let activateLastLevel = true;
     let lastactive = 0;
     data.forEach(category => {
-      category.data.forEach(async level => {
+      category.data.forEach(level => {
         if (progress?.user?.pro) {
           level.state = 'active';
           activateLastLevel = false;
@@ -123,6 +113,8 @@ function LevelsMain({navigation}) {
 
   const getProgress = async () => {
     try {
+      const onboardingFlag = await AsyncStorage.getItem('showOnbording');
+      setShowOnbording(onboardingFlag !== 'not showing');
       var progress = await AsyncStorage.getItem('progress');
       if (progress !== null) {
         progress = JSON.parse(progress);
@@ -148,7 +140,7 @@ function LevelsMain({navigation}) {
       return 0;
     }
     return Object.values(progress.data[levelId]).reduce(
-      (count, value) => count + (value.status >= 6 ? 1 : 0),
+      (count, value) => count + (value.status === 6 ? 1 : 0),
       0,
     );
   };
@@ -161,7 +153,7 @@ function LevelsMain({navigation}) {
         stickyHeaderHiddenOnScroll={false}
         ref={SectionListRef}
         showsVerticalScrollIndicator={false}
-        keyExtractor={item => item.id}
+        keyExtractor={item => String(item.id)}
         ListHeaderComponent={
           <View style={styles.header}>
             <Image
@@ -282,7 +274,7 @@ function LevelsMain({navigation}) {
                 <Text
                   style={{
                     width: '100%',
-                    color: 'rgba(255, 255, 255, 0.50))',
+                    color: 'rgba(255, 255, 255, 0.50)',
                     fontSize: 14,
                     lineHeight: 16,
                     fontFamily: 'Inter-Regular',

@@ -49,6 +49,12 @@ function HistoryScreen({route, navigation}) {
   const [words, setWords] = useState([]);
 
   useEffect(() => {
+    if (progress?.data) {
+      normalizeData(progress, dayFilter);
+    }
+  }, [dayFilter, mode]);
+
+  useEffect(() => {
     const focusHandler = navigation.addListener('focus', () => {
       getProgress();
     });
@@ -57,19 +63,21 @@ function HistoryScreen({route, navigation}) {
 
   useEffect(() => {
     const blurHandler = navigation.addListener('blur', async () => {
-      now = new Date();
-      let updatedProgress = progress;
-      await AsyncStorage.setItem('progress', JSON.stringify(updatedProgress));
-      if (progress?.user?.id) {
-        await firestore().collection('users').doc(progress?.user?.id).set({
-          data: progress,
-        });
+      try {
+        await AsyncStorage.setItem('progress', JSON.stringify(progress));
+        if (progress?.user?.id) {
+          await firestore().collection('users').doc(progress.user.id).set({
+            data: progress,
+          });
+        }
+      } catch (e) {
+        console.warn('HistoryScreen blurHandler save failed:', e);
       }
     });
     const handleAppStateChange = async newState => {
       if (newState === 'background') {
         try {
-          now = new Date();
+          const now = new Date();
           let updatedProgress = progress;
           await AsyncStorage.setItem(
             'progress',
@@ -93,12 +101,12 @@ function HistoryScreen({route, navigation}) {
 
     return () => {
       appStateSubscription.remove();
-      blurHandler;
+      blurHandler();
     };
   }, [progress, navigation]);
 
   const learnWord = () => {
-    updatedProgress = {...progress};
+    const updatedProgress = {...progress};
     updatedProgress.data[choosenWord.level][choosenWord.id] = {
       status: 1,
       date: new Date(),
@@ -109,7 +117,7 @@ function HistoryScreen({route, navigation}) {
   };
 
   const resetWord = () => {
-    updatedProgress = {...progress};
+    const updatedProgress = {...progress};
     updatedProgress.data[choosenWord.level][choosenWord.id] = {
       status: 0,
       date: new Date(),
@@ -120,7 +128,7 @@ function HistoryScreen({route, navigation}) {
   };
 
   const markAsLearnedWord = () => {
-    updatedProgress = {...progress};
+    const updatedProgress = {...progress};
     updatedProgress.data[choosenWord.level][choosenWord.id] = {
       status: 6,
       date: new Date(),
@@ -132,7 +140,7 @@ function HistoryScreen({route, navigation}) {
 
   const normalizeData = (progress, dayFilter) => {
     var words = [];
-    now = new Date();
+    const now = new Date();
     data.forEach(category => {
       category.data.forEach(level => {
         if (progress.data[level.id]) {
@@ -306,53 +314,21 @@ function HistoryScreen({route, navigation}) {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={
-          sort == 'new'
-            ? words.sort((a, b) => b.date - a.date)
-            : sort == 'old'
-            ? words
-                .sort((a, b) => a.date - b.date)
-                .filter(word =>
-                  dayFilter != 'all'
-                    ? new Date() - word.date <= dayFilter * 24 * 60 * 60 * 1000
-                    : true,
-                )
-            : sort == 'levelup'
-            ? words
-                .sort((a, b) => a.level - b.level)
-                .filter(word =>
-                  dayFilter != 'all'
-                    ? new Date() - word.date <= dayFilter * 24 * 60 * 60 * 1000
-                    : true,
-                )
-            : sort == 'leveldown'
-            ? words
-                .sort((a, b) => b.level - a.level)
-                .filter(word =>
-                  dayFilter != 'all'
-                    ? new Date() - word.date <= dayFilter * 24 * 60 * 60 * 1000
-                    : true,
-                )
-            : sort == 'repeatup'
-            ? words
-                .sort((a, b) => b.status - a.status)
-                .filter(word =>
-                  dayFilter != 'all'
-                    ? new Date() - word.date <= dayFilter * 24 * 60 * 60 * 1000
-                    : true,
-                )
-            : words
-                .sort((a, b) => a.status - b.status)
-                .filter(word =>
-                  dayFilter != 'all'
-                    ? new Date() - word.date <= dayFilter * 24 * 60 * 60 * 1000
-                    : true,
-                ) //repeat down
-        }
+        data={(() => {
+          const inWindow = w => dayFilter == 'all' || new Date() - w.date <= dayFilter * 24 * 60 * 60 * 1000;
+          const filtered = words.filter(inWindow);
+          const copy = [...filtered];
+          if (sort == 'new') return copy.sort((a, b) => b.date - a.date);
+          if (sort == 'old') return copy.sort((a, b) => a.date - b.date);
+          if (sort == 'levelup') return copy.sort((a, b) => a.level - b.level);
+          if (sort == 'leveldown') return copy.sort((a, b) => b.level - a.level);
+          if (sort == 'repeatup') return copy.sort((a, b) => b.status - a.status);
+          return copy.sort((a, b) => a.status - b.status); // repeat down
+        })()}
         style={{width: '100%'}}
         horizontal={false}
         windowSize={3}
-        keyExtractor={item => item.word}
+        keyExtractor={item => item.level + '_' + item.id}
         ListHeaderComponent={
           <View style={{width: '100%', alignItems: 'center'}}>
             <Modal

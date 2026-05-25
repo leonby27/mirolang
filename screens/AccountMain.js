@@ -1,12 +1,5 @@
 import React, {useEffect, useMemo, useState, useRef, useCallback} from 'react';
-import {
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  Image,
-  Text,
-  Modal,
-} from 'react-native';
+import {TouchableOpacity, View, StyleSheet, Image, Text, Modal, Alert} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import RateApp from '../src/components/RateApp';
 import MirolangPro from './MirolangPro';
@@ -73,7 +66,7 @@ function AccountMain({navigation}) {
   );
   return (
     <View style={{backgroundColor: '#000000', flex: 1, alignItems: 'center'}}>
-      {progress?.user && !progress?.user?.pro ? (
+      {!progress?.user?.pro ? (
         <TouchableOpacity
           onPress={() => setShowProScreen(true)}
           style={{
@@ -168,9 +161,9 @@ function AccountMain({navigation}) {
             }}>
             {!progress.user?.email
               ? 'Войти в аккаунт'
-              : progress.user?.email.toString().length > 24
-              ? progress.user?.email.toString().slice(0, 24) + '...'
-              : progress.user?.email.toString()}
+              : String(progress.user.email).length > 25
+              ? String(progress.user.email).slice(0, 24) + '…'
+              : String(progress.user.email)}
           </Text>
           <Text
             style={{

@@ -1,79 +1,126 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# MiroLang
 
-# Getting Started
+React Native приложение для изучения английских слов через интервальное повторение.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+- **iOS bundle ID:** `ru.mirolang`
+- **Android applicationId:** `ru.mirolang`
+- **RN:** 0.74.1 (bare workflow)
+- **Hermes:** enabled
+- **Firebase:** `@react-native-firebase/*` (Auth + Firestore + Analytics + Crashlytics + Functions)
+- **IAP:** `react-native-iap` v12
 
-## Step 1: Start the Metro Server
-
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
-
-To start Metro, run the following command from the _root_ of your React Native project:
-
-```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
+## Setup
 
 ```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
+npm install --legacy-peer-deps
+cd ios && pod install && cd ..
 ```
 
-### For iOS
+### Required external assets (NOT in repo)
+
+| Path | Источник | Зачем |
+|------|----------|-------|
+| `ios/GoogleService-Info.plist` | Firebase Console → iOS app | Firebase iOS клиент |
+| `android/app/google-services.json` | Firebase Console → Android app | Firebase Android клиент (есть в репо, но добавить release SHA-1) |
+| `android/app/release.keystore` | сгенерировать локально keytool | Подпись Play release |
+| `android/key.properties` | пароли от keystore | Подгружается gradle |
+
+## Run
+
+### iOS
 
 ```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+npx react-native run-ios --simulator "iPhone 17 Pro"
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+### Android
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+```bash
+npx react-native run-android
+```
 
-## Step 3: Modifying your App
+### Metro standalone
 
-Now that you have successfully run the app, let's modify it.
+```bash
+npx react-native start --reset-cache
+```
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+## Firebase / IAP backend setup
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+### 1. Firestore rules
 
-## Congratulations! :tada:
+```bash
+firebase deploy --only firestore:rules
+```
 
-You've successfully run and modified your React Native App. :partying_face:
+Rules в `firestore.rules` запрещают клиенту записывать `user.pro` — только Cloud Function.
 
-### Now what?
+### 2. Cloud Function для верификации покупок
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+```bash
+cd cloud-functions
+npm install firebase-admin firebase-functions
+firebase deploy --only functions:verifyPurchase
+```
 
-# Troubleshooting
+Stub в `cloud-functions/verifyPurchase.ts` — нужно вставить реальную верификацию через Apple App Store Server API / Google Play Developer API.
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### 3. App Store Connect / Google Play Console
 
-# Learn More
+Создать подписки с product IDs:
+- `mirolang_pro_monthly`
+- `mirolang_pro_yearly`
 
-To learn more about React Native, take a look at the following resources:
+## Architecture
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- `App.js` — корневой `NavigationContainer` + `BottomSheetModalProvider` + `GestureHandlerRootView`.
+- `screens/` — 12 экранов
+  - `LevelsMain` — Уровни tab (showOnboarding через AsyncStorage)
+  - `Prestart` — настройки уровня + список слов + BottomSheet с фильтрами
+  - `Learn` — карточки (react-native-deck-swiper) + spaced repetition
+  - `Overview` — карусель для пропущенных/выученных (reanimated-carousel)
+  - `HistoryMain` / `HistoryScreen` — История tab
+  - `AccountMain` / `AccountSettings` / `Login` — Аккаунт tab
+  - `MirolangPro` — paywall upsell (открывает ProVersion модал)
+  - `Support` — Email / Site
+  - `Swiper` — onboarding (react-native-swiper)
+- `src/data.js` — словарь (~6500 слов в 25 уровнях)
+- `src/components/iap.js` — IAP helper (init, products, purchase, restore)
+- `src/components/ProVersion.js` — UI модал с подписками + Subscription disclosure + Restore Purchases
+- `src/components/firebaseconfig.js` — удалён
+- `cloud-functions/verifyPurchase.ts` — stub серверной верификации
+
+## Spaced-repetition статусы
+
+- 0 / undefined — новое
+- 1 — «учу» (показываем сейчас)
+- 2 — следующий показ через 5 мин
+- 3 — через 30 мин
+- 4 — через 1 день
+- 5 — через 7 дней
+- 6 — выучено
+- 7 — пропущено пользователем (исключено из деки)
+
+Свайп влево = «Вспомнил» → `status + 1`.
+Свайп вправо = «Забыл» → `status - 1` (min 1, status≥6 сбрасывается в 1).
+Свайп вниз = `status: 0` (reset).
+Свайп вверх = `status: 6` (Знаю).
+
+## Pro
+
+- Лимит 10 новых слов в день для free.
+- Доступ ко всем уровням сразу.
+- Без рекламы.
+
+## Что доделать (production-readiness)
+
+1. Реальный `GoogleService-Info.plist` (сейчас placeholder).
+2. Release SHA-1 в Firebase Console.
+3. `android/app/release.keystore` + поднять `signingConfig signingConfigs.release` в `android/app/build.gradle`.
+4. Включить ProGuard: `enableProguardInReleaseBuilds = true`.
+5. Создать subscription продукты в ASC / Play Console.
+6. Имплементировать `cloud-functions/verifyPurchase.ts` (stub).
+7. Развернуть `firestore.rules`.
+8. Native splash setup для Android (`launch_screen.xml` + `SplashScreen.show()` в MainActivity).
+9. Adaptive icon для Android (через Android Studio Asset Studio).
+10. App Store Connect / Play Console: screenshots, описание, privacy URL.

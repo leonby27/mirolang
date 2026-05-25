@@ -1,5 +1,9 @@
 import {useEffect} from 'react';
 import {View, Platform} from 'react-native';
+import crashlytics from '@react-native-firebase/crashlytics';
+import analytics from '@react-native-firebase/analytics';
+
+let rejectionTrackerInstalled = false;
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -218,15 +222,44 @@ function ScreensWihBottomTab() {
 export default function App() {
   useEffect(() => {
     SplashScreen.hide();
+    // Global error handler — forwards to Crashlytics
+    const defaultHandler = global.ErrorUtils?.getGlobalHandler?.();
+    global.ErrorUtils?.setGlobalHandler?.((error, isFatal) => {
+      try {
+        crashlytics().recordError(error);
+        if (isFatal) crashlytics().log('Fatal error');
+      } catch {}
+      defaultHandler?.(error, isFatal);
+    });
+    // Unhandled promise rejections
+    const rejectionTracker = (id, error) => {
+      try { crashlytics().recordError(error || new Error('unhandled rejection')); } catch {}
+    };
+    if (!rejectionTrackerInstalled) {
+      try {
+        require('promise/setimmediate/rejection-tracking').enable({
+          allRejections: true,
+          onUnhandled: rejectionTracker,
+        });
+        rejectionTrackerInstalled = true;
+      } catch {}
+    }
   }, []);
 
   return (
-    <View style={{flex: 1, backgroundColor: '#000000'}}>
-      <NavigationContainer style={{backgroundColor: '#000000'}}>
-        <GestureHandlerRootView
-          style={{flex: 1, marginTop: Platform.OS == 'ios'}}>
-          <BottomSheetModalProvider style={{flex: 1}}>
-            <Stack.Navigator>
+    <GestureHandlerRootView style={{flex: 1, backgroundColor: '#000000'}}>
+      <NavigationContainer
+        style={{backgroundColor: '#000000'}}
+        onStateChange={async (state) => {
+          try {
+            const route = state?.routes?.[state.index];
+            if (route?.name) {
+              await analytics().logScreenView({screen_name: route.name, screen_class: route.name});
+            }
+          } catch {}
+        }}>
+        <BottomSheetModalProvider>
+          <Stack.Navigator>
               <Stack.Screen
                 options={{headerShown: false}}
                 name="ScreensWithBottomTab"
@@ -258,10 +291,9 @@ export default function App() {
                 name="Overview"
                 component={Overview}
               />
-            </Stack.Navigator>
-          </BottomSheetModalProvider>
-        </GestureHandlerRootView>
+          </Stack.Navigator>
+        </BottomSheetModalProvider>
       </NavigationContainer>
-    </View>
+    </GestureHandlerRootView>
   );
 }

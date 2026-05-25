@@ -1,0 +1,34 @@
+rules_version = '2';
+
+// Deploy: `firebase deploy --only firestore:rules`
+// Requires firebase.json with `firestore.rules` pointing to this file.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Each user owns one document keyed by their auth UID.
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      // Client can write everything EXCEPT the pro/proExpiresAt/proProductId/proPurchaseId fields,
+      // which only the server-side verifyPurchase Cloud Function may touch.
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && !affectsProFields();
+    }
+
+    function affectsProFields() {
+      // For nested writes use after.data.user.pro vs before.data.user.pro
+      let before = resource != null ? resource.data : null;
+      let after = request.resource.data;
+      return (
+        (after.data != null && after.data.user != null && (
+          (after.data.user.pro != null && (before == null || before.data == null || before.data.user == null || before.data.user.pro != after.data.user.pro)) ||
+          (after.data.user.proExpiresAt != null && (before == null || before.data == null || before.data.user == null || before.data.user.proExpiresAt != after.data.user.proExpiresAt)) ||
+          (after.data.user.proProductId != null && (before == null || before.data == null || before.data.user == null || before.data.user.proProductId != after.data.user.proProductId)) ||
+          (after.data.user.proPurchaseId != null && (before == null || before.data == null || before.data.user == null || before.data.user.proPurchaseId != after.data.user.proPurchaseId))
+        ))
+      );
+    }
+  }
+}

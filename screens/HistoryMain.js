@@ -88,7 +88,7 @@ function HistoryMain({navigation}) {
           data={content}
           style={{width: '90%', marginTop: 10}}
           contentContainerStyle={{gap: 8}}
-          keyExtractor={item=>item.id}
+          keyExtractor={item => String(item.id)}
           renderItem={({item}) => (
             <TouchableOpacity onPress={() => navigation.push("HistoryScreen", {title: item.title, mode: item.state})} style={styles.button}>
               <Image style={{width: 48, height: 48}} source={item.image} />
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold'
   },
   description: {
-    color: 'rgba(255, 255, 255, 0.50))', 
+    color: 'rgba(255, 255, 255, 0.50)', 
     fontSize: 14, 
     lineHeight: 16, 
     fontFamily: 'Inter-Regular'

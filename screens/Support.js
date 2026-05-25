@@ -1,19 +1,12 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  Image,
-  Text,
-  Linking,
-} from 'react-native';
+import {TouchableOpacity, View, StyleSheet, Image, Text, Linking, Alert} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 
 function Support({navigation}) {
   const sendEmail = () => {
     const email = 'support@mirolang.ru';
-    const subject = 'Hi there';
-    const body = 'The best app!';
+    const subject = 'Поддержка MiroLang';
+    const body = 'Здравствуйте, ';
 
     const url = `mailto:${email}?subject=${encodeURIComponent(
       subject,
@@ -35,7 +28,6 @@ function Support({navigation}) {
   return (
     <View style={{backgroundColor: '#000000', flex: 1, alignItems: 'center'}}>
       <View
-        onPress={() => setShowProScreen(true)}
         style={{
           width: '90%',
           padding: 16,
@@ -74,7 +66,7 @@ function Support({navigation}) {
 
       <TouchableOpacity
         // onPress={sendEmail}
-        onPress={() => alert('support@mirolang.ru')}
+        onPress={sendEmail}
         style={{
           width: '90%',
           padding: 16,
@@ -123,7 +115,7 @@ function Support({navigation}) {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => alert('mirolang.ru')}
+        onPress={() => Linking.openURL('https://mirolang.ru').catch(err => console.warn('openURL failed:', err))}
         style={{
           width: '90%',
           padding: 16,

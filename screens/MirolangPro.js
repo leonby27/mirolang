@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState, useRef, useCallback} from 'react';
+import React from 'react';
 import {
   TouchableOpacity,
   View,
@@ -6,6 +6,7 @@ import {
   Image,
   Text,
   ScrollView,
+  Linking,
 } from 'react-native';
 import Svg, {Path, Rect, Circle} from 'react-native-svg';
 import ProVersion from '../src/components/ProVersion';
@@ -27,7 +28,12 @@ function MirolangPro({
 }) {
   const handleSetProVersion = () => {
     handleCloseModalPress && handleCloseModalPress();
-    if (progress.user !== null || login) {
+    if (progress?.user?.pro) {
+      // already Pro — just close the upsell
+      setShowProScreen(false);
+      return;
+    }
+    if (progress?.user != null) {
       ProBottomSheetModalRef.current?.present();
       setShowProScreen(false);
     } else {
@@ -160,21 +166,9 @@ function MirolangPro({
                   paddingHorizontal: 3,
                   // paddingVertical: 1,
                 }}>
-                -99%
+                Pro
               </Text>
             </View>
-            <Text
-              style={{
-                flex: 1,
-                color: 'rgba(255, 255, 255, 0.3)',
-                fontFamily: 'Inter-Regular',
-                textAlign: 'right',
-                fontSize: 16,
-                fontWeight: 400,
-                lineHeight: 20,
-              }}>
-              $0.00 в месяц
-            </Text>
           </View>
         </View>
 
@@ -339,13 +333,13 @@ function MirolangPro({
           <View style={styles.row}>
             <TouchableOpacity
               style={styles.linkContainer}
-              onPress={() => alert('Условия')}>
+              onPress={() => Linking.openURL('https://mirolang.ru/terms').catch(err => console.warn('openURL failed:', err))}>
               <Text style={styles.link}>Условия</Text>
             </TouchableOpacity>
             <Text style={styles.text}>{'и'}</Text>
             <TouchableOpacity
               style={styles.linkContainer}
-              onPress={() => alert(' Политику конфиденциальности')}>
+              onPress={() => Linking.openURL('https://mirolang.ru/privacy').catch(err => console.warn('openURL failed:', err))}>
               <Text style={styles.link}>Политику конфиденциальности</Text>
             </TouchableOpacity>
           </View>
@@ -410,13 +404,15 @@ function MirolangPro({
               color: '#14161B',
               paddingLeft: 10,
             }}>
-            Подключить за $0.00 в год
+            Перейти к подписке
           </Text>
         </TouchableOpacity>
       </View>
       <BottomSheetModal
         ref={ProBottomSheetModalRef}
         index={0}
+        enablePanDownToClose
+        enableDynamicSizing={false}
         backdropComponent={renderBackdropPro}
         snapPoints={ProSnapPoints}
         backgroundStyle={{backgroundColor: '#14161B', borderRadius: 0}}

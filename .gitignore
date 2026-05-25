@@ -73,3 +73,17 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Secrets / signing
+*.jks
+release.keystore
+key.properties
+keystore.properties
+.env
+.env.*
+!.env.example
+
+# Editor / scratch
+*.bak
+*.swp
+.vscode/

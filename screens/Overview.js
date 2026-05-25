@@ -17,58 +17,65 @@ import firestore from '@react-native-firebase/firestore';
 import Tts from 'react-native-tts';
 import Sound from 'react-native-sound';
 
-Sound.setCategory('Playback');
-
-var whoosh = new Sound('1sec_silence.mp3', Sound.MAIN_BUNDLE, error => {
-  if (error) {
-    console.log('failed to load the sound', error);
-    return;
-  }
-  console.log(
-    'duration in seconds: ' +
-      whoosh.getDuration() +
-      'number of channels: ' +
-      whoosh.getNumberOfChannels(),
-  );
-
-  whoosh.play(success => {
-    if (success) {
-      console.log('successfully finished playing');
-    } else {
-      console.log('playback failed due to audio decoding errors');
-    }
-  });
-});
-
 function Overview({navigation, route}) {
   const width = Dimensions.get('window').width;
   const height = Dimensions.get('window').height;
   const [index, setIndex] = useState(1);
-  carouselRef = useRef(null);
+  const carouselRef = useRef(null);
   const mode = route.params.mode;
   const [words, setWords] = useState(route.params.words);
-  const [progress, setProgress] = useState(route.params.progress);
 
-  Tts.setDefaultLanguage('en-CA');
-  Tts.addEventListener('tts-start', event => console.log('start', event));
-  Tts.addEventListener('tts-finish', event => console.log('finish', event));
-  Tts.addEventListener('tts-cancel', event => console.log('cancel', event));
+  useEffect(() => {
+    setWords(route.params.words);
+  }, [route.params.words]);
+
+  useEffect(() => {
+    Sound.setCategory('Playback');
+    const whoosh = new Sound('1sec_silence.mp3', Sound.MAIN_BUNDLE, error => {
+      if (error) return;
+      whoosh.play(() => {});
+    });
+    return () => {
+      try { whoosh.release(); } catch {}
+    };
+  }, []);
+  const [progress, setProgress] = useState(route.params.progress);
+  useEffect(() => {
+    Tts.setDefaultLanguage('en-CA');
+    const startSub = Tts.addEventListener('tts-start', e => __DEV__ && console.log('start', e));
+    const finishSub = Tts.addEventListener('tts-finish', e => __DEV__ && console.log('finish', e));
+    const cancelSub = Tts.addEventListener('tts-cancel', e => __DEV__ && console.log('cancel', e));
+    return () => {
+      try { startSub?.remove?.(); } catch {}
+      try { finishSub?.remove?.(); } catch {}
+      try { cancelSub?.remove?.(); } catch {}
+    };
+  }, []);
 
   useEffect(() => {
     const blurHandler = navigation.addListener('blur', async () => {
-      await AsyncStorage.setItem('progress', JSON.stringify(progress));
-      if (progress?.user?.id) {
-        await firestore().collection('users').doc(progress?.user?.id).set({
-          data: progress,
-        });
+      try {
+        await AsyncStorage.setItem('progress', JSON.stringify(progress));
+        if (progress?.user?.id) {
+          await firestore().collection('users').doc(progress.user.id).set({
+            data: progress,
+          });
+        }
+      } catch (e) {
+        console.warn('Overview blurHandler save failed:', e);
       }
     });
     const handleAppStateChange = async newState => {
       if (newState === 'background') {
         try {
           await AsyncStorage.setItem('progress', JSON.stringify(progress));
+          if (progress?.user?.id) {
+            await firestore().collection('users').doc(progress.user.id).set({
+              data: progress,
+            });
+          }
         } catch (error) {
-          console.error('Error saving data to AsyncStorage:', error);
+          console.warn('Overview AppState save failed:', error);
         }
       }
     };
@@ -80,12 +87,13 @@ function Overview({navigation, route}) {
 
     return () => {
       appStateSubscription.remove();
-      blurHandler;
+      blurHandler();
     };
   }, [progress, navigation]);
 
   const buttonPress = index => {
     const word = words[index];
+    if (!word) return;
     var updatedProgress = {...progress};
     var updatedwords = words;
     if (mode == 'skipped') {
@@ -134,6 +142,7 @@ function Overview({navigation, route}) {
 
   const Card = React.memo(({index}) => {
     const [show, setShow] = useState(false);
+    if (!words[index]) return null;
     return (
       <View
         style={{

@@ -1,75 +1,155 @@
-import React, {useEffect} from 'react';
-import {View, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, TouchableOpacity, ActivityIndicator, Alert, ScrollView, Linking} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import {
+  initIAP,
+  teardownIAP,
+  loadProducts,
+  setupPurchaseListeners,
+  purchasePro,
+  restorePurchases,
+  PRODUCT_IDS,
+} from './iap';
 
-function ProVersion({closeModal, setCurrentProgress, navigation, learn}) {
-  const getProgress = async () => {
-    try {
-      var progress = await AsyncStorage.getItem('progress');
-      const parseProgress = JSON.parse(progress);
-      if (progress !== null) {
-        const initialProgressData = {
-          user: {
-            id: parseProgress.user.id,
-            provider: parseProgress.user.provider,
-            email: parseProgress.user.email,
-            pro: true,
-          },
-          data: parseProgress?.data,
-        };
-        // navigation.goBack();
-        await AsyncStorage.setItem(
-          'progress',
-          JSON.stringify(initialProgressData),
-        );
+function ProVersion({closeModal, navigation, learn}) {
+  const [products, setProducts] = useState([]);
+  const [busy, setBusy] = useState(false);
 
-        await firestore().collection('users').doc(parseProgress.user.id).set({
-          data: initialProgressData,
-        });
-        await setCurrentProgress();
-        if (learn) {
-          navigation.goBack();
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      await initIAP();
+      setupPurchaseListeners(
+        () => {
+          if (!mounted) return;
+          Alert.alert('Готово', 'Подписка активирована.', [
+            {text: 'OK', onPress: () => { closeModal?.(); if (learn) navigation?.goBack(); }},
+          ]);
+          setBusy(false);
+        },
+        (err) => {
+          if (!mounted) return;
+          Alert.alert('Ошибка покупки', err?.message || String(err));
+          setBusy(false);
         }
-      } else {
-        console.log('error progress', progress);
-      }
+      );
+      const list = await loadProducts();
+      if (mounted) setProducts(list);
+    })();
+    return () => {
+      mounted = false;
+      teardownIAP();
+    };
+  }, []);
+
+  const onBuy = async (productId) => {
+    if (!auth().currentUser?.uid) {
+      Alert.alert(
+        'Войдите в аккаунт',
+        'Чтобы оформить подписку, войдите через Google или Apple.',
+        [{text: 'OK', onPress: () => { closeModal?.(); navigation?.navigate('Login'); }}],
+      );
+      return;
+    }
+    try {
+      setBusy(true);
+      await purchasePro(productId);
     } catch (e) {
-      console.warn(e);
+      setBusy(false);
+      Alert.alert('Ошибка', e?.message || String(e));
     }
   };
 
-  useEffect(() => {
-    getProgress();
-  }, []);
+  const onRestore = async () => {
+    try {
+      setBusy(true);
+      const restored = await restorePurchases();
+      setBusy(false);
+      Alert.alert(
+        restored ? 'Покупки восстановлены' : 'Активных подписок не найдено',
+        restored ? 'Pro-доступ активирован.' : 'Если вы оформляли подписку — войдите тем же аккаунтом.',
+        [{text: 'OK', onPress: () => restored && closeModal?.()}]
+      );
+    } catch (e) {
+      setBusy(false);
+      Alert.alert('Ошибка', e?.message || String(e));
+    }
+  };
+
+  const monthly = products.find(p => p.productId === 'mirolang_pro_monthly');
+  const yearly = products.find(p => p.productId === 'mirolang_pro_yearly');
+
   return (
-    <View style={{flex: 1, justifyContent: 'space-between'}}>
-      <View style={{width: '100%', alignItems: 'center'}}>
-        <View
-          style={{
-            width: '100%',
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            paddingVertical: 12,
-            paddingHorizontal: 24,
-          }}>
-          <TouchableOpacity
-            onPress={closeModal}
-            style={{
-              backgroundColor: '#22252E',
-              borderRadius: 10,
-              padding: 6,
-            }}>
-            <Svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <Path
-                d="M11.1746 9.9982L16.4246 4.75653C16.5815 4.59961 16.6697 4.38679 16.6697 4.16487C16.6697 3.94295 16.5815 3.73012 16.4246 3.5732C16.2677 3.41628 16.0549 3.32812 15.833 3.32812C15.611 3.32812 15.3982 3.41628 15.2413 3.5732L9.99962 8.8232L4.75796 3.5732C4.60104 3.41628 4.38821 3.32813 4.16629 3.32813C3.94437 3.32813 3.73154 3.41628 3.57462 3.5732C3.4177 3.73012 3.32955 3.94295 3.32955 4.16487C3.32955 4.38679 3.4177 4.59961 3.57462 4.75653L8.82462 9.9982L3.57462 15.2399C3.49652 15.3173 3.43452 15.4095 3.39221 15.5111C3.34991 15.6126 3.32812 15.7215 3.32812 15.8315C3.32812 15.9415 3.34991 16.0505 3.39221 16.152C3.43452 16.2536 3.49652 16.3457 3.57462 16.4232C3.65209 16.5013 3.74426 16.5633 3.84581 16.6056C3.94736 16.6479 4.05628 16.6697 4.16629 16.6697C4.2763 16.6697 4.38522 16.6479 4.48677 16.6056C4.58832 16.5633 4.68049 16.5013 4.75796 16.4232L9.99962 11.1732L15.2413 16.4232C15.3188 16.5013 15.4109 16.5633 15.5125 16.6056C15.614 16.6479 15.7229 16.6697 15.833 16.6697C15.943 16.6697 16.0519 16.6479 16.1534 16.6056C16.255 16.5633 16.3472 16.5013 16.4246 16.4232C16.5027 16.3457 16.5647 16.2536 16.607 16.152C16.6493 16.0505 16.6711 15.9415 16.6711 15.8315C16.6711 15.7215 16.6493 15.6126 16.607 15.5111C16.5647 15.4095 16.5027 15.3173 16.4246 15.2399L11.1746 9.9982Z"
-                fill="white"
-              />
-            </Svg>
+    <View style={{flex: 1, backgroundColor: '#14161B'}}>
+      <View style={{paddingVertical: 12, paddingHorizontal: 24, alignItems: 'flex-end'}}>
+        <TouchableOpacity onPress={closeModal} style={{backgroundColor: '#22252E', borderRadius: 10, padding: 6}}>
+          <Svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <Path d="M11.175 9.998l5.25-5.242c0.157-0.157 0.245-0.37 0.245-0.591s-0.088-0.435-0.245-0.592c-0.157-0.157-0.37-0.245-0.591-0.245s-0.435 0.088-0.592 0.245L10 8.823 4.758 3.573c-0.157-0.157-0.37-0.245-0.591-0.245s-0.435 0.088-0.592 0.245c-0.157 0.157-0.245 0.37-0.245 0.591s0.088 0.435 0.245 0.592L8.825 9.998 3.575 15.24c-0.078 0.077-0.14 0.169-0.182 0.271s-0.064 0.21-0.064 0.32 0.022 0.219 0.064 0.32 0.104 0.193 0.182 0.27c0.078 0.078 0.17 0.14 0.272 0.182s0.21 0.064 0.32 0.064 0.219-0.022 0.32-0.064 0.193-0.104 0.27-0.182L10 11.173l5.242 5.25c0.077 0.078 0.169 0.14 0.27 0.182s0.21 0.064 0.32 0.064 0.219-0.022 0.32-0.064 0.193-0.104 0.27-0.182c0.078-0.077 0.14-0.169 0.182-0.27s0.064-0.21 0.064-0.32-0.022-0.219-0.064-0.32-0.104-0.193-0.182-0.27l-5.25-5.242z" fill="white"/>
+          </Svg>
+        </TouchableOpacity>
+      </View>
+      <ScrollView style={{flex: 1, paddingHorizontal: 24}}>
+        <Text style={{color: 'white', fontFamily: 'Inter-Bold', fontSize: 24, lineHeight: 32, marginTop: 8}}>
+          MiroLang Pro
+        </Text>
+        <Text style={{color: 'rgba(255,255,255,0.7)', fontFamily: 'Inter-Regular', fontSize: 14, marginTop: 8, lineHeight: 20}}>
+          Без ограничения по 10 словам в день. Все уровни сразу. Поддержка разработки.
+        </Text>
+
+        {products.length === 0 ? (
+          <View style={{marginTop: 32, alignItems: 'center'}}>
+            <ActivityIndicator color="white" />
+            <Text style={{color: 'rgba(255,255,255,0.5)', marginTop: 8, fontFamily: 'Inter-Regular', fontSize: 14}}>
+              Загрузка тарифов…
+            </Text>
+          </View>
+        ) : (
+          <>
+            {yearly && (
+              <TouchableOpacity
+                disabled={busy}
+                onPress={() => onBuy(yearly.productId)}
+                style={{marginTop: 24, padding: 16, borderRadius: 12, backgroundColor: '#1C1F26', borderWidth: 1, borderColor: '#F6A022'}}>
+                <Text style={{color: 'white', fontFamily: 'Inter-Bold', fontSize: 16}}>Годовая · {yearly.localizedPrice}</Text>
+                <Text style={{color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter-Regular', fontSize: 13, marginTop: 4}}>{yearly.title || 'Подписка на год'}</Text>
+              </TouchableOpacity>
+            )}
+            {monthly && (
+              <TouchableOpacity
+                disabled={busy}
+                onPress={() => onBuy(monthly.productId)}
+                style={{marginTop: 12, padding: 16, borderRadius: 12, backgroundColor: '#1C1F26', borderWidth: 1, borderColor: '#313843'}}>
+                <Text style={{color: 'white', fontFamily: 'Inter-Bold', fontSize: 16}}>Месячная · {monthly.localizedPrice}</Text>
+                <Text style={{color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter-Regular', fontSize: 13, marginTop: 4}}>{monthly.title || 'Подписка на месяц'}</Text>
+              </TouchableOpacity>
+            )}
+            {busy && (
+              <View style={{marginTop: 16, alignItems: 'center'}}>
+                <ActivityIndicator color="white" />
+              </View>
+            )}
+          </>
+        )}
+
+        <TouchableOpacity onPress={onRestore} disabled={busy} style={{marginTop: 24, padding: 12, alignItems: 'center'}}>
+          <Text style={{color: 'rgba(255,255,255,0.7)', fontFamily: 'Inter-Regular', fontSize: 14}}>Восстановить покупки</Text>
+        </TouchableOpacity>
+
+        {/* Subscription disclosure — required by App Store guideline 3.1.2 */}
+        <Text style={{color: 'rgba(255,255,255,0.45)', fontFamily: 'Inter-Regular', fontSize: 12, lineHeight: 16, marginTop: 16}}>
+          Подписка продлевается автоматически, если не отменена за 24 часа до окончания периода. Оплата списывается с аккаунта iTunes / Google Play при подтверждении покупки. Управление подпиской — в настройках вашего аккаунта.
+        </Text>
+
+        <View style={{flexDirection: 'row', justifyContent: 'center', marginTop: 12, marginBottom: 24}}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://mirolang.ru/terms').catch(() => {})} style={{padding: 8}}>
+            <Text style={{color: 'rgba(255,255,255,0.6)', fontFamily: 'Inter-Regular', fontSize: 12, textDecorationLine: 'underline'}}>Условия</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => Linking.openURL('https://mirolang.ru/privacy').catch(() => {})} style={{padding: 8}}>
+            <Text style={{color: 'rgba(255,255,255,0.6)', fontFamily: 'Inter-Regular', fontSize: 12, textDecorationLine: 'underline'}}>Конфиденциальность</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }

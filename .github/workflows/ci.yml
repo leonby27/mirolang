@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  js:
+    name: JS lint + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      - run: npm test -- --watchAll=false --passWithNoTests
+
+  ios-build:
+    name: iOS build (Debug, no codesign)
+    runs-on: macos-14
+    if: false  # enable when keystore/secrets configured
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      - run: cd ios && pod install
+      - run: xcodebuild -workspace ios/MiroLang.xcworkspace -scheme MiroLang -sdk iphonesimulator -configuration Debug build CODE_SIGNING_ALLOWED=NO
+
+  android-build:
+    name: Android build (Debug)
+    runs-on: ubuntu-latest
+    if: false  # enable when keystore configured
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - run: npm ci --legacy-peer-deps
+      - run: cd android && ./gradlew assembleDebug

@@ -1,15 +1,5 @@
 import React, {useRef, useState, useEffect, useMemo, useCallback} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  AppState,
-  SafeAreaView,
-  Image,
-  Modal,
-  Pressable,
-} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, AppState, SafeAreaView, Image, Modal, Pressable, Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, {Path, G} from 'react-native-svg';
 import Tts from 'react-native-tts';
@@ -20,30 +10,25 @@ import Swiper from 'react-native-deck-swiper';
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import MirolangPro from './MirolangPro';
 
-Sound.setCategory('Playback');
-
-var whoosh = new Sound('1sec_silence.mp3', Sound.MAIN_BUNDLE, error => {
-  if (error) {
-    console.log('failed to load the sound', error);
-    return;
-  }
-
-  whoosh.play(success => {
-    if (success) {
-      console.log('successfully finished playing');
-    } else {
-      console.log('playback failed due to audio decoding errors');
-    }
-  });
-});
-
 function LearnScreen({navigation, route}) {
+  // Warm up AudioSession on mount (release on unmount)
+  useEffect(() => {
+    Sound.setCategory('Playback');
+    const whoosh = new Sound('1sec_silence.mp3', Sound.MAIN_BUNDLE, error => {
+      if (error) return;
+      whoosh.play(() => {});
+    });
+    return () => {
+      try { whoosh.release(); } catch {}
+    };
+  }, []);
+
   const bottomSheetModalRef = useRef(null);
   const ProBottomSheetModalRef = useRef(null);
   const [CardIndex, setCardindex] = useState(0);
   const [canCancel, setCanCancel] = useState(false);
-  cardRef = useRef(null);
-  var nextCardTimer = null;
+  const cardRef = useRef(null);
+  const nextCardTimerRef = useRef(null);
   const {filter, translateMode, level} = route.params;
   const [words, setWords] = useState([]);
   const [progress, setProgress] = useState(
@@ -53,10 +38,17 @@ function LearnScreen({navigation, route}) {
   const [nextCardTime, setNextCardTime] = useState(null);
   const [isSwipeRight, setIsSwipeRight] = useState(false);
 
-  Tts.setDefaultLanguage('en-CA');
-  Tts.addEventListener('tts-start', event => console.log('start', event));
-  Tts.addEventListener('tts-finish', event => console.log('finish', event));
-  Tts.addEventListener('tts-cancel', event => console.log('cancel', event));
+  useEffect(() => {
+    Tts.setDefaultLanguage('en-CA');
+    const startSub = Tts.addEventListener('tts-start', e => __DEV__ && console.log('start', e));
+    const finishSub = Tts.addEventListener('tts-finish', e => __DEV__ && console.log('finish', e));
+    const cancelSub = Tts.addEventListener('tts-cancel', e => __DEV__ && console.log('cancel', e));
+    return () => {
+      try { startSub?.remove?.(); } catch {}
+      try { finishSub?.remove?.(); } catch {}
+      try { cancelSub?.remove?.(); } catch {}
+    };
+  }, []);
 
   const ProSnapPoints = useMemo(() => ['40%'], []);
   const [showProScreen, setShowProScreen] = useState(false);
@@ -67,6 +59,15 @@ function LearnScreen({navigation, route}) {
     });
     return focusHandler;
   }, [navigation]);
+
+  useEffect(() => {
+    return () => {
+      if (nextCardTimerRef.current !== null) {
+        clearInterval(nextCardTimerRef.current);
+        nextCardTimerRef.current = null;
+      }
+    };
+  }, []);
 
   const getProgress = async () => {
     try {
@@ -96,19 +97,18 @@ function LearnScreen({navigation, route}) {
   );
 
   const recentItemsCount = useMemo(() => {
-    const currentTime = new Date();
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
 
     const data = progress.data || {};
 
     return Object.values(data).reduce((total, items) => {
       const recentItems = Object.values(items).filter(item => {
-        if (!item.date || item.status !== 1) return false;
-
+        // Count any word interacted with today (incl. reset via Bottom) — prevents bypass
+        if (!item.date) return false;
         const itemDate =
           item.date instanceof Date ? item.date : new Date(item.date);
-        const timeDifference = currentTime - itemDate;
-
-        return timeDifference <= 24 * 60 * 60 * 1000 && timeDifference >= 0;
+        return itemDate >= startOfDay;
       }).length;
 
       return total + recentItems;
@@ -159,7 +159,7 @@ function LearnScreen({navigation, route}) {
       });
     } else {
       navigation.setOptions({
-        headerRight: () => null,
+        headerTitle: undefined,
       });
     }
   }, [navigation, recentItemsCount, progress?.user?.pro]);
@@ -212,61 +212,64 @@ function LearnScreen({navigation, route}) {
   );
 
   const Cancel = () => {
-    if (canCancel) {
-      setFinished(false);
-      setCanCancel(false);
-      const id = words[CardIndex - 1]?.id;
-      setCardindex(CardIndex - 1);
-      updatedProgress = {...progress};
-      if (!updatedProgress?.data?.[level.id]) {
-        updatedProgress.data[level.id] = {};
-      }
-      now = new Date();
-      updatedProgress.data[level.id][id] = {
-        status: route.params.progress?.data?.[level.id]?.[id]?.status,
-        date: route.params.progress?.data?.[level.id]?.[id]?.date,
-      };
-      setProgress(updatedProgress);
-      cardRef.current?.swipeBack();
+    if (!canCancel || CardIndex <= 0) return;
+    const id = words[CardIndex - 1]?.id;
+    if (id === undefined) return;
+    setFinished(false);
+    setCanCancel(false);
+    setCardindex(CardIndex - 1);
+    const updatedProgress = {...progress};
+    if (!updatedProgress?.data?.[level.id]) {
+      updatedProgress.data[level.id] = {};
     }
+    const original = route.params.progress?.data?.[level.id]?.[id];
+    if (original) {
+      updatedProgress.data[level.id][id] = {
+        status: original.status,
+        date: original.date,
+      };
+    } else {
+      delete updatedProgress.data[level.id][id];
+    }
+    setProgress(updatedProgress);
+    cardRef.current?.swipeBack();
   };
 
   const Right = cardIndex => {
     if (!progress?.user?.pro && recentItemsCount > 9) {
       setShowProScreen(!showProScreen);
     } else {
+      const id = words[cardIndex]?.id;
+      if (id === undefined) return;
       setCardindex(cardIndex + 1);
       let updatedProgress = {...progress};
       if (!updatedProgress?.data?.[level.id]) {
         updatedProgress.data[level.id] = {};
       }
-      const id = words[cardIndex]?.id;
       const now = new Date();
-      if (updatedProgress?.data?.[level.id]?.[id]?.status > 0) {
-        updatedProgress.data[level.id][id] = {
-          status:
-            updatedProgress.data[level.id][id]?.status > 1
-              ? updatedProgress.data[level.id][id]?.status - 1
-              : 1,
-          date: now,
-        };
+      const cur = updatedProgress?.data?.[level.id]?.[id]?.status;
+      // Right = «Забыл»: уменьшаем интервал; для status >= 6 (learned/skipped) сбрасываем в 1
+      let next;
+      if (cur >= 6) {
+        next = 1;
+      } else if (cur > 1) {
+        next = cur - 1;
       } else {
-        updatedProgress.data[level.id][id] = {
-          status: 1,
-          date: now,
-        };
+        next = 1;
       }
+      updatedProgress.data[level.id][id] = { status: next, date: now };
       setProgress(updatedProgress);
     }
   };
 
   const Left = cardIndex => {
-    setCardindex(CardIndex + 1);
-    updatedProgress = {...progress};
+    const id = words[cardIndex]?.id;
+    if (id === undefined) return;
+    setCardindex(cardIndex + 1);
+    const updatedProgress = {...progress};
     if (!updatedProgress?.data?.[level.id]) {
       updatedProgress.data[level.id] = {};
     }
-    const id = words[cardIndex]?.id;
     const now = new Date();
     if (updatedProgress?.data?.[level.id]?.[id]?.status > 0) {
       updatedProgress.data[level.id][id] = {
@@ -283,12 +286,13 @@ function LearnScreen({navigation, route}) {
   };
 
   const Bottom = cardIndex => {
-    setCardindex(CardIndex + 1);
-    updatedProgress = {...progress};
+    const id = words[cardIndex]?.id;
+    if (id === undefined) return;
+    setCardindex(cardIndex + 1);
+    const updatedProgress = {...progress};
     if (!updatedProgress?.data?.[level.id]) {
       updatedProgress.data[level.id] = {};
     }
-    const id = words[cardIndex]?.id;
     const now = new Date();
     updatedProgress.data[level.id][id] = {
       status: 0,
@@ -298,12 +302,13 @@ function LearnScreen({navigation, route}) {
   };
 
   const Top = cardIndex => {
-    setCardindex(CardIndex + 1);
-    updatedProgress = {...progress};
+    const id = words[cardIndex]?.id;
+    if (id === undefined) return;
+    setCardindex(cardIndex + 1);
+    const updatedProgress = {...progress};
     if (!updatedProgress?.data?.[level.id]) {
       updatedProgress.data[level.id] = {};
     }
-    const id = words[cardIndex]?.id;
     const now = new Date();
     updatedProgress.data[level.id][id] = {
       status: 6,
@@ -317,7 +322,7 @@ function LearnScreen({navigation, route}) {
     setFinished(false);
     const now = new Date();
     level.words.forEach(word => {
-      newWord = {...word};
+      const newWord = {...word};
       if (
         (progress?.data?.[level.id]?.[newWord.id]?.status == undefined &&
           filter != 'repeat') ||
@@ -355,13 +360,14 @@ function LearnScreen({navigation, route}) {
   };
 
   const getMinTimeForNextWord = () => {
-    if (nextCardTimer !== null) {
-      clearInterval(nextCardTimer);
+    if (nextCardTimerRef.current !== null) {
+      clearInterval(nextCardTimerRef.current);
+      nextCardTimerRef.current = null;
     }
     var minTime = null;
     var now = new Date();
     level.words.forEach(word => {
-      newWord = {...word};
+      const newWord = {...word};
       if (
         (progress?.data?.[level.id]?.[newWord.id]?.status == undefined &&
           filter != 'repeat') ||
@@ -405,7 +411,7 @@ function LearnScreen({navigation, route}) {
           now - new Date(progress?.data?.[level.id]?.[newWord.id]?.date) <
             7 * 24 * 60 * 60 * 1000)
       ) {
-        updatedNextWordTime =
+        const updatedNextWordTime =
           progress?.data?.[level.id]?.[newWord.id]?.status == 2
             ? 5 * 60 * 1000 -
               (now - new Date(progress?.data?.[level.id]?.[newWord.id]?.date))
@@ -431,10 +437,10 @@ function LearnScreen({navigation, route}) {
   };
 
   const processEnd = () => {
-    minTime = getMinTimeForNextWord();
+    const minTime = getMinTimeForNextWord();
     if (minTime != null) {
       setNextCardTime(minTime);
-      nextCardTimer = setInterval(
+      nextCardTimerRef.current = setInterval(
         () =>
           setNextCardTime(currentState =>
             currentState > 60000 ? currentState - 60000 : 0,
@@ -464,19 +470,28 @@ function LearnScreen({navigation, route}) {
 
   useEffect(() => {
     const blurHandler = navigation.addListener('blur', async () => {
-      await AsyncStorage.setItem('progress', JSON.stringify(progress));
-      if (progress?.user?.id) {
-        await firestore().collection('users').doc(progress?.user?.id).set({
-          data: progress,
-        });
+      try {
+        await AsyncStorage.setItem('progress', JSON.stringify(progress));
+        if (progress?.user?.id) {
+          await firestore().collection('users').doc(progress.user.id).set({
+            data: progress,
+          });
+        }
+      } catch (e) {
+        console.warn('Learn blurHandler save failed:', e);
       }
     });
     const handleAppStateChange = async newState => {
       if (newState === 'background') {
         try {
           await AsyncStorage.setItem('progress', JSON.stringify(progress));
+          if (progress?.user?.id) {
+            await firestore().collection('users').doc(progress.user.id).set({
+              data: progress,
+            });
+          }
         } catch (error) {
-          console.error('Error saving data to AsyncStorage:', error);
+          console.warn('Learn AppState save failed:', error);
         }
       }
     };
@@ -488,7 +503,7 @@ function LearnScreen({navigation, route}) {
 
     return () => {
       appStateSubscription.remove();
-      blurHandler;
+      blurHandler();
     };
   }, [progress, navigation]);
 

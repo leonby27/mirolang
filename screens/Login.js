@@ -1,5 +1,5 @@
-import {useEffect, useState} from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {useEffect} from 'react';
+import {View, Text, Image, TouchableOpacity, Alert, Platform} from 'react-native';
 import Svg, {Path, G} from 'react-native-svg';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {appleAuth} from '@invertase/react-native-apple-authentication';
@@ -8,15 +8,13 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
 function Login({navigation}) {
-  const [logged, setLogged] = useState(false);
-
   useEffect(() => {
-    GoogleSignin.configure();
-    if (logged) {
-      navigation.goBack();
-      setLogged(false);
-    }
-  }, [logged]);
+    GoogleSignin.configure({
+      webClientId:
+        '59797860773-2qd4m5qdqc571jf3odchg71n5v4spva7.apps.googleusercontent.com',
+      offlineAccess: false,
+    });
+  }, []);
 
   const GoogleSignIn = async () => {
     try {
@@ -25,59 +23,55 @@ function Login({navigation}) {
       });
 
       const user = await GoogleSignin.signIn();
+      if (!user?.user?.id) return;
 
-      // Create a Google credential with the token
       const googleCredential = auth.GoogleAuthProvider.credential(user.idToken);
-
-      // Sign-in the user with the credential
-      await auth().signInWithCredential(googleCredential);
+      const result = await auth().signInWithCredential(googleCredential);
+      const uid = result.user.uid;
 
       const progress = await AsyncStorage.getItem('progress');
-
-      const parseProgress = JSON.parse(progress);
-      await firestore()
+      const parseProgress = progress ? JSON.parse(progress) : null;
+      const snapshot = await firestore()
         .collection('users')
-        .doc(user.user.id)
-        .get()
-        .then(async snapshot => {
-          if (!!snapshot.data()?.data?.data) {
-            const initialProgressData = {
-              user: {
-                id: user.user.id,
-                provider: 'google',
-                email: user.user.email,
-                pro: snapshot.data()?.data?.user?.pro,
-              },
-              data: snapshot.data()?.data?.data,
-            };
-            navigation.goBack();
-            await AsyncStorage.setItem(
-              'progress',
-              JSON.stringify(initialProgressData),
-            );
-          } else {
-            const initialProgressData = {
-              user: {
-                id: user.user.id,
-                provider: 'google',
-                email: user.user.email,
-                pro: false,
-              },
-              data: parseProgress?.data,
-            };
-            navigation.goBack();
-            await AsyncStorage.setItem(
-              'progress',
-              JSON.stringify(initialProgressData),
-            );
+        .doc(uid)
+        .get();
 
-            await firestore().collection('users').doc(user.user.id).set({
-              data: initialProgressData,
-            });
-          }
+      let initialProgressData;
+      if (snapshot.data()?.data?.data) {
+        initialProgressData = {
+          user: {
+            id: uid,
+            provider: 'google',
+            email: user.user.email,
+            pro: !!snapshot.data()?.data?.user?.pro,
+          },
+          data: snapshot.data()?.data?.data,
+        };
+      } else {
+        initialProgressData = {
+          user: {
+            id: uid,
+            provider: 'google',
+            email: user.user.email,
+            pro: false,
+          },
+          data: parseProgress?.data || {},
+        };
+        await firestore().collection('users').doc(uid).set({
+          data: initialProgressData,
         });
+      }
+      await AsyncStorage.setItem(
+        'progress',
+        JSON.stringify(initialProgressData),
+      );
+      navigation.goBack();
     } catch (e) {
-      console.log('An error occurred', e.message || 'An error occurred');
+      const msg = e?.message || 'An error occurred';
+      console.warn('GoogleSignIn:', msg);
+      if (!String(msg).toLowerCase().includes('cancel')) {
+        Alert.alert('Ошибка входа', msg);
+      }
     }
   };
 
@@ -102,53 +96,49 @@ function Login({navigation}) {
 
       const progress = await AsyncStorage.getItem('progress');
 
-      const parseProgress = JSON.parse(progress);
+      const parseProgress = progress ? JSON.parse(progress) : null;
 
-      await firestore()
+      const snapshot = await firestore()
         .collection('users')
         .doc(result.user.uid)
-        .get()
-        .then(async snapshot => {
-          if (!!snapshot.data()?.data?.data) {
-            const initialProgressData = {
-              user: {
-                id: result.user.uid,
-                provider: 'apple',
-                email: result.user.email,
-                pro: snapshot.data()?.data?.user?.pro,
-              },
-              data: snapshot.data()?.data?.data,
-            };
-            navigation.goBack();
-            await AsyncStorage.setItem(
-              'progress',
-              JSON.stringify(initialProgressData),
-            );
-          } else {
-            const initialProgressData = {
-              user: {
-                id: result.user.uid,
-                provider: 'apple',
-                email: result.user.email,
-                pro: false,
-              },
-              data: parseProgress?.data,
-            };
-            navigation.goBack();
-            await AsyncStorage.setItem(
-              'progress',
-              JSON.stringify(initialProgressData),
-            );
+        .get();
 
-            await firestore().collection('users').doc(result.user.uid).set({
-              data: initialProgressData,
-            });
-          }
+      let initialProgressData;
+      if (snapshot.data()?.data?.data) {
+        initialProgressData = {
+          user: {
+            id: result.user.uid,
+            provider: 'apple',
+            email: result.user.email,
+            pro: !!snapshot.data()?.data?.user?.pro,
+          },
+          data: snapshot.data()?.data?.data,
+        };
+      } else {
+        initialProgressData = {
+          user: {
+            id: result.user.uid,
+            provider: 'apple',
+            email: result.user.email,
+            pro: false,
+          },
+          data: parseProgress?.data || {},
+        };
+        await firestore().collection('users').doc(result.user.uid).set({
+          data: initialProgressData,
         });
-
-      setLogged(true);
+      }
+      await AsyncStorage.setItem(
+        'progress',
+        JSON.stringify(initialProgressData),
+      );
+      navigation.goBack();
     } catch (error) {
-      console.error('error11', error);
+      const msg = error?.message || String(error);
+      console.warn('AppleSignIn:', msg);
+      if (error?.code !== '1001' && !String(msg).toLowerCase().includes('cancel')) {
+        Alert.alert('Ошибка входа', msg);
+      }
     }
   };
 
@@ -232,6 +222,7 @@ function Login({navigation}) {
           Войти через Google
         </Text>
       </TouchableOpacity>
+      {Platform.OS === 'ios' && appleAuth.isSupported && (
       <TouchableOpacity
         onPress={AppleSignIn}
         style={{
@@ -299,6 +290,7 @@ function Login({navigation}) {
           Войти через Apple
         </Text>
       </TouchableOpacity>
+      )}
     </View>
   );
 }

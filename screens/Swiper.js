@@ -17,9 +17,13 @@ function SwiperComponent({setShowOnbording, getProgress}) {
   const [currentIndex, setIndex] = useState(0);
 
   const removeOnbording = async () => {
+    try {
+      await AsyncStorage.setItem('showOnbording', 'not showing');
+    } catch (e) {
+      console.warn('persist onboarding flag failed:', e);
+    }
     setShowOnbording(false);
     getProgress();
-    await AsyncStorage.setItem('showOnbording', 'not showing');
   };
 
   const handleIndexChanged = index => {
@@ -85,7 +89,7 @@ function SwiperComponent({setShowOnbording, getProgress}) {
     },
   ];
 
-  const {mainText, text, buttonText} = onbordingData?.[currentIndex];
+  const {mainText, text, buttonText} = onbordingData?.[currentIndex] ?? onbordingData[0];
 
   return (
     <View style={{flex: 1, backgroundColor: '#000000'}}>
@@ -103,7 +107,7 @@ function SwiperComponent({setShowOnbording, getProgress}) {
             width: '100%',
             backgroundColor: 'rgba(255, 255, 255, 1)',
             marginHorizontal: 5,
-            border: 2,
+            borderRadius: 2,
           }}
         />
         <View
@@ -116,7 +120,7 @@ function SwiperComponent({setShowOnbording, getProgress}) {
                 ? 'rgba(255, 255, 255, 1)'
                 : 'rgba(255, 255, 255, 0.2)',
             marginHorizontal: 5,
-            border: 2,
+            borderRadius: 2,
           }}
         />
         <View
@@ -129,7 +133,7 @@ function SwiperComponent({setShowOnbording, getProgress}) {
                 ? 'rgba(255, 255, 255, 1)'
                 : 'rgba(255, 255, 255, 0.2)',
             marginHorizontal: 5,
-            border: 2,
+            borderRadius: 2,
           }}
         />
         <View
@@ -142,7 +146,7 @@ function SwiperComponent({setShowOnbording, getProgress}) {
                 ? 'rgba(255, 255, 255, 1)'
                 : 'rgba(255, 255, 255, 0.2)',
             marginHorizontal: 5,
-            border: 2,
+            borderRadius: 2,
           }}
         />
       </View>
