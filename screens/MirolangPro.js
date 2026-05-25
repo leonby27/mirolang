@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   TouchableOpacity,
   View,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Svg, {Path, Rect, Circle} from 'react-native-svg';
 import ProVersion from '../src/components/ProVersion';
+import {initIAP, loadProducts} from '../src/components/iap';
 
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 
@@ -26,6 +27,20 @@ function MirolangPro({
   login,
   learn,
 }) {
+  const [yearlyPrice, setYearlyPrice] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      await initIAP();
+      const list = await loadProducts();
+      if (!mounted) return;
+      const yearly = list?.find(p => p.productId === 'mirolang_pro_yearly');
+      if (yearly?.localizedPrice) setYearlyPrice(yearly.localizedPrice);
+    })();
+    return () => { mounted = false; };
+  }, []);
+
   const handleSetProVersion = () => {
     handleCloseModalPress && handleCloseModalPress();
     if (progress?.user?.pro) {
@@ -114,8 +129,8 @@ function MirolangPro({
         <View
           style={{
             width: '90%',
-            height: 48,
-            padding: 16,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
             backgroundColor: '#1C1F26',
             alignItems: 'center',
             borderRadius: 16,
@@ -149,26 +164,35 @@ function MirolangPro({
             </Text>
             <View
               style={{
-                // flex: 1,
-                marginLeft: 5,
-                width: 40,
-                height: 19,
+                marginLeft: 6,
+                paddingHorizontal: 6,
+                paddingVertical: 2,
                 backgroundColor: 'rgba(241, 204, 6, 1)',
                 borderRadius: 6,
+                alignSelf: 'center',
               }}>
               <Text
                 style={{
                   color: 'rgba(20, 22, 27, 1)',
-                  fontFamily: 'Inter-Regular',
+                  fontFamily: 'Inter-Bold',
                   fontSize: 12,
-                  fontWeight: 700,
-                  lineHeight: 20,
-                  paddingHorizontal: 3,
-                  // paddingVertical: 1,
+                  lineHeight: 14,
                 }}>
                 Pro
               </Text>
             </View>
+            <Text
+              style={{
+                flex: 1,
+                color: 'rgba(255, 255, 255, 0.3)',
+                fontFamily: 'Inter-Regular',
+                textAlign: 'right',
+                fontSize: 16,
+                fontWeight: '400',
+                lineHeight: 20,
+              }}>
+              {yearlyPrice ? `${yearlyPrice} в год` : '— в год'}
+            </Text>
           </View>
         </View>
 
