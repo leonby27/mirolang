@@ -17,7 +17,7 @@ const {height, width} = Dimensions.get('window');
 function LevelsMain({navigation}) {
   const bottomSheetModalRef = useRef(null);
   const ProBottomSheetModalRef = useRef(null);
-  const [showOnbording, setShowOnbording] = useState(true);
+  const [showOnbording, setShowOnbording] = useState(false);
   const [progress, setProgress] = useState({
     user: null,
     data: {},
@@ -105,6 +105,7 @@ function LevelsMain({navigation}) {
 
   useEffect(() => {
     setCategories([]);
+    getProgress();
     const focusHandler = navigation.addListener('focus', () => {
       getProgress();
     });
