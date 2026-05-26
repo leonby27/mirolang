@@ -1,3 +1,18 @@
+/**
+ * MirolangPro — the single paywall surface.
+ *
+ * Renders three pricing tiers (Lifetime → Yearly → Monthly) with the
+ * lifetime card styled as the hero (gold border, "Best value" badge,
+ * larger). Tapping a tier selects it; the primary CTA purchases the
+ * currently-selected tier directly — no second-step modal. Restore
+ * purchases link sits below the CTA.
+ *
+ * Replaces the older two-step flow (this screen → ProVersion bottom
+ * sheet) with a single purchase surface for less friction. Per-pair
+ * pricing strategy: $71.99 lifetime / $39.99 yearly / $6.99 monthly
+ * (US baseline; App Store auto-converts to other currencies).
+ */
+
 import React, {useEffect, useState} from 'react';
 import {
   TouchableOpacity,
@@ -7,72 +22,165 @@ import {
   Text,
   ScrollView,
   Linking,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
-import Svg, {Path, Rect, Circle} from 'react-native-svg';
+import Svg, {Path, Rect} from 'react-native-svg';
+import auth from '@react-native-firebase/auth';
 import {useTranslation} from 'react-i18next';
-import ProVersion from '../src/components/ProVersion';
-import {initIAP, loadProducts} from '../src/components/iap';
+import {
+  initIAP,
+  teardownIAP,
+  loadProducts,
+  setupPurchaseListeners,
+  purchasePro,
+  restorePurchases,
+} from '../src/components/iap';
 
-import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
+const TIER_TO_PRODUCT = {
+  lifetime: 'mirolang_pro_lifetime',
+  yearly: 'mirolang_pro_yearly',
+  monthly: 'mirolang_pro_monthly',
+};
 
 function MirolangPro({
-  handleCloseModalPress,
-  ProBottomSheetModalRef,
-  renderBackdropPro,
   setShowProScreen,
-  ProSnapPoints,
   getProgress,
-  isSwipeRight,
   progress,
   navigation,
-  login,
-  learn,
 }) {
   const {t} = useTranslation();
-  const [yearlyPrice, setYearlyPrice] = useState('');
+  const [prices, setPrices] = useState({
+    lifetime: '',
+    yearly: '',
+    monthly: '',
+    // Numeric for "per month" math on the yearly card.
+    yearlyNumeric: 0,
+  });
+  const [selectedTier, setSelectedTier] = useState('lifetime');
+  const [busy, setBusy] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  // Close helpers — different call sites pass either `setShowProScreen`
+  // or a parent-controlled close handler.
+  const close = () => {
+    setShowProScreen?.(false);
+  };
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      await initIAP();
-      const list = await loadProducts();
-      if (!mounted) return;
-      const yearly = list?.find(p => p.productId === 'mirolang_pro_yearly');
-      if (yearly?.localizedPrice) setYearlyPrice(yearly.localizedPrice);
+      try {
+        await initIAP();
+        setupPurchaseListeners(
+          () => {
+            if (!mounted) return;
+            getProgress?.();
+            Alert.alert(
+              t('paywall.alert.purchaseSuccessTitle'),
+              t('paywall.alert.purchaseSuccessBody'),
+              [{text: 'OK', onPress: close}],
+            );
+            setBusy(false);
+          },
+          err => {
+            if (!mounted) return;
+            Alert.alert(
+              t('paywall.alert.purchaseErrorTitle'),
+              err?.message || String(err),
+            );
+            setBusy(false);
+          },
+        );
+        const list = await loadProducts();
+        if (!mounted) return;
+        const next = {lifetime: '', yearly: '', monthly: '', yearlyNumeric: 0};
+        for (const p of list || []) {
+          if (p.productId === TIER_TO_PRODUCT.lifetime) {
+            next.lifetime = p.localizedPrice || '';
+          } else if (p.productId === TIER_TO_PRODUCT.yearly) {
+            next.yearly = p.localizedPrice || '';
+            next.yearlyNumeric = Number(p.price) || 0;
+          } else if (p.productId === TIER_TO_PRODUCT.monthly) {
+            next.monthly = p.localizedPrice || '';
+          }
+        }
+        setPrices(next);
+        setLoaded(true);
+      } catch (e) {
+        console.warn('MirolangPro load failed:', e);
+      }
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+      teardownIAP();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSetProVersion = () => {
-    handleCloseModalPress && handleCloseModalPress();
-    if (progress?.user?.pro) {
-      // already Pro — just close the upsell
-      setShowProScreen(false);
+  const handleCtaPress = async () => {
+    if (!auth().currentUser?.uid) {
+      Alert.alert(
+        t('paywall.alert.signInTitle'),
+        t('paywall.alert.signInBody'),
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              close();
+              navigation?.navigate('Login');
+            },
+          },
+        ],
+      );
       return;
     }
-    if (progress?.user != null) {
-      ProBottomSheetModalRef.current?.present();
-      setShowProScreen(false);
-    } else {
-      navigation.navigate('Login');
-      setShowProScreen(false);
+    try {
+      setBusy(true);
+      await purchasePro(TIER_TO_PRODUCT[selectedTier]);
+      // Listener handles success/error
+    } catch (e) {
+      setBusy(false);
+      Alert.alert(
+        t('paywall.alert.purchaseErrorTitle'),
+        e?.message || String(e),
+      );
     }
   };
 
+  const handleRestore = async () => {
+    try {
+      setBusy(true);
+      const restored = await restorePurchases();
+      setBusy(false);
+      Alert.alert(
+        restored
+          ? t('paywall.alert.restoredTitle')
+          : t('paywall.alert.notRestoredTitle'),
+        restored
+          ? t('paywall.alert.restoredBody')
+          : t('paywall.alert.notRestoredBody'),
+        [{text: 'OK', onPress: () => restored && close()}],
+      );
+    } catch (e) {
+      setBusy(false);
+      Alert.alert(
+        t('paywall.alert.purchaseErrorTitle'),
+        e?.message || String(e),
+      );
+    }
+  };
+
+  const yearlyPerMonth =
+    prices.yearlyNumeric > 0
+      ? `~${(prices.yearlyNumeric / 12).toFixed(2)}`
+      : null;
+
   return (
-    <View style={styles.centeredView}>
-      <TouchableOpacity
-        onPress={() => {
-          setShowProScreen(false);
-          handleCloseModalPress && handleCloseModalPress();
-        }}
-        style={{alignItems: 'flex-end', margin: 20, marginTop: '12%'}}>
-        <Svg
-          width="32"
-          height="32"
-          viewBox="0 0 32 32"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg">
+    <View style={styles.root}>
+      {/* Close button */}
+      <TouchableOpacity onPress={close} style={styles.closeBtn}>
+        <Svg width="32" height="32" viewBox="0 0 32 32" fill="none">
           <Rect width="32" height="32" rx="10" fill="#22252E" />
           <Path
             d="M17.175 16.0002L22.425 10.7585C22.5819 10.6016 22.6701 10.3887 22.6701 10.1668C22.6701 9.9449 22.5819 9.73207 22.425 9.57515C22.2681 9.41823 22.0552 9.33008 21.8333 9.33008C21.6114 9.33008 21.3986 9.41823 21.2417 9.57515L16 14.8252L10.7583 9.57515C10.6014 9.41823 10.3886 9.33008 10.1667 9.33008C9.94474 9.33008 9.73191 9.41823 9.57499 9.57515C9.41807 9.73207 9.32991 9.9449 9.32991 10.1668C9.32991 10.3887 9.41807 10.6016 9.57499 10.7585L14.825 16.0002L9.57499 21.2418C9.49688 21.3193 9.43489 21.4115 9.39258 21.513C9.35027 21.6146 9.32849 21.7235 9.32849 21.8335C9.32849 21.9435 9.35027 22.0524 9.39258 22.154C9.43489 22.2555 9.49688 22.3477 9.57499 22.4252C9.65246 22.5033 9.74463 22.5653 9.84618 22.6076C9.94773 22.6499 10.0566 22.6717 10.1667 22.6717C10.2767 22.6717 10.3856 22.6499 10.4871 22.6076C10.5887 22.5653 10.6809 22.5033 10.7583 22.4252L16 17.1752L21.2417 22.4252C21.3191 22.5033 21.4113 22.5653 21.5128 22.6076C21.6144 22.6499 21.7233 22.6717 21.8333 22.6717C21.9433 22.6717 22.0523 22.6499 22.1538 22.6076C22.2554 22.5653 22.3475 22.5033 22.425 22.4252C22.5031 22.3477 22.5651 22.2555 22.6074 22.154C22.6497 22.0524 22.6715 21.9435 22.6715 21.8335C22.6715 21.7235 22.6497 21.6146 22.6074 21.513C22.5651 21.4115 22.5031 21.3193 22.425 21.2418L17.175 16.0002Z"
@@ -80,433 +188,292 @@ function MirolangPro({
           />
         </Svg>
       </TouchableOpacity>
-      <ScrollView style={styles.modalView}>
-        <Image
-          style={{
-            height: 120,
 
-            width: 120,
-            alignSelf: 'center',
-          }}
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingBottom: 24,
+          alignItems: 'center',
+        }}
+        showsVerticalScrollIndicator={false}>
+        <Image
+          style={{height: 88, width: 88, alignSelf: 'center', marginTop: 8}}
           source={require('../src/fullPro.png')}
         />
+        <Image
+          style={{width: 173, height: 30, marginTop: 12, alignSelf: 'center'}}
+          source={require('../src/miroLangPro.png')}
+        />
 
-        <View
-          style={{
-            padding: 16,
-            alignItems: 'center',
+        <Text style={styles.subtitle}>{t('paywall.subtitle')}</Text>
 
-            flexDirection: 'row',
-          }}>
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              marginLeft: 12,
-              flexDirection: 'row',
-            }}>
-            <Image
-              style={{width: 173, height: 30}}
-              source={require('../src/miroLangPro.png')}
-            />
-          </View>
+        {/* Tier cards */}
+        <View style={{width: '100%', marginTop: 24, gap: 10}}>
+          <TierCard
+            kind="lifetime"
+            hero
+            title={t('paywall.tier.lifetime')}
+            price={prices.lifetime}
+            hint={t('paywall.tier.lifetimeHint')}
+            badge={t('paywall.bestValue')}
+            selected={selectedTier === 'lifetime'}
+            onPress={() => setSelectedTier('lifetime')}
+            loaded={loaded}
+          />
+          <TierCard
+            kind="yearly"
+            title={t('paywall.tier.yearly')}
+            price={prices.yearly}
+            hint={
+              yearlyPerMonth
+                ? t('paywall.tier.yearlyHint', {price: yearlyPerMonth})
+                : ''
+            }
+            selected={selectedTier === 'yearly'}
+            onPress={() => setSelectedTier('yearly')}
+            loaded={loaded}
+          />
+          <TierCard
+            kind="monthly"
+            title={t('paywall.tier.monthly')}
+            price={prices.monthly}
+            hint={t('paywall.tier.monthlyHint')}
+            selected={selectedTier === 'monthly'}
+            onPress={() => setSelectedTier('monthly')}
+            loaded={loaded}
+          />
         </View>
 
-        <Text
-          style={{
-            color: 'rgba(255, 255, 255, 0.50)',
-            fontFamily: 'Inter-Regular',
-            fontSize: 16,
-            lineHeight: 20,
-            textAlign: 'center',
-            marginHorizontal: 20,
-            width: '90%',
-            marginBottom: 10,
-          }}>
-          {t('paywall.subtitle')}
-        </Text>
-
-        <View
-          style={{
-            width: '90%',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            backgroundColor: '#1C1F26',
-            alignItems: 'center',
-            borderRadius: 16,
-            marginTop: 12,
-            flexDirection: 'row',
-            marginHorizontal: 20,
-            marginBottom: 25,
-          }}>
-          <Svg
-            width="28"
-            height="28"
-            viewBox="0 0 28 28"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <Circle cx="14" cy="14" r="12" fill="#F1CC06" />
-            <Path
-              d="M11.5221 18.2026C12.1055 18.8248 12.9805 18.8248 13.5638 18.2026L19.3971 11.9804C19.9805 11.3582 19.9805 10.4248 19.3971 9.8026C18.8138 9.18038 17.9388 9.18038 17.3555 9.8026L12.543 14.7804L10.6471 12.7582C10.0638 12.1359 9.1888 12.1359 8.60547 12.7582C8.02214 13.3804 8.02214 14.3137 8.60547 14.9359L11.5221 18.2026Z"
-              fill="#14161B"
-            />
-          </Svg>
-
-          <View style={{flex: 1, gap: 4, marginLeft: 12, flexDirection: 'row'}}>
-            <Text
-              style={{
-                color: 'white',
-                fontFamily: 'Inter-Bold',
-                fontSize: 16,
-                lineHeight: 20,
-              }}>
-              {t('paywall.yearly')}
-            </Text>
-            <View
-              style={{
-                marginLeft: 6,
-                paddingHorizontal: 6,
-                paddingVertical: 2,
-                backgroundColor: 'rgba(241, 204, 6, 1)',
-                borderRadius: 6,
-                alignSelf: 'center',
-              }}>
-              <Text
-                style={{
-                  color: 'rgba(20, 22, 27, 1)',
-                  fontFamily: 'Inter-Bold',
-                  fontSize: 12,
-                  lineHeight: 14,
-                }}>
-                {t('paywall.proBadge')}
-              </Text>
-            </View>
-            <Text
-              style={{
-                flex: 1,
-                color: 'rgba(255, 255, 255, 0.3)',
-                fontFamily: 'Inter-Regular',
-                textAlign: 'right',
-                fontSize: 16,
-                fontWeight: '400',
-                lineHeight: 20,
-              }}>
-              {yearlyPrice ? t('paywall.yearlyPricePerYear', {price: yearlyPrice}) : t('paywall.yearlyPriceMissing')}
-            </Text>
-          </View>
+        {/* Features list */}
+        <View style={{width: '100%', marginTop: 20, gap: 8}}>
+          <FeatureRow
+            text={t('paywall.feature.unlimited.title')}
+          />
+          <FeatureRow text={t('paywall.feature.unlock.title')} />
         </View>
 
-        {isSwipeRight ? (
-          <>
-            <View
-              style={{
-                width: '90%',
-                padding: 16,
-                backgroundColor: '#1C1F26',
-                alignItems: 'center',
-                borderRadius: 16,
-                marginTop: 12,
-                flexDirection: 'row',
-                marginHorizontal: 20,
-              }}>
-              <Image
-                style={{width: 48, height: 48}}
-                source={require('../src/unlim.png')}
-              />
-              <View style={{gap: 4, marginLeft: 12}}>
-                <Text
-                  style={{
-                    color: 'white',
-                    fontFamily: 'Inter-Bold',
-                    fontSize: 16,
-                    lineHeight: 20,
-                    fontWeight: 700,
-                  }}>
-                  {t('paywall.feature.unlimited.title')}
-                </Text>
-                <Text
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.50)',
-                    fontFamily: 'Inter-Regular',
-                    fontSize: 14,
-                    lineHeight: 16,
-                  }}>
-                  {t('paywall.feature.unlimited.description')}
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{
-                width: '90%',
-                padding: 16,
-                backgroundColor: '#1C1F26',
-                alignItems: 'center',
-                borderRadius: 16,
-                marginTop: 12,
-                flexDirection: 'row',
-                marginHorizontal: 20,
-              }}>
-              <Image
-                style={{width: 48, height: 48}}
-                source={require('../src/block.png')}
-              />
-              <View style={{gap: 4, marginLeft: 12}}>
-                <Text
-                  style={{
-                    color: 'white',
-                    fontFamily: 'Inter-Bold',
-                    fontSize: 16,
-                    lineHeight: 20,
-                  }}>
-                  {t('paywall.feature.unlock.title')}
-                </Text>
-                <Text
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.50)',
-                    fontFamily: 'Inter-Regular',
-                    fontSize: 14,
-                    lineHeight: 16,
-                  }}>
-                  {t('paywall.feature.unlock.description')}
-                </Text>
-              </View>
-            </View>
-          </>
-        ) : (
-          <>
-            <View
-              style={{
-                width: '90%',
-                padding: 16,
-                backgroundColor: '#1C1F26',
-                alignItems: 'center',
-                borderRadius: 16,
-                marginTop: 12,
-                flexDirection: 'row',
-                marginHorizontal: 20,
-              }}>
-              <Image
-                style={{width: 48, height: 48}}
-                source={require('../src/block.png')}
-              />
-              <View style={{gap: 4, marginLeft: 12}}>
-                <Text
-                  style={{
-                    color: 'white',
-                    fontFamily: 'Inter-Bold',
-                    fontSize: 16,
-                    lineHeight: 20,
-                  }}>
-                  {t('paywall.feature.unlock.title')}
-                </Text>
-                <Text
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.50)',
-                    fontFamily: 'Inter-Regular',
-                    fontSize: 14,
-                    lineHeight: 16,
-                  }}>
-                  {t('paywall.feature.unlock.description')}
-                </Text>
-              </View>
-            </View>
+        {/* Auto-renew disclosure */}
+        <Text style={styles.disclosure}>{t('paywall.autoRenewDisclosure')}</Text>
 
-            <View
-              style={{
-                width: '90%',
-                padding: 16,
-                backgroundColor: '#1C1F26',
-                alignItems: 'center',
-                borderRadius: 16,
-                marginTop: 12,
-                flexDirection: 'row',
-                marginHorizontal: 20,
-              }}>
-              <Image
-                style={{width: 48, height: 48}}
-                source={require('../src/unlim.png')}
-              />
-              <View style={{gap: 4, marginLeft: 12}}>
-                <Text
-                  style={{
-                    color: 'white',
-                    fontFamily: 'Inter-Bold',
-                    fontSize: 16,
-                    lineHeight: 20,
-                    fontWeight: 700,
-                  }}>
-                  {t('paywall.feature.unlimited.title')}
-                </Text>
-                <Text
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.50)',
-                    fontFamily: 'Inter-Regular',
-                    fontSize: 14,
-                    lineHeight: 16,
-                  }}>
-                  {t('paywall.feature.unlimited.description')}
-                </Text>
-              </View>
-            </View>
-          </>
-        )}
-        <View style={styles.textContainer}>
-          <Text style={styles.mainText}>
-            {t('paywall.terms.preamble')}
-          </Text>
-          <View style={styles.row}>
+        {/* Terms + Privacy */}
+        <View style={styles.termsRow}>
+          <Text style={styles.termsText}>{t('paywall.terms.preamble')}</Text>
+          <View style={{flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center'}}>
             <TouchableOpacity
-              style={styles.linkContainer}
-              onPress={() => Linking.openURL('https://mirolang.ru/terms').catch(err => console.warn('openURL failed:', err))}>
-              <Text style={styles.link}>{t('paywall.terms.terms')}</Text>
+              onPress={() =>
+                Linking.openURL('https://mirolang.ru/terms').catch(() => {})
+              }>
+              <Text style={styles.termsLink}>{t('paywall.terms.terms')}</Text>
             </TouchableOpacity>
-            <Text style={styles.text}>{t('paywall.terms.and')}</Text>
+            <Text style={styles.termsText}> {t('paywall.terms.and')} </Text>
             <TouchableOpacity
-              style={styles.linkContainer}
-              onPress={() => Linking.openURL('https://mirolang.ru/privacy').catch(err => console.warn('openURL failed:', err))}>
-              <Text style={styles.link}>{t('paywall.terms.privacy')}</Text>
+              onPress={() =>
+                Linking.openURL('https://mirolang.ru/privacy').catch(() => {})
+              }>
+              <Text style={styles.termsLink}>{t('paywall.terms.privacy')}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
-      <View
-        style={{
-          backgroundColor: 'rgba(20, 22, 27, 1)',
-          width: '100%',
-          height: '13%',
-          justifyContent: 'flex-end',
-        }}>
-        <TouchableOpacity
-          onPress={handleSetProVersion}
-          style={{
-            flexDirection: 'row',
-            borderRadius: 12,
-            backgroundColor: '#F1CC06',
-            padding: 14,
-            justifyContent: 'center',
-            width: '90%',
-            marginHorizontal: 20,
-            marginBottom: 50,
-          }}>
-          <Svg
-            width="25"
-            height="24"
-            viewBox="0 0 25 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <Path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M7 8.5V13.5C7 14.296 7.316 15.059 7.879 15.621C8.441 16.184 9.204 16.5 10 16.5H15C15.796 16.5 16.559 16.184 17.121 15.621C17.684 15.059 18 14.296 18 13.5V8.5C18.552 8.5 19 8.052 19 7.5V5C19 4.448 18.552 4 18 4H7C6.448 4 6 4.448 6 5V7.5C6 8.052 6.448 8.5 7 8.5Z"
-              fill="#14161B"
-            />
-            <Path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M10.5 5V2C10.5 1.448 10.052 1 9.5 1C8.948 1 8.5 1.448 8.5 2V5C8.5 5.552 8.948 6 9.5 6C10.052 6 10.5 5.552 10.5 5Z"
-              fill="#14161B"
-            />
-            <Path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M16.5 5V2C16.5 1.448 16.052 1 15.5 1C14.948 1 14.5 1.448 14.5 2V5C14.5 5.552 14.948 6 15.5 6C16.052 6 16.5 5.552 16.5 5Z"
-              fill="#14161B"
-            />
-            <Path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M11.5 15.5V19C11.5 20.061 11.921 21.078 12.672 21.828C13.422 22.579 14.439 23 15.5 23H17.5C18.052 23 18.5 22.552 18.5 22C18.5 21.448 18.052 21 17.5 21H15.5C14.97 21 14.461 20.789 14.086 20.414C13.711 20.039 13.5 19.53 13.5 19C13.5 17.296 13.5 15.5 13.5 15.5C13.5 14.948 13.052 14.5 12.5 14.5C11.948 14.5 11.5 14.948 11.5 15.5Z"
-              fill="#14161B"
-            />
-          </Svg>
 
-          <Text
-            style={{
-              fontFamily: 'Inter-SemiBold',
-              fontSize: 16,
-              lineHeight: 20,
-              color: '#14161B',
-              paddingLeft: 10,
-            }}>
-            {t('paywall.cta')}
-          </Text>
+      {/* Fixed CTA + restore link */}
+      <View style={styles.bottomBar}>
+        <TouchableOpacity
+          disabled={busy || !loaded}
+          onPress={handleCtaPress}
+          style={[styles.cta, (busy || !loaded) && {opacity: 0.6}]}>
+          {busy ? (
+            <ActivityIndicator color="#14161B" />
+          ) : (
+            <Text style={styles.ctaText}>{t('paywall.cta')}</Text>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleRestore} disabled={busy} style={{marginTop: 12, alignSelf: 'center'}}>
+          <Text style={styles.restoreLink}>{t('paywall.restore')}</Text>
         </TouchableOpacity>
       </View>
-      <BottomSheetModal
-        ref={ProBottomSheetModalRef}
-        index={0}
-        enablePanDownToClose
-        enableDynamicSizing={false}
-        backdropComponent={renderBackdropPro}
-        snapPoints={ProSnapPoints}
-        backgroundStyle={{backgroundColor: '#14161B', borderRadius: 0}}
-        handleIndicatorStyle={{backgroundColor: 'white'}}>
-        <ProVersion
-          closeModal={() => ProBottomSheetModalRef.current?.close()}
-          setCurrentProgress={getProgress}
-          navigation={navigation}
-          learn={learn}
-        />
-      </BottomSheetModal>
     </View>
   );
 }
+
+function TierCard({kind, hero, title, price, hint, badge, selected, onPress, loaded}) {
+  const accent = hero ? '#F1CC06' : '#313843';
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        padding: hero ? 16 : 14,
+        borderRadius: 16,
+        borderWidth: selected ? 2 : 1,
+        borderColor: selected ? '#F1CC06' : accent,
+        backgroundColor: selected
+          ? 'rgba(241, 204, 6, 0.08)'
+          : '#1C1F26',
+      }}>
+      <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+        <View style={{flexShrink: 1}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+            <Text
+              style={{
+                color: 'white',
+                fontFamily: 'Inter-Bold',
+                fontSize: hero ? 18 : 16,
+                lineHeight: hero ? 22 : 20,
+              }}>
+              {title}
+            </Text>
+            {badge ? (
+              <View
+                style={{
+                  paddingHorizontal: 8,
+                  paddingVertical: 3,
+                  backgroundColor: '#F1CC06',
+                  borderRadius: 8,
+                }}>
+                <Text
+                  style={{
+                    color: '#14161B',
+                    fontFamily: 'Inter-Bold',
+                    fontSize: 11,
+                    lineHeight: 14,
+                  }}>
+                  {badge}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+          {hint ? (
+            <Text
+              style={{
+                color: 'rgba(255, 255, 255, 0.5)',
+                fontFamily: 'Inter-Regular',
+                fontSize: 13,
+                lineHeight: 16,
+                marginTop: 4,
+              }}>
+              {hint}
+            </Text>
+          ) : null}
+        </View>
+        <Text
+          style={{
+            color: selected || hero ? '#F1CC06' : 'white',
+            fontFamily: 'Inter-Bold',
+            fontSize: hero ? 22 : 18,
+            lineHeight: hero ? 28 : 22,
+            marginLeft: 12,
+          }}>
+          {loaded ? price || '—' : '…'}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function FeatureRow({text}) {
+  return (
+    <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+      <View
+        style={{
+          width: 18,
+          height: 18,
+          borderRadius: 9,
+          backgroundColor: 'rgba(241, 204, 6, 0.18)',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Text style={{color: '#F1CC06', fontSize: 12, lineHeight: 14, fontFamily: 'Inter-Bold'}}>
+          ✓
+        </Text>
+      </View>
+      <Text
+        style={{
+          color: 'rgba(255, 255, 255, 0.85)',
+          fontFamily: 'Inter-Regular',
+          fontSize: 14,
+          lineHeight: 18,
+          flexShrink: 1,
+        }}>
+        {text}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: '#14161B',
   },
-  centeredView: {
-    flex: 1,
-    backgroundColor: '#000000',
+  closeBtn: {
+    alignSelf: 'flex-end',
+    marginRight: 20,
+    marginTop: '12%',
   },
-  modalView: {
+  subtitle: {
+    color: 'rgba(255, 255, 255, 0.55)',
+    fontFamily: 'Inter-Regular',
+    fontSize: 15,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 12,
     width: '100%',
-    borderRadius: 20,
-    paddingBottom: 24,
   },
-  textContainer: {
-    flex: 1,
+  disclosure: {
+    color: 'rgba(255, 255, 255, 0.35)',
+    fontFamily: 'Inter-Regular',
+    textAlign: 'center',
+    fontSize: 11,
+    lineHeight: 15,
+    marginTop: 20,
+  },
+  termsRow: {
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  termsText: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontFamily: 'Inter-Regular',
+    textAlign: 'center',
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  termsLink: {
+    textDecorationLine: 'underline',
+    color: 'rgba(255, 255, 255, 0.55)',
+    fontFamily: 'Inter-Regular',
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  bottomBar: {
+    backgroundColor: 'rgba(20, 22, 27, 1)',
+    paddingHorizontal: 20,
+    paddingBottom: 36,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  cta: {
+    flexDirection: 'row',
+    borderRadius: 14,
+    backgroundColor: '#F1CC06',
+    paddingVertical: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: 20,
-    paddingBottom: 24,
   },
-  mainText: {
-    color: 'rgba(255, 255, 255, 0.3)',
+  ctaText: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 16,
+    lineHeight: 20,
+    color: '#14161B',
+  },
+  restoreLink: {
+    color: 'rgba(255, 255, 255, 0.55)',
     fontFamily: 'Inter-Regular',
-    textAlign: 'center',
-    fontSize: 12,
-    fontWeight: '400',
+    fontSize: 13,
     lineHeight: 16,
-  },
-  text: {
-    color: 'rgba(255, 255, 255, 0.3)',
-    fontFamily: 'Inter-Regular',
-    textAlign: 'center',
-    fontSize: 12,
-    fontWeight: '400',
-    lineHeight: 16,
-    paddingHorizontal: 5,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  link: {
     textDecorationLine: 'underline',
-    color: 'rgba(255, 255, 255, 0.3)',
-    fontFamily: 'Inter-Regular',
-    textAlign: 'center',
-    fontSize: 12,
-    fontWeight: '400',
-    lineHeight: 16,
-  },
-  linkContainer: {
-    alignSelf: 'center',
   },
 });
+
 export default MirolangPro;
