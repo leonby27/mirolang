@@ -20,7 +20,7 @@ import {
 } from 'react-native-iap';
 import {Platform} from 'react-native';
 import functions from '@react-native-firebase/functions';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {replaceFromRemote} from '../progress';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
@@ -83,7 +83,10 @@ async function verifyAndActivate(purchase) {
   const snapshot = await firestore().collection('users').doc(uid).get();
   const remoteData = snapshot.data()?.data;
   if (remoteData) {
-    await AsyncStorage.setItem('progress', JSON.stringify(remoteData));
+    // Drop remote `user` + `data` into local progress: user lands in the
+    // global slice (Pro flag stays cross-pair), data populates the current
+    // pair's bucket without touching other pairs.
+    await replaceFromRemote(remoteData);
   }
   return true;
 }

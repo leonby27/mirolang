@@ -3,7 +3,7 @@ import {View, Text, Image, TouchableOpacity, Alert, Platform} from 'react-native
 import Svg, {Path, G} from 'react-native-svg';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {appleAuth} from '@invertase/react-native-apple-authentication';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {loadProgress, saveProgress} from '../src/progress';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 
@@ -29,8 +29,7 @@ function Login({navigation}) {
       const result = await auth().signInWithCredential(googleCredential);
       const uid = result.user.uid;
 
-      const progress = await AsyncStorage.getItem('progress');
-      const parseProgress = progress ? JSON.parse(progress) : null;
+      const parseProgress = await loadProgress();
       const snapshot = await firestore()
         .collection('users')
         .doc(uid)
@@ -61,10 +60,7 @@ function Login({navigation}) {
           data: initialProgressData,
         });
       }
-      await AsyncStorage.setItem(
-        'progress',
-        JSON.stringify(initialProgressData),
-      );
+      await saveProgress(initialProgressData);
       navigation.goBack();
     } catch (e) {
       const msg = e?.message || 'An error occurred';
@@ -94,9 +90,7 @@ function Login({navigation}) {
 
       const result = await auth().signInWithCredential(appleCredential);
 
-      const progress = await AsyncStorage.getItem('progress');
-
-      const parseProgress = progress ? JSON.parse(progress) : null;
+      const parseProgress = await loadProgress();
 
       const snapshot = await firestore()
         .collection('users')
@@ -128,10 +122,7 @@ function Login({navigation}) {
           data: initialProgressData,
         });
       }
-      await AsyncStorage.setItem(
-        'progress',
-        JSON.stringify(initialProgressData),
-      );
+      await saveProgress(initialProgressData);
       navigation.goBack();
     } catch (error) {
       const msg = error?.message || String(error);

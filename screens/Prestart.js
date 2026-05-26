@@ -15,7 +15,7 @@ import {
   BottomSheetFlatList,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {loadProgress, saveProgress} from '../src/progress';
 import firestore from '@react-native-firebase/firestore';
 
 function Prestart({navigation, route}) {
@@ -36,7 +36,7 @@ function Prestart({navigation, route}) {
         updatedProgress.data[level.id + 1] = {};
       }
       try {
-        await AsyncStorage.setItem('progress', JSON.stringify(updatedProgress));
+        await saveProgress(updatedProgress);
         if (updatedProgress?.user?.id) {
           await firestore().collection('users').doc(updatedProgress.user.id).set({
             data: updatedProgress,
@@ -58,10 +58,7 @@ function Prestart({navigation, route}) {
           ) {
             updatedProgress.data[level.id + 1] = {};
           }
-          await AsyncStorage.setItem(
-            'progress',
-            JSON.stringify(updatedProgress),
-          );
+          await saveProgress(updatedProgress);
           if (updatedProgress?.user?.id) {
             await firestore().collection('users').doc(updatedProgress.user.id).set({
               data: updatedProgress,
@@ -93,16 +90,7 @@ function Prestart({navigation, route}) {
 
   const getProgress = async () => {
     try {
-      var progress = await AsyncStorage.getItem('progress');
-      if (progress !== null) {
-        progress = JSON.parse(progress);
-        setProgress(progress);
-      } else {
-        setProgress({
-          user: null,
-          data: {},
-        });
-      }
+      setProgress(await loadProgress());
     } catch (e) {
       console.warn(e);
     }
@@ -126,7 +114,7 @@ function Prestart({navigation, route}) {
             }
             setProgress(updatedProgress);
             try {
-              await AsyncStorage.setItem('progress', JSON.stringify(updatedProgress));
+              await saveProgress(updatedProgress);
             } catch (e) {
               console.warn('AskForDeleteProgress save failed:', e);
             }

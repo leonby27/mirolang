@@ -7,7 +7,7 @@ import {useTranslation} from 'react-i18next';
 import {useNativeLanguage, useTargetLanguage} from '../src/i18n';
 
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {loadProgress} from '../src/progress';
 
 function AccountMain({navigation}) {
   const {t} = useTranslation();
@@ -32,13 +32,7 @@ function AccountMain({navigation}) {
 
   const getProgress = async () => {
     try {
-      var progress = await AsyncStorage.getItem('progress');
-
-      if (progress !== null) {
-        setProgress(JSON.parse(progress));
-      } else {
-        console.log('error progress', progress);
-      }
+      setProgress(await loadProgress());
     } catch (e) {
       console.warn(e);
     }

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Svg, {Path, G} from 'react-native-svg';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {saveProgress} from '../src/progress';
 import firestore from '@react-native-firebase/firestore';
 import Tts from 'react-native-tts';
 import Sound from 'react-native-sound';
@@ -57,7 +57,7 @@ function Overview({navigation, route}) {
   useEffect(() => {
     const blurHandler = navigation.addListener('blur', async () => {
       try {
-        await AsyncStorage.setItem('progress', JSON.stringify(progress));
+        await saveProgress(progress);
         if (progress?.user?.id) {
           await firestore().collection('users').doc(progress.user.id).set({
             data: progress,
@@ -70,7 +70,7 @@ function Overview({navigation, route}) {
     const handleAppStateChange = async newState => {
       if (newState === 'background') {
         try {
-          await AsyncStorage.setItem('progress', JSON.stringify(progress));
+          await saveProgress(progress);
           if (progress?.user?.id) {
             await firestore().collection('users').doc(progress.user.id).set({
               data: progress,

@@ -14,9 +14,9 @@ import {
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import firestore from '@react-native-firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import {getContentData} from '../src/contentData';
+import {loadProgress, saveProgress} from '../src/progress';
 
 function HistoryScreen({route, navigation}) {
   const [dayFilter, setDayFilter] = useState(7);
@@ -64,7 +64,7 @@ function HistoryScreen({route, navigation}) {
   useEffect(() => {
     const blurHandler = navigation.addListener('blur', async () => {
       try {
-        await AsyncStorage.setItem('progress', JSON.stringify(progress));
+        await saveProgress(progress);
         if (progress?.user?.id) {
           await firestore().collection('users').doc(progress.user.id).set({
             data: progress,
@@ -79,10 +79,7 @@ function HistoryScreen({route, navigation}) {
         try {
           const now = new Date();
           let updatedProgress = progress;
-          await AsyncStorage.setItem(
-            'progress',
-            JSON.stringify(updatedProgress),
-          );
+          await saveProgress(updatedProgress);
           if (progress?.user?.id) {
             await firestore().collection('users').doc(progress?.user?.id).set({
               data: progress,
@@ -180,15 +177,9 @@ function HistoryScreen({route, navigation}) {
 
   const getProgress = async () => {
     try {
-      var progress = await AsyncStorage.getItem('progress');
-      if (progress !== null) {
-        progress = JSON.parse(progress);
-        normalizeData(progress, dayFilter);
-        setProgress(progress);
-      } else {
-        normalizeData({user: null, data: {}}, dayFilter);
-        setProgress({user: null, data: {}});
-      }
+      const progress = await loadProgress();
+      normalizeData(progress, dayFilter);
+      setProgress(progress);
     } catch (e) {
       console.warn(e);
     }

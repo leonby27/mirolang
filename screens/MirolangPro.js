@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: -15,
+    marginTop: 4,
   },
   link: {
     textDecorationLine: 'underline',

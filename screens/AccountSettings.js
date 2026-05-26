@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {loadProgress, saveProgress, resetAllProgress} from '../src/progress';
 import firestore from '@react-native-firebase/firestore';
 import Svg, {Path} from 'react-native-svg';
 import {useTranslation} from 'react-i18next';
@@ -32,13 +32,7 @@ function AccountSettings({navigation, route}) {
 
   const getProgress = async () => {
     try {
-      var progress = await AsyncStorage.getItem('progress');
-
-      if (progress !== null) {
-        setProgress(JSON.parse(progress));
-      } else {
-        console.log('error progress', progress);
-      }
+      setProgress(await loadProgress());
     } catch (e) {
       console.warn(e);
     }
@@ -77,12 +71,10 @@ function AccountSettings({navigation, route}) {
   }, [navigation, showOptions]);
 
   const clearUserKeepData = async () => {
-    const stored = await AsyncStorage.getItem('progress');
-    const parsed = stored ? JSON.parse(stored) : { data: {} };
-    await AsyncStorage.setItem('progress', JSON.stringify({
-      user: null,
-      data: parsed.data || {},
-    }));
+    // Drop only the user slice (Pro/email). Per-pair `data` buckets stay
+    // intact across logout so the user's progress survives.
+    const current = await loadProgress();
+    await saveProgress({user: null, data: current.data});
   };
 
   const logOutApple = async () =>
@@ -147,8 +139,7 @@ function AccountSettings({navigation, route}) {
     );
 
   async function deleteDataFirestore() {
-    const progress = await AsyncStorage.getItem('progress');
-    const userData = progress ? JSON.parse(progress) : null;
+    const userData = await loadProgress();
     if (!userData?.user?.id) {
       throw new Error('No signed-in user');
     }
@@ -176,13 +167,8 @@ function AccountSettings({navigation, route}) {
                 console.warn('auth currentUser.delete failed:', authErr);
                 try { await auth().signOut(); } catch {}
               }
-              await AsyncStorage.setItem(
-                'progress',
-                JSON.stringify({
-                  user: null,
-                  data: {},
-                }),
-              );
+              // Full wipe — account deletion takes ALL pairs with it.
+              await resetAllProgress();
               navigation.goBack();
             } catch (e) {
               console.warn('deleteAccount failed:', e);

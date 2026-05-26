@@ -1,6 +1,6 @@
 import React, {useRef, useState, useEffect, useMemo, useCallback} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity, AppState, SafeAreaView, Image, Modal, Pressable, Alert} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {loadProgress, saveProgress} from '../src/progress';
 import Svg, {Path, G} from 'react-native-svg';
 import Tts from 'react-native-tts';
 import {StackActions} from '@react-navigation/native';
@@ -77,13 +77,7 @@ function LearnScreen({navigation, route}) {
 
   const getProgress = async () => {
     try {
-      var progress = await AsyncStorage.getItem('progress');
-
-      if (progress !== null) {
-        setProgress(JSON.parse(progress));
-      } else {
-        console.log('error progress', progress);
-      }
+      setProgress(await loadProgress());
     } catch (e) {
       console.warn(e);
     }
@@ -158,7 +152,7 @@ function LearnScreen({navigation, route}) {
                         ? 'rgba(255, 88, 88, 1)'
                         : 'rgba(255, 255, 255, 1)',
                   },
-                ]}>{`${recentItemsCount} / 10`}</Text>
+                ]}>{`${Math.min(recentItemsCount, 10)} / 10`}</Text>
             </TouchableOpacity>
           </View>
         ),
@@ -477,7 +471,7 @@ function LearnScreen({navigation, route}) {
   useEffect(() => {
     const blurHandler = navigation.addListener('blur', async () => {
       try {
-        await AsyncStorage.setItem('progress', JSON.stringify(progress));
+        await saveProgress(progress);
         if (progress?.user?.id) {
           await firestore().collection('users').doc(progress.user.id).set({
             data: progress,
@@ -490,7 +484,7 @@ function LearnScreen({navigation, route}) {
     const handleAppStateChange = async newState => {
       if (newState === 'background') {
         try {
-          await AsyncStorage.setItem('progress', JSON.stringify(progress));
+          await saveProgress(progress);
           if (progress?.user?.id) {
             await firestore().collection('users').doc(progress.user.id).set({
               data: progress,
@@ -1097,7 +1091,7 @@ function LearnScreen({navigation, route}) {
               fontSize: 24,
               lineHeight: 32,
             }}>
-            {`Учу новые слова: ${recentItemsCount} / 10`}
+            {`Учу новые слова: ${Math.min(recentItemsCount, 10)} / 10`}
           </Text>
           <Text style={styles.headerDescription}>
             {
@@ -1171,10 +1165,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelbutton: {
-    backgroundColor: '#22252E',
+    // No background pill — the iOS header bar gives native bar buttons
+    // their own subtle press treatment, so an extra wrapper looks doubled.
     paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 10,
+    paddingHorizontal: 4,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',

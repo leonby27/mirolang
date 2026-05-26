@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, FlatList, StyleSheet, Image, SafeAreaView, TouchableOpacity } from 'react-native';
 import Svg, { Path } from 'react-native-svg'
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {loadProgress} from '../src/progress';
 import {getContentData, useContentInfo} from '../src/contentData';
 
 function HistoryMain({navigation}) {
@@ -52,16 +52,11 @@ function HistoryMain({navigation}) {
 
   const getProgress = async() => {
     try {
-      var progress = await AsyncStorage.getItem('progress');
-      if (progress !== null) {
-        progress = JSON.parse(progress);
-        normalizeData(progress)
-      }else{
-        normalizeData({'user': null, data: {}})
-      }
+      const progress = await loadProgress();
+      normalizeData(progress);
     } catch (e) {
       console.warn(e);
-    } 
+    }
   }
 
   const content = [

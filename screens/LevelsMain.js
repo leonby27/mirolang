@@ -9,6 +9,7 @@ import ActiveIcon from '../src/icons/active';
 import FinishedIcon from '../src/icons/finished';
 import Svg, {Path, Rect} from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {loadProgress} from '../src/progress';
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import SwiperComponent from './Swiper';
 import MirolangPro from './MirolangPro';
@@ -128,21 +129,9 @@ function LevelsMain({navigation}) {
     try {
       const onboardingFlag = await AsyncStorage.getItem('showOnbording');
       setShowOnbording(onboardingFlag !== 'not showing');
-      var progress = await AsyncStorage.getItem('progress');
-      if (progress !== null) {
-        progress = JSON.parse(progress);
-        processData(progress);
-        setProgress(progress);
-      } else {
-        processData({
-          user: null,
-          data: {},
-        });
-        setProgress({
-          user: null,
-          data: {},
-        });
-      }
+      const progress = await loadProgress();
+      processData(progress);
+      setProgress(progress);
     } catch (e) {
       console.warn(e);
     }
