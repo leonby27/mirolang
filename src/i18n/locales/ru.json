@@ -45,20 +45,21 @@
     "loading": "Загрузка..."
   },
   "settings": {
-    "language": "Язык интерфейса",
-    "contentLanguage": "Язык переводов слов",
+    "nativeLanguage": "Родной язык",
+    "nativeLanguageHint": "Определяет язык интерфейса и язык переводов слов",
+    "targetLanguage": "Язык, который изучаю",
+    "targetLanguageComingSoon": "Скоро добавим больше языков для изучения",
     "logout": "Выйти из аккаунта",
-    "languageNames": {
-      "ru": "Русский",
-      "en": "English"
-    },
-    "contentLanguageNames": {
+    "nativeLanguageNames": {
       "ru": "Русский",
       "de": "Deutsch",
       "nl": "Nederlands",
       "fr": "Français",
       "es": "Español",
       "it": "Italiano"
+    },
+    "targetLanguageNames": {
+      "en": "English"
     }
   },
   "onboarding": {

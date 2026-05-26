@@ -25,15 +25,37 @@ export const SUPPORTED_LOCALES = ['en', 'ru'];
 export const DEFAULT_LOCALE = 'en';
 const STORAGE_KEY = 'app.locale';
 
-// Content language = the user's native language we translate English words
-// INTO (the "ru" field in current src/data.js, "de" field in src/data/de.js,
-// etc). Separate from UI language so a German speaker can keep the app in
-// English but still get German word translations.
-export const SUPPORTED_CONTENT_LANGUAGES = ['ru', 'de', 'nl', 'fr', 'es', 'it'];
-export const DEFAULT_CONTENT_LANGUAGE = 'ru';
+// The app's two language axes:
+//
+//   - "Native language" — the user's mother tongue. Drives both:
+//       (a) the UI language (with EN as fallback for natives whose UI
+//           locale isn't translated yet — see SUPPORTED_LOCALES above),
+//       (b) which word-translation dataset we load (src/data/<lang>.js).
+//   - "Target language" — the language the user is learning. For now
+//     hardcoded to English; expanding this requires flip-rendering in
+//     Learn.js / Prestart.js / Overview.js and per-target transcription
+//     data, so it's a separate milestone.
+//
+// Internally `currentContentLanguage` is still the source of truth for
+// the data resolver — `setNativeLanguage` wraps both that and the UI
+// locale change so callers don't have to coordinate them.
+export const SUPPORTED_NATIVE_LANGUAGES = ['ru', 'de', 'nl', 'fr', 'es', 'it'];
+export const DEFAULT_NATIVE_LANGUAGE = 'ru';
+export const SUPPORTED_TARGET_LANGUAGES = ['en'];
+export const DEFAULT_TARGET_LANGUAGE = 'en';
+
+// Back-compat alias — the resolver and any old code keeps using these
+// names. They reference the same list / value as the native-language
+// constants above.
+export const SUPPORTED_CONTENT_LANGUAGES = SUPPORTED_NATIVE_LANGUAGES;
+export const DEFAULT_CONTENT_LANGUAGE = DEFAULT_NATIVE_LANGUAGE;
+
 const CONTENT_STORAGE_KEY = 'app.contentLanguage';
+const TARGET_STORAGE_KEY = 'app.targetLanguage';
 let currentContentLanguage = DEFAULT_CONTENT_LANGUAGE;
+let currentTargetLanguage = DEFAULT_TARGET_LANGUAGE;
 const contentLanguageListeners = new Set();
+const targetLanguageListeners = new Set();
 
 // Synchronous init — uses English first; the real locale is applied below.
 i18n.use(initReactI18next).init({
@@ -74,6 +96,7 @@ export async function initI18n() {
     await i18n.changeLanguage(lng);
   }
   await loadContentLanguage();
+  await loadTargetLanguage();
   return lng;
 }
 
@@ -91,6 +114,21 @@ async function loadContentLanguage() {
   currentContentLanguage = next;
   // Notify components that subscribed before init completed.
   for (const listener of contentLanguageListeners) {
+    try { listener(next); } catch {}
+  }
+}
+
+async function loadTargetLanguage() {
+  let next = DEFAULT_TARGET_LANGUAGE;
+  try {
+    const saved = await AsyncStorage.getItem(TARGET_STORAGE_KEY);
+    if (saved && SUPPORTED_TARGET_LANGUAGES.includes(saved)) {
+      next = saved;
+    }
+  } catch {}
+  if (next === currentTargetLanguage) return;
+  currentTargetLanguage = next;
+  for (const listener of targetLanguageListeners) {
     try { listener(next); } catch {}
   }
 }
@@ -118,6 +156,67 @@ export async function setContentLanguage(lang) {
 export function subscribeContentLanguage(listener) {
   contentLanguageListeners.add(listener);
   return () => contentLanguageListeners.delete(listener);
+}
+
+// ---------- Native language ----------
+//
+// The user-facing primary picker. Changing this:
+//   1. updates the content-data selector (via setContentLanguage), and
+//   2. flips the UI locale to the matching language when we have a
+//      translation for it; otherwise falls back to English.
+//
+// We don't have a separate `nativeLanguageListeners` set — natives ride on
+// top of the existing content-language listener mechanism. Components that
+// want to react to native-lang changes use useContentLanguage().
+
+export function getNativeLanguage() {
+  return currentContentLanguage;
+}
+
+export async function setNativeLanguage(lang) {
+  if (!SUPPORTED_NATIVE_LANGUAGES.includes(lang)) return;
+  await setContentLanguage(lang);
+  const uiLang = SUPPORTED_LOCALES.includes(lang) ? lang : DEFAULT_LOCALE;
+  if (i18n.language !== uiLang) {
+    await setAppLocale(uiLang);
+  }
+}
+
+export function useNativeLanguage() {
+  return useContentLanguage();
+}
+
+// ---------- Target language ----------
+//
+// What the user is *learning*. Phase 1 hardcodes this to English because
+// every dataset is shaped EN-word → native-translation. Phase 3 will lift
+// the restriction once Learn/Prestart/Overview can flip the card.
+
+export function getTargetLanguage() {
+  return currentTargetLanguage;
+}
+
+export async function setTargetLanguage(lang) {
+  if (!SUPPORTED_TARGET_LANGUAGES.includes(lang)) return;
+  if (lang === currentTargetLanguage) return;
+  currentTargetLanguage = lang;
+  try {
+    await AsyncStorage.setItem(TARGET_STORAGE_KEY, lang);
+  } catch {}
+  for (const listener of targetLanguageListeners) {
+    try { listener(lang); } catch {}
+  }
+}
+
+export function subscribeTargetLanguage(listener) {
+  targetLanguageListeners.add(listener);
+  return () => targetLanguageListeners.delete(listener);
+}
+
+export function useTargetLanguage() {
+  const [lang, setLang] = useState(currentTargetLanguage);
+  useEffect(() => subscribeTargetLanguage(setLang), []);
+  return lang;
 }
 
 /** Change app language at runtime and persist the choice. */

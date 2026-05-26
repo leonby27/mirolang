@@ -45,20 +45,21 @@
     "loading": "Loading..."
   },
   "settings": {
-    "language": "Interface language",
-    "contentLanguage": "Word translation language",
+    "nativeLanguage": "Native language",
+    "nativeLanguageHint": "Sets both the interface language and the word-translation language",
+    "targetLanguage": "Language I'm learning",
+    "targetLanguageComingSoon": "More target languages are coming soon",
     "logout": "Sign out",
-    "languageNames": {
-      "ru": "Русский",
-      "en": "English"
-    },
-    "contentLanguageNames": {
+    "nativeLanguageNames": {
       "ru": "Русский",
       "de": "Deutsch",
       "nl": "Nederlands",
       "fr": "Français",
       "es": "Español",
       "it": "Italiano"
+    },
+    "targetLanguageNames": {
+      "en": "English"
     }
   },
   "onboarding": {
