@@ -14,7 +14,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import Svg, {Path} from 'react-native-svg';
 import {useTranslation} from 'react-i18next';
-import LanguageSettings from '../src/components/LanguageSettings';
 
 function AccountSettings({navigation, route}) {
   const {t} = useTranslation();
@@ -369,8 +368,6 @@ function AccountSettings({navigation, route}) {
           </View>
         </>
       ) : null}
-
-      <LanguageSettings style={{marginTop: 32}} />
 
       <TouchableOpacity
         onPress={Platform.OS === 'android' ? logOutAndroid : logOutApple}

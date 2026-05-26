@@ -24,6 +24,7 @@ import Overview from './screens/Overview';
 import LearnScreen from './screens/Learn';
 import AccountSettings from './screens/AccountSettings';
 import Support from './screens/Support';
+import LanguagePicker from './screens/LanguagePicker';
 
 const Stack = createNativeStackNavigator();
 const BottomTab = createBottomTabNavigator();
@@ -136,6 +137,21 @@ function Account() {
           }}
           name="Support"
           component={Support}
+        />
+        <Stack.Screen
+          options={({route}) => ({
+            ...stackOptions,
+            headerTitleAlign: 'center',
+            // Title depends on which axis the user is editing.
+            title: t(
+              route.params?.axis === 'target'
+                ? 'settings.targetLanguage'
+                : 'settings.nativeLanguage',
+            ),
+            headerBackTitle: t('nav.back'),
+          })}
+          name="LanguagePicker"
+          component={LanguagePicker}
         />
       </Stack.Navigator>
     </View>
