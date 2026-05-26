@@ -54,7 +54,11 @@
     },
     "contentLanguageNames": {
       "ru": "Русский",
-      "de": "Deutsch"
+      "de": "Deutsch",
+      "nl": "Nederlands",
+      "fr": "Français",
+      "es": "Español",
+      "it": "Italiano"
     }
   },
   "onboarding": {

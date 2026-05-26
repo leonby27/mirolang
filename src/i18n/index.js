@@ -29,7 +29,7 @@ const STORAGE_KEY = 'app.locale';
 // INTO (the "ru" field in current src/data.js, "de" field in src/data/de.js,
 // etc). Separate from UI language so a German speaker can keep the app in
 // English but still get German word translations.
-export const SUPPORTED_CONTENT_LANGUAGES = ['ru', 'de'];
+export const SUPPORTED_CONTENT_LANGUAGES = ['ru', 'de', 'nl', 'fr', 'es', 'it'];
 export const DEFAULT_CONTENT_LANGUAGE = 'ru';
 const CONTENT_STORAGE_KEY = 'app.contentLanguage';
 let currentContentLanguage = DEFAULT_CONTENT_LANGUAGE;

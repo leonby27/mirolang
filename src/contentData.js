@@ -21,10 +21,18 @@ import {
 
 import ruData from './data';
 import deData from './data/de';
+import nlData from './data/nl';
+import frData from './data/fr';
+import esData from './data/es';
+import itData from './data/it';
 
 const DATA_BY_LANG = {
   ru: ruData,
   de: deData,
+  nl: nlData,
+  fr: frData,
+  es: esData,
+  it: itData,
 };
 
 export function getContentData() {
