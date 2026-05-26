@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, FlatList, StyleSheet, Image, SafeAreaView, TouchableOpacity } from 'react-native';
 import Svg, { Path } from 'react-native-svg'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import data from '../src/data';
+import {getContentData} from '../src/contentData';
+import {useContentLanguage} from '../src/i18n';
 
 function HistoryMain({navigation}) {
 
+  const contentLang = useContentLanguage();
   const [wordsCount, setWordsCount] = useState({
     'learned': 0,
     'learning' : 0,
@@ -16,10 +18,13 @@ function HistoryMain({navigation}) {
     const focusHandler = navigation.addListener('focus', () => {
       getProgress()
     });
+    getProgress();
     return focusHandler;
-  }, [navigation]);
+    // contentLang in deps so the counts recompute when source language switches.
+  }, [navigation, contentLang]);
 
   const normalizeData = (progress) => {
+    const data = getContentData();
     var wordsCountUpdated = {
       'learned': 0,
       'learning' : 0,

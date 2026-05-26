@@ -3,7 +3,8 @@ import {View, Text, SafeAreaView, SectionList, StyleSheet, Image, Modal, Dimensi
 import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 
-import data from '../src/data';
+import {getContentData} from '../src/contentData';
+import {useContentLanguage} from '../src/i18n';
 import InactiveIcon from '../src/icons/inactive';
 import ActiveIcon from '../src/icons/active';
 import FinishedIcon from '../src/icons/finished';
@@ -70,7 +71,10 @@ function LevelsMain({navigation}) {
 
   const [categories, setCategories] = useState([]);
 
+  const contentLang = useContentLanguage();
+
   const processData = progress => {
+    const data = getContentData();
     let activateLastLevel = true;
     let lastactive = 0;
     data.forEach(category => {
@@ -82,13 +86,15 @@ function LevelsMain({navigation}) {
         } else {
           if (progress.data[level.id] || activateLastLevel) {
             if (
+              level.words.length > 0 &&
               getLearnedWordsCount(level.id, progress) / level.words.length ==
-              1
+                1
             ) {
               level.state = 'finished';
             } else if (
+              level.words.length > 0 &&
               getLearnedWordsCount(level.id, progress) / level.words.length >=
-              0.9
+                0.9
             ) {
               level.state = 'learned';
             } else {
@@ -112,7 +118,9 @@ function LevelsMain({navigation}) {
       getProgress();
     });
     return focusHandler;
-  }, [navigation]);
+    // contentLang in deps so switching language re-runs processData against
+    // the new dataset.
+  }, [navigation, contentLang]);
 
   const getProgress = async () => {
     try {

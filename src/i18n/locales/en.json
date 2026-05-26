@@ -46,10 +46,15 @@
   },
   "settings": {
     "language": "Interface language",
+    "contentLanguage": "Word translation language",
     "logout": "Sign out",
     "languageNames": {
       "ru": "Русский",
       "en": "English"
+    },
+    "contentLanguageNames": {
+      "ru": "Русский",
+      "de": "Deutsch"
     }
   },
   "onboarding": {

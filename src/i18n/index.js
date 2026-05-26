@@ -12,6 +12,7 @@
  *   persists to AsyncStorage.
  */
 
+import {useEffect, useState} from 'react';
 import i18n from 'i18next';
 import {initReactI18next} from 'react-i18next';
 import {getLocales} from 'react-native-localize';
@@ -23,6 +24,16 @@ import en from './locales/en.json';
 export const SUPPORTED_LOCALES = ['en', 'ru'];
 export const DEFAULT_LOCALE = 'en';
 const STORAGE_KEY = 'app.locale';
+
+// Content language = the user's native language we translate English words
+// INTO (the "ru" field in current src/data.js, "de" field in src/data/de.js,
+// etc). Separate from UI language so a German speaker can keep the app in
+// English but still get German word translations.
+export const SUPPORTED_CONTENT_LANGUAGES = ['ru', 'de'];
+export const DEFAULT_CONTENT_LANGUAGE = 'ru';
+const CONTENT_STORAGE_KEY = 'app.contentLanguage';
+let currentContentLanguage = DEFAULT_CONTENT_LANGUAGE;
+const contentLanguageListeners = new Set();
 
 // Synchronous init — uses English first; the real locale is applied below.
 i18n.use(initReactI18next).init({
@@ -62,7 +73,51 @@ export async function initI18n() {
   if (lng !== i18n.language) {
     await i18n.changeLanguage(lng);
   }
+  await loadContentLanguage();
   return lng;
+}
+
+async function loadContentLanguage() {
+  let next = DEFAULT_CONTENT_LANGUAGE;
+  try {
+    const saved = await AsyncStorage.getItem(CONTENT_STORAGE_KEY);
+    if (saved && SUPPORTED_CONTENT_LANGUAGES.includes(saved)) {
+      next = saved;
+    }
+  } catch {}
+  // First launch: default to RU (existing behaviour). When other source
+  // languages exist, callers can decide whether to seed from device locale.
+  if (next === currentContentLanguage) return;
+  currentContentLanguage = next;
+  // Notify components that subscribed before init completed.
+  for (const listener of contentLanguageListeners) {
+    try { listener(next); } catch {}
+  }
+}
+
+export function getContentLanguage() {
+  return currentContentLanguage;
+}
+
+export async function setContentLanguage(lang) {
+  if (!SUPPORTED_CONTENT_LANGUAGES.includes(lang)) return;
+  if (lang === currentContentLanguage) return;
+  currentContentLanguage = lang;
+  try {
+    await AsyncStorage.setItem(CONTENT_STORAGE_KEY, lang);
+  } catch {}
+  for (const listener of contentLanguageListeners) {
+    try { listener(lang); } catch {}
+  }
+}
+
+/**
+ * Subscribe to content-language changes. Returns an unsubscribe function.
+ * Used by useContentLanguage() to trigger re-renders.
+ */
+export function subscribeContentLanguage(listener) {
+  contentLanguageListeners.add(listener);
+  return () => contentLanguageListeners.delete(listener);
 }
 
 /** Change app language at runtime and persist the choice. */
@@ -72,6 +127,15 @@ export async function setAppLocale(locale) {
   try {
     await AsyncStorage.setItem(STORAGE_KEY, locale);
   } catch {}
+}
+
+/**
+ * React hook: returns the current content language and re-renders on change.
+ */
+export function useContentLanguage() {
+  const [lang, setLang] = useState(currentContentLanguage);
+  useEffect(() => subscribeContentLanguage(setLang), []);
+  return lang;
 }
 
 export default i18n;

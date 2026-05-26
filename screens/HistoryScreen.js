@@ -16,7 +16,7 @@ import Svg, {Path} from 'react-native-svg';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
-import data from '../src/data';
+import {getContentData} from '../src/contentData';
 
 function HistoryScreen({route, navigation}) {
   const [dayFilter, setDayFilter] = useState(7);
@@ -141,6 +141,7 @@ function HistoryScreen({route, navigation}) {
   const normalizeData = (progress, dayFilter) => {
     var words = [];
     const now = new Date();
+    const data = getContentData();
     data.forEach(category => {
       category.data.forEach(level => {
         if (progress.data[level.id]) {

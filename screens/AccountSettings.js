@@ -14,10 +14,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import Svg, {Path} from 'react-native-svg';
 import {useTranslation} from 'react-i18next';
-import {SUPPORTED_LOCALES, setAppLocale} from '../src/i18n';
+import {
+  SUPPORTED_LOCALES,
+  setAppLocale,
+  SUPPORTED_CONTENT_LANGUAGES,
+  setContentLanguage,
+  useContentLanguage,
+} from '../src/i18n';
 
 function AccountSettings({navigation, route}) {
   const {t, i18n} = useTranslation();
+  const contentLang = useContentLanguage();
   const [showOptions, setShowOptions] = useState(false);
   const [progress, setProgress] = useState({
     user: null,
@@ -413,6 +420,55 @@ function AccountSettings({navigation, route}) {
                   color: isActive ? '#F1CC06' : '#FFFFFF',
                 }}>
                 {t(`settings.languageNames.${loc}`)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <Text
+        style={{
+          color: 'rgba(255, 255, 255, 0.50)',
+          fontFamily: 'Inter-Regular',
+          fontSize: 16,
+          lineHeight: 20,
+          marginTop: 24,
+          width: '90%',
+        }}>
+        {t('settings.contentLanguage')}
+      </Text>
+      <View
+        style={{
+          width: '90%',
+          flexDirection: 'row',
+          gap: 8,
+          marginTop: 12,
+        }}>
+        {SUPPORTED_CONTENT_LANGUAGES.map(lang => {
+          const isActive = contentLang === lang;
+          return (
+            <TouchableOpacity
+              key={lang}
+              onPress={() => setContentLanguage(lang)}
+              style={{
+                flex: 1,
+                paddingVertical: 14,
+                alignItems: 'center',
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: isActive ? '#F1CC06' : '#313843',
+                backgroundColor: isActive
+                  ? 'rgba(241, 204, 6, 0.1)'
+                  : 'rgba(34, 37, 46, 0.5)',
+              }}>
+              <Text
+                style={{
+                  fontFamily: isActive ? 'Inter-Bold' : 'Inter-Regular',
+                  fontSize: 16,
+                  lineHeight: 20,
+                  color: isActive ? '#F1CC06' : '#FFFFFF',
+                }}>
+                {t(`settings.contentLanguageNames.${lang}`)}
               </Text>
             </TouchableOpacity>
           );

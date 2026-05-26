@@ -46,10 +46,15 @@
   },
   "settings": {
     "language": "Язык интерфейса",
+    "contentLanguage": "Язык переводов слов",
     "logout": "Выйти из аккаунта",
     "languageNames": {
       "ru": "Русский",
       "en": "English"
+    },
+    "contentLanguageNames": {
+      "ru": "Русский",
+      "de": "Deutsch"
     }
   },
   "onboarding": {
