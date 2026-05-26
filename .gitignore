@@ -44,6 +44,9 @@ yarn-error.log
 # Expo
 .expo/
 
+# Translation script cache (Wiktionary dump ~700MB, generated artifacts)
+.cache/
+
 # fastlane
 #
 # It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
