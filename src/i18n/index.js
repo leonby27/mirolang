@@ -122,6 +122,19 @@ async function loadContentLanguage() {
     const saved = await AsyncStorage.getItem(CONTENT_STORAGE_KEY);
     if (saved && SUPPORTED_CONTENT_LANGUAGES.includes(saved)) {
       next = saved;
+    } else {
+      // First launch — seed native language from device locale instead of
+      // forcing the legacy RU default. Otherwise a German speaker opens
+      // the app to a German UI but Russian word translations.
+      try {
+        const deviceLocales = getLocales();
+        for (const {languageCode} of deviceLocales) {
+          if (SUPPORTED_NATIVE_LANGUAGES.includes(languageCode)) {
+            next = languageCode;
+            break;
+          }
+        }
+      } catch {}
     }
   } catch {}
   if (next === currentContentLanguage) return;

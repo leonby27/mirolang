@@ -95,7 +95,25 @@
     "moreSection": "More",
     "rateApp": "Rate the app",
     "rateAppHint": "Your feedback matters",
-    "supportHint": "Developer contacts"
+    "supportHint": "Developer contacts",
+    "restoreHint": "Activate an existing subscription"
+  },
+  "history": {
+    "learned": {
+      "title": "Learned",
+      "subtitle": "All repetitions done",
+      "empty": "No learned words yet"
+    },
+    "learning": {
+      "title": "Learning now",
+      "subtitle": "More repetitions to go",
+      "empty": "No words in progress"
+    },
+    "skipped": {
+      "title": "Skipped",
+      "subtitle": "Words you've skipped",
+      "empty": "No skipped words"
+    }
   },
   "onboarding": {
     "slide0": {

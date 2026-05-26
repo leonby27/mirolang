@@ -1030,9 +1030,7 @@ function LearnScreen({navigation, route}) {
       <Modal
         transparent={true}
         visible={showProScreen}
-        onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
-        }}>
+        onRequestClose={() => setShowProScreen(false)}>
         <MirolangPro
           getProgress={getProgress}
           ProSnapPoints={ProSnapPoints}

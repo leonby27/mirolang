@@ -300,9 +300,7 @@ function LevelsMain({navigation}) {
       <Modal
         transparent={true}
         visible={showOnbording}
-        onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
-        }}>
+        onRequestClose={() => setShowOnbording(false)}>
         <SwiperComponent
           setShowOnbording={setShowOnbording}
           getProgress={getProgress}
@@ -311,9 +309,7 @@ function LevelsMain({navigation}) {
       <Modal
         transparent={true}
         visible={showProScreen}
-        onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
-        }}>
+        onRequestClose={() => setShowProScreen(false)}>
         <MirolangPro
           getProgress={getProgress}
           ProSnapPoints={ProSnapPoints}
