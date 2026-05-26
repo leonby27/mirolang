@@ -85,18 +85,87 @@ function flipDataset(data, lang) {
   return transformed;
 }
 
+/**
+ * Cross-pair synthesis for foreign↔foreign combinations.
+ *
+ * The only datasets we ship are English-headword pairs (`{word: EN, ru:
+ * <native translation>}`), so a pair like "RU native learning DE" needs
+ * to be synthesised by joining two datasets on the shared English word
+ * IDs. Walk the *target* dataset's structure (so module/level titles are
+ * in the language being learned), and for each word swap the `ru` field
+ * to the *native* translation pulled from the native dataset.
+ *
+ * Memoised by (target, native) pair.
+ */
+const crossPairCache = new Map(); // `${target}:${native}` -> transformed array
+
+function buildCrossPair(target, native) {
+  const key = `${target}:${native}`;
+  const cached = crossPairCache.get(key);
+  if (cached) return cached;
+
+  const targetData = DATA_BY_LANG[target];
+  const nativeData = DATA_BY_LANG[native];
+  if (!targetData || !nativeData) return ruData;
+
+  // Build a (moduleId, levelId, wordId) → native translation index once.
+  const nativeIndex = new Map();
+  for (const mod of nativeData) {
+    for (const level of mod.data) {
+      for (const w of level.words) {
+        nativeIndex.set(`${mod.id}:${level.id}:${w.id}`, w.ru);
+      }
+    }
+  }
+
+  const transformed = targetData.map(mod => ({
+    ...mod,
+    data: mod.data.map(level => ({
+      ...level,
+      words: level.words.map(w => {
+        const nativeTranslation = nativeIndex.get(
+          `${mod.id}:${level.id}:${w.id}`,
+        );
+        return {
+          id: w.id,
+          word: w.ru, // target-language word as the question
+          ru: nativeTranslation || w.word, // native translation; fall back to EN if native data missing this word
+          transcription: '',
+        };
+      }),
+    })),
+  }));
+  crossPairCache.set(key, transformed);
+  return transformed;
+}
+
 export function getContentInfo() {
   const native = getNativeLanguage();
   const target = getTargetLanguage();
-  // Exactly one side is 'en' (the pair-validation logic in i18n keeps it
-  // that way). The foreign side names the dataset we load.
-  const flipped = native === 'en';
-  const datasetLang = flipped ? target : native;
-  const raw = DATA_BY_LANG[datasetLang] || ruData;
-  const data = flipped ? flipDataset(raw, datasetLang) : raw;
-  // The question side is what gets spoken aloud. Not flipped: English.
-  // Flipped: the foreign target.
-  const ttsLang = flipped ? TTS_LOCALE[target] || 'en-US' : 'en-US';
+
+  // Three shapes a pair can take:
+  //   1. target === 'en'  — foreign native learning English. Native dataset
+  //      ships in the right shape already: word=EN, ru=native translation.
+  //   2. native === 'en'  — English native learning a foreign language.
+  //      Use the target dataset and flip word↔ru.
+  //   3. both foreign     — cross-pair synthesised from two foreign datasets
+  //      joined on shared English word IDs.
+  let data;
+  let flipped;
+  let ttsLang;
+  if (target === 'en') {
+    data = DATA_BY_LANG[native] || ruData;
+    flipped = false;
+    ttsLang = 'en-US';
+  } else if (native === 'en') {
+    data = flipDataset(DATA_BY_LANG[target] || ruData, target);
+    flipped = true;
+    ttsLang = TTS_LOCALE[target] || 'en-US';
+  } else {
+    data = buildCrossPair(target, native);
+    flipped = true;
+    ttsLang = TTS_LOCALE[target] || 'en-US';
+  }
   return {data, flipped, ttsLang, native, target};
 }
 

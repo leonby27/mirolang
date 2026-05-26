@@ -120,12 +120,10 @@ export default function LanguageSettings({style}) {
         }}>
         {SUPPORTED_TARGET_LANGUAGES.map(lang => {
           const isActive = targetLang === lang;
-          // Show only the half of the matrix that's currently valid: when
-          // the user is learning a foreign language (native=en), the target
-          // picker offers every foreign language; when learning English,
-          // it offers just "English".
-          const isVisible = nativeLang === 'en' ? lang !== 'en' : lang === 'en';
-          if (!isVisible) return null;
+          // Native and target must differ — hide the option that matches
+          // the current native. (If the user does pick it, applyLanguagePair
+          // will swap the pair anyway, so this is just to keep the UI tidy.)
+          if (lang === nativeLang) return null;
           return (
             <TouchableOpacity
               key={lang}

@@ -44,20 +44,16 @@ const STORAGE_KEY = 'app.locale';
 // Internally `currentContentLanguage` is still the source of truth for
 // the data resolver — `setNativeLanguage` wraps both that and the UI
 // locale change so callers don't have to coordinate them.
-// Every supported pair has English on one side: either the user knows
-// English and is learning a foreign language, or knows a foreign language
-// and is learning English. We don't have data files for foreign↔foreign
-// pairs (e.g. native=DE + target=FR), so `setNativeLanguage` /
-// `setTargetLanguage` coerce the pair to a valid combination if needed.
+// Native and target can be any of the seven languages independently — the
+// resolver in src/contentData.js synthesises foreign↔foreign pairs by
+// joining two foreign datasets on the shared English word IDs. The only
+// invariant we enforce is native ≠ target (you can't learn your own
+// language); when the user picks the same language for both sides we
+// coerce the OTHER side to a sensible alternative.
 export const SUPPORTED_NATIVE_LANGUAGES = ['ru', 'en', 'de', 'nl', 'fr', 'es', 'it'];
 export const DEFAULT_NATIVE_LANGUAGE = 'ru';
 export const SUPPORTED_TARGET_LANGUAGES = ['en', 'ru', 'de', 'nl', 'fr', 'es', 'it'];
 export const DEFAULT_TARGET_LANGUAGE = 'en';
-
-// Last-used foreign language, used when the user switches native FROM 'en'
-// (or target FROM 'en') so we can pick a sensible default for the other
-// side instead of forcing a fixed value.
-let lastForeignChoice = 'de';
 
 // Back-compat alias — the resolver and any old code keeps using these
 // names. They reference the same list / value as the native-language
@@ -128,9 +124,6 @@ async function loadContentLanguage() {
       next = saved;
     }
   } catch {}
-  // First launch: default to RU (existing behaviour). When other source
-  // languages exist, callers can decide whether to seed from device locale.
-  if (next !== 'en') lastForeignChoice = next;
   if (next === currentContentLanguage) return;
   currentContentLanguage = next;
   // Notify components that subscribed before init completed.
@@ -147,7 +140,6 @@ async function loadTargetLanguage() {
       next = saved;
     }
   } catch {}
-  if (next !== 'en') lastForeignChoice = next;
   if (next === currentTargetLanguage) return;
   currentTargetLanguage = next;
   for (const listener of targetLanguageListeners) {
@@ -196,9 +188,10 @@ export function getNativeLanguage() {
 }
 
 /**
- * Set the language pair, enforcing the invariant that exactly one side is
- * 'en'. If the caller asks for an invalid combination (both 'en' or both
- * foreign), we coerce the OTHER side to make the pair valid.
+ * Set the language pair, enforcing that native ≠ target. If the caller
+ * asks for both sides equal, we coerce the OTHER side to the previous
+ * value of the side being changed (so picking your current native as
+ * target swaps the two, instead of breaking the pair).
  *
  *   pivot = "native": native is authoritative, target gets coerced
  *   pivot = "target": target is authoritative, native gets coerced
@@ -207,22 +200,18 @@ async function applyLanguagePair(native, target, pivot) {
   if (!SUPPORTED_NATIVE_LANGUAGES.includes(native)) return;
   if (!SUPPORTED_TARGET_LANGUAGES.includes(target)) return;
 
-  if (pivot === 'native') {
-    if (native === 'en') {
-      // Native EN → target must be foreign. Keep target if it's already
-      // foreign; otherwise pick last-used foreign.
-      if (target === 'en') target = lastForeignChoice;
+  if (native === target) {
+    if (pivot === 'native') {
+      // User picked their current target as the new native → swap.
+      target = currentContentLanguage;
     } else {
-      // Native foreign → target must be EN.
-      target = 'en';
-      lastForeignChoice = native;
+      native = currentTargetLanguage;
     }
-  } else {
-    if (target === 'en') {
-      if (native === 'en') native = lastForeignChoice;
-    } else {
-      native = 'en';
-      lastForeignChoice = target;
+    // If swapping still leaves them equal (rare — e.g. first launch),
+    // fall back to ('en', 'de').
+    if (native === target) {
+      if (pivot === 'native') target = native === 'en' ? 'de' : 'en';
+      else native = target === 'en' ? 'de' : 'en';
     }
   }
 
