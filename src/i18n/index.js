@@ -225,7 +225,11 @@ export function subscribeTargetLanguage(listener) {
 
 export function useTargetLanguage() {
   const [lang, setLang] = useState(currentTargetLanguage);
-  useEffect(() => subscribeTargetLanguage(setLang), []);
+  useEffect(() => {
+    if (currentTargetLanguage !== lang) setLang(currentTargetLanguage);
+    return subscribeTargetLanguage(setLang);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return lang;
 }
 
@@ -240,10 +244,19 @@ export async function setAppLocale(locale) {
 
 /**
  * React hook: returns the current content language and re-renders on change.
+ *
+ * Inside useEffect we re-sync once after mount — `currentContentLanguage`
+ * can change between this hook's useState initialiser and the subscribe
+ * call (initI18n is async and may complete in the gap). Without that
+ * resync the component stays stuck on the pre-init default.
  */
 export function useContentLanguage() {
   const [lang, setLang] = useState(currentContentLanguage);
-  useEffect(() => subscribeContentLanguage(setLang), []);
+  useEffect(() => {
+    if (currentContentLanguage !== lang) setLang(currentContentLanguage);
+    return subscribeContentLanguage(setLang);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return lang;
 }
 

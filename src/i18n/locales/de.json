@@ -62,6 +62,15 @@
       "en": "English"
     }
   },
+  "account": {
+    "upgradeToProSubtitle": "Pro-Version ausprobieren",
+    "signInHint": "Zum Wiederherstellen der Käufe",
+    "accountSettingsHint": "Kontoeinstellungen",
+    "moreSection": "Mehr",
+    "rateApp": "App bewerten",
+    "rateAppHint": "Dein Feedback zählt",
+    "supportHint": "Kontakt zum Entwickler"
+  },
   "onboarding": {
     "slide0": {
       "title": "Erweitere deinen\nenglischen Wortschatz",

@@ -62,6 +62,15 @@
       "en": "English"
     }
   },
+  "account": {
+    "upgradeToProSubtitle": "Probeer de Pro-versie",
+    "signInHint": "Om aankopen te herstellen",
+    "accountSettingsHint": "Accountinstellingen",
+    "moreSection": "Meer",
+    "rateApp": "App beoordelen",
+    "rateAppHint": "We waarderen je feedback",
+    "supportHint": "Contact met de ontwikkelaar"
+  },
   "onboarding": {
     "slide0": {
       "title": "Breid je Engelse\nwoordenschat uit",

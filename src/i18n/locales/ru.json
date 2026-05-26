@@ -62,6 +62,15 @@
       "en": "English"
     }
   },
+  "account": {
+    "upgradeToProSubtitle": "Попробуйте Pro версию",
+    "signInHint": "Чтобы восстановить покупки",
+    "accountSettingsHint": "Настройки аккаунта",
+    "moreSection": "Дополнительно",
+    "rateApp": "Оцените приложение",
+    "rateAppHint": "Нам важна обратная связь",
+    "supportHint": "Контакты разработчика"
+  },
   "onboarding": {
     "slide0": {
       "title": "Расширь свой\nсловарный запас",

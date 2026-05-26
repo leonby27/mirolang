@@ -1,13 +1,16 @@
 import React, {useEffect, useMemo, useState, useRef, useCallback} from 'react';
-import {TouchableOpacity, View, StyleSheet, Image, Text, Modal, Alert} from 'react-native';
+import {TouchableOpacity, View, ScrollView, StyleSheet, Image, Text, Modal, Alert} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import RateApp from '../src/components/RateApp';
+import LanguageSettings from '../src/components/LanguageSettings';
 import MirolangPro from './MirolangPro';
+import {useTranslation} from 'react-i18next';
 
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function AccountMain({navigation}) {
+  const {t} = useTranslation();
   const RateBottomSheetModalRef = useRef(null);
   const ProBottomSheetModalRef = useRef(null);
   const RateSnapPoints = useMemo(() => ['60%'], []);
@@ -65,7 +68,10 @@ function AccountMain({navigation}) {
     [],
   );
   return (
-    <View style={{backgroundColor: '#000000', flex: 1, alignItems: 'center'}}>
+    <View style={{backgroundColor: '#000000', flex: 1}}>
+      <ScrollView
+        contentContainerStyle={{alignItems: 'center', paddingBottom: 32}}
+        showsVerticalScrollIndicator={false}>
       {!progress?.user?.pro ? (
         <TouchableOpacity
           onPress={() => setShowProScreen(true)}
@@ -101,7 +107,7 @@ function AccountMain({navigation}) {
                 fontSize: 14,
                 lineHeight: 16,
               }}>
-              Попробуйте Pro версию
+              {t('account.upgradeToProSubtitle')}
             </Text>
           </View>
           <Svg
@@ -160,7 +166,7 @@ function AccountMain({navigation}) {
               lineHeight: 20,
             }}>
             {!progress.user?.email
-              ? 'Войти в аккаунт'
+              ? t('nav.loginTitle')
               : String(progress.user.email).length > 25
               ? String(progress.user.email).slice(0, 24) + '…'
               : String(progress.user.email)}
@@ -173,8 +179,8 @@ function AccountMain({navigation}) {
               lineHeight: 16,
             }}>
             {progress.user == null
-              ? 'Чтобы восстановить покупки'
-              : 'Настройки аккаунта'}
+              ? t('account.signInHint')
+              : t('account.accountSettingsHint')}
           </Text>
         </View>
         <Svg
@@ -191,6 +197,8 @@ function AccountMain({navigation}) {
         </Svg>
       </TouchableOpacity>
 
+      <LanguageSettings style={{marginTop: 24}} />
+
       <Text
         style={{
           color: 'rgba(255, 255, 255, 0.50)',
@@ -200,7 +208,7 @@ function AccountMain({navigation}) {
           marginTop: 24,
           width: '90%',
         }}>
-        Дополнительно
+        {t('account.moreSection')}
       </Text>
 
       <TouchableOpacity
@@ -226,7 +234,7 @@ function AccountMain({navigation}) {
               fontSize: 16,
               lineHeight: 20,
             }}>
-            Оцените приложение
+            {t('account.rateApp')}
           </Text>
           <Text
             style={{
@@ -235,7 +243,7 @@ function AccountMain({navigation}) {
               fontSize: 14,
               lineHeight: 16,
             }}>
-            Нам важна обратная связь
+            {t('account.rateAppHint')}
           </Text>
         </View>
         <Svg
@@ -276,7 +284,7 @@ function AccountMain({navigation}) {
                 fontSize: 16,
                 lineHeight: 20,
               }}>
-              Поддержка
+              {t('nav.supportTitle')}
             </Text>
             <Text
               style={{
@@ -285,7 +293,7 @@ function AccountMain({navigation}) {
                 fontSize: 14,
                 lineHeight: 16,
               }}>
-              Контакты разработчика
+              {t('account.supportHint')}
             </Text>
           </View>
           <Svg
@@ -302,6 +310,8 @@ function AccountMain({navigation}) {
           </Svg>
         </TouchableOpacity>
       ) : null}
+
+      </ScrollView>
 
       <Modal
         transparent={true}

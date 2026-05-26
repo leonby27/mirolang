@@ -62,6 +62,15 @@
       "en": "English"
     }
   },
+  "account": {
+    "upgradeToProSubtitle": "Try the Pro version",
+    "signInHint": "To restore purchases",
+    "accountSettingsHint": "Account settings",
+    "moreSection": "More",
+    "rateApp": "Rate the app",
+    "rateAppHint": "Your feedback matters",
+    "supportHint": "Developer contacts"
+  },
   "onboarding": {
     "slide0": {
       "title": "Expand your English\nvocabulary",
