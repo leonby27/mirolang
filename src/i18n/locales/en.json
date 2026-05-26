@@ -143,6 +143,28 @@
     "mailUnsupported": "Mail app is not available",
     "description": " — an app where you can learn\nvocabulary level by level, review what\nyou've already learned, and lock it in."
   },
+  "overview": {
+    "resetWord.title": "Reset word progress?",
+    "resetWord.description": "This resets the word back to the start of its review cycle.",
+    "resetWord.cancel": "No",
+    "resetWord.confirm": "Reset",
+    "badge.learned": "Learned",
+    "badge.learning": "Repeats left: {{n}}",
+    "badge.skipped": "Skipped word",
+    "levelLabel": "Level {{id}}",
+    "action.skipped": "Learn this word",
+    "action.learning": "Mark as learned",
+    "action.learned": "Reset progress",
+    "nav.prev": "Back",
+    "nav.next": "Next",
+    "empty.skipped.title": "No skipped words",
+    "empty.skipped.description": "You haven't skipped any words yet. Mark familiar words as “Skip” to see them here.",
+    "empty.learning.title": "No words to repeat",
+    "empty.learning.description": "You have no words to repeat. Mark new words as “Learn” to see them here.",
+    "empty.learned.title": "No learned words",
+    "empty.learned.description": "You haven't learned any words yet. Complete all repeats for a word to see it here.",
+    "close": "Close"
+  },
   "history": {
     "learned": {
       "title": "Learned",

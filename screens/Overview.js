@@ -17,8 +17,10 @@ import firestore from '@react-native-firebase/firestore';
 import Tts from 'react-native-tts';
 import Sound from 'react-native-sound';
 import {useContentInfo, useGuardAgainstPairChange} from '../src/contentData';
+import {useTranslation} from 'react-i18next';
 
 function Overview({navigation, route}) {
+  const {t} = useTranslation();
   const {ttsLang} = useContentInfo();
   useGuardAgainstPairChange(navigation);
   const width = Dimensions.get('window').width;
@@ -109,15 +111,15 @@ function Overview({navigation, route}) {
       setWords(updatedwords);
     } else if (mode == 'learned') {
       Alert.alert(
-        'Сбросить прогресс слова?',
-        'Это действие сбросит прогресс по слову до начала повторения.',
+        t('overview.resetWord.title'),
+        t('overview.resetWord.description'),
         [
           {
-            text: 'Нет',
+            text: t('overview.resetWord.cancel'),
             style: 'cancel',
           },
           {
-            text: 'Сбросить',
+            text: t('overview.resetWord.confirm'),
             onPress: () => {
               updatedwords = updatedwords.filter(
                 word => word.id != words[index].id,
@@ -184,11 +186,10 @@ function Overview({navigation, route}) {
                 </Svg>
                 <Text style={styles.RepeatText}>
                   {mode == 'learned'
-                    ? 'Выученное'
+                    ? t('overview.badge.learned')
                     : mode == 'learning'
-                    ? 'Осталось повторов: ' +
-                      (6 - words[index].status).toString()
-                    : 'Пропущенное слово'}
+                    ? t('overview.badge.learning', {n: 6 - words[index].status})
+                    : t('overview.badge.skipped')}
                 </Text>
               </View>
               <View
@@ -256,7 +257,7 @@ function Overview({navigation, route}) {
               fontFamily: 'Inter-Regular',
               color: 'rgba(255, 255, 255, 0.50)',
             }}>
-            Уровень {words[index].level}
+            {t('overview.levelLabel', {id: words[index].level})}
           </Text>
           <Text
             style={{
@@ -341,10 +342,10 @@ function Overview({navigation, route}) {
                     : '#FF5858',
               }}>
               {mode == 'skipped'
-                ? 'Учить слово'
+                ? t('overview.action.skipped')
                 : mode == 'learning'
-                ? 'Пометить как выучено'
-                : 'Сбросить прогресс'}
+                ? t('overview.action.learning')
+                : t('overview.action.learned')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -395,7 +396,7 @@ function Overview({navigation, route}) {
                   fontSize: 16,
                   lineHeight: 20,
                 }}>
-                Назад
+                {t('overview.nav.prev')}
               </Text>
             </TouchableOpacity>
 
@@ -427,7 +428,7 @@ function Overview({navigation, route}) {
                   fontSize: 16,
                   lineHeight: 20,
                 }}>
-                Вперёд
+                {t('overview.nav.next')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -448,10 +449,10 @@ function Overview({navigation, route}) {
                 color: 'white',
               }}>
               {mode == 'skipped'
-                ? 'Нет пропущенных слов'
+                ? t('overview.empty.skipped.title')
                 : mode == 'learning'
-                ? 'Нет слов для повторения'
-                : 'Нет выученных слов'}
+                ? t('overview.empty.learning.title')
+                : t('overview.empty.learned.title')}
             </Text>
             <Text
               style={{
@@ -464,10 +465,10 @@ function Overview({navigation, route}) {
                 color: 'rgba(255, 255, 255, 0.50)',
               }}>
               {mode == 'skipped'
-                ? 'У вас пока нет ни одного пропущенного слова. Отметьте знакомые слова как “Пропустить”, чтобы они были здесь.'
+                ? t('overview.empty.skipped.description')
                 : mode == 'learning'
-                ? 'У вас пока нет ни одного слова для повторения. Отметьте знакомые слова как “Учить”, чтобы они были здесь.'
-                : 'У вас пока нет ни одного выученного слова. Повторите новое слово все разы, чтобы оно здесь отобразилось.'}
+                ? t('overview.empty.learning.description')
+                : t('overview.empty.learned.description')}
             </Text>
 
             <View
@@ -493,7 +494,7 @@ function Overview({navigation, route}) {
                     lineHeight: 20,
                     color: '#000000',
                   }}>
-                  Закрыть
+                  {t('overview.close')}
                 </Text>
               </TouchableOpacity>
             </View>
