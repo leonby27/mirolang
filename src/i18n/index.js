@@ -20,8 +20,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import ru from './locales/ru.json';
 import en from './locales/en.json';
+import de from './locales/de.json';
+import nl from './locales/nl.json';
+import fr from './locales/fr.json';
+import es from './locales/es.json';
+import it from './locales/it.json';
 
-export const SUPPORTED_LOCALES = ['en', 'ru'];
+export const SUPPORTED_LOCALES = ['en', 'ru', 'de', 'nl', 'fr', 'es', 'it'];
 export const DEFAULT_LOCALE = 'en';
 const STORAGE_KEY = 'app.locale';
 
@@ -62,6 +67,11 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {translation: en},
     ru: {translation: ru},
+    de: {translation: de},
+    nl: {translation: nl},
+    fr: {translation: fr},
+    es: {translation: es},
+    it: {translation: it},
   },
   lng: DEFAULT_LOCALE,
   fallbackLng: DEFAULT_LOCALE,

@@ -1,0 +1,87 @@
+{
+  "tabs": {
+    "levels": "Niveaus",
+    "history": "Geschiedenis",
+    "account": "Account"
+  },
+  "nav": {
+    "back": "Terug",
+    "levelsTitle": "Niveaus",
+    "loginTitle": "Inloggen",
+    "accountSettingsTitle": "Accountinstellingen",
+    "supportTitle": "Ondersteuning",
+    "accountTitle": "Account",
+    "historyTitle": "Geschiedenis"
+  },
+  "levels": {
+    "headerTitle": "Doorbreek je Engelse\nwoordenschat-plateau",
+    "headerDescription": "6.500 veelgebruikte woorden —\nsamen >98 % van het dagelijks taalgebruik",
+    "levelClosed": "Vergrendeld",
+    "modalTitle": "Niveau vergrendeld",
+    "modalDescription": "Rond de vorige niveaus af op\n90 % of meer om dit te ontgrendelen.",
+    "modalUnlockCta": "Dit niveau ontgrendelen"
+  },
+  "paywall": {
+    "subtitle": "Doorbreek je taalplateau —\nleer de 6.500 woorden die\nontwikkelde moedertaalsprekers gebruiken",
+    "yearly": "Jaarlijks",
+    "yearlyPricePerYear": "{{price}} / jaar",
+    "yearlyPriceMissing": "— / jaar",
+    "proBadge": "Pro",
+    "feature.unlimited.title": "Onbeperkt woorden per dag",
+    "feature.unlimited.description": "Leer elke dag zoveel\nnieuwe woorden als je wilt.",
+    "feature.unlock.title": "Alle niveaus ontgrendelen",
+    "feature.unlock.description": "Directe toegang tot elk\nvergrendeld niveau.",
+    "terms.preamble": "Met je abonnement ga je akkoord met onze",
+    "terms.terms": "Voorwaarden",
+    "terms.and": "en",
+    "terms.privacy": "Privacybeleid",
+    "cta": "Doorgaan naar abonnement"
+  },
+  "common": {
+    "close": "Sluiten",
+    "continue": "Doorgaan",
+    "cancel": "Annuleren",
+    "ok": "OK",
+    "loading": "Laden…"
+  },
+  "settings": {
+    "nativeLanguage": "Moedertaal",
+    "nativeLanguageHint": "Bepaalt zowel de taal van de interface als de woordvertalingen",
+    "targetLanguage": "Taal die ik leer",
+    "targetLanguageComingSoon": "Meer doeltalen komen binnenkort",
+    "logout": "Uitloggen",
+    "nativeLanguageNames": {
+      "ru": "Русский",
+      "de": "Deutsch",
+      "nl": "Nederlands",
+      "fr": "Français",
+      "es": "Español",
+      "it": "Italiano"
+    },
+    "targetLanguageNames": {
+      "en": "English"
+    }
+  },
+  "onboarding": {
+    "slide0": {
+      "title": "Breid je Engelse\nwoordenschat uit",
+      "text": "6.500 veelgebruikte woorden,\nverdeeld over 25 niveaus.",
+      "button": "Doorgaan"
+    },
+    "slide1": {
+      "title": "Begin met de woorden\ndie je het vaakst tegenkomt",
+      "text": "De niveaus zijn op woordfrequentie\ngeordend — van algemeen naar zeldzaam.",
+      "button": "Top"
+    },
+    "slide2": {
+      "title": "Houd zelf controle\nover je voortgang",
+      "text": "Sla bekende woorden over, leer nieuwe,\nherzie vergeten woorden.",
+      "button": "Precies wat ik nodig heb"
+    },
+    "slide3": {
+      "title": "Probeer het nu\ngratis uit",
+      "text": "Beheers de 6.500 woorden die\nontwikkelde moedertaalsprekers\nécht gebruiken.",
+      "button": "Beginnen"
+    }
+  }
+}

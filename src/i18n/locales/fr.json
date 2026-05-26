@@ -1,0 +1,87 @@
+{
+  "tabs": {
+    "levels": "Niveaux",
+    "history": "Historique",
+    "account": "Compte"
+  },
+  "nav": {
+    "back": "Retour",
+    "levelsTitle": "Niveaux",
+    "loginTitle": "Se connecter",
+    "accountSettingsTitle": "Paramètres du compte",
+    "supportTitle": "Assistance",
+    "accountTitle": "Compte",
+    "historyTitle": "Historique"
+  },
+  "levels": {
+    "headerTitle": "Brise ton plateau\nde vocabulaire anglais",
+    "headerDescription": "6 500 mots fréquents qui couvrent\n>98 % du vocabulaire courant",
+    "levelClosed": "Verrouillé",
+    "modalTitle": "Niveau verrouillé",
+    "modalDescription": "Termine les niveaux précédents\nà 90 % ou plus pour ouvrir celui-ci.",
+    "modalUnlockCta": "Débloquer ce niveau"
+  },
+  "paywall": {
+    "subtitle": "Brise ton plateau linguistique —\nmaîtrise les 6 500 mots utilisés\npar les locuteurs natifs cultivés",
+    "yearly": "Annuel",
+    "yearlyPricePerYear": "{{price}} / an",
+    "yearlyPriceMissing": "— / an",
+    "proBadge": "Pro",
+    "feature.unlimited.title": "Mots illimités par jour",
+    "feature.unlimited.description": "Apprends autant de nouveaux\nmots que tu veux chaque jour.",
+    "feature.unlock.title": "Débloquer tous les niveaux",
+    "feature.unlock.description": "Accès immédiat à chaque\nniveau verrouillé.",
+    "terms.preamble": "En souscrivant, tu acceptes nos",
+    "terms.terms": "Conditions",
+    "terms.and": "et notre",
+    "terms.privacy": "Politique de confidentialité",
+    "cta": "Continuer vers l'abonnement"
+  },
+  "common": {
+    "close": "Fermer",
+    "continue": "Continuer",
+    "cancel": "Annuler",
+    "ok": "OK",
+    "loading": "Chargement…"
+  },
+  "settings": {
+    "nativeLanguage": "Langue maternelle",
+    "nativeLanguageHint": "Définit à la fois la langue de l'interface et celle des traductions",
+    "targetLanguage": "Langue que j'apprends",
+    "targetLanguageComingSoon": "D'autres langues cibles arrivent bientôt",
+    "logout": "Se déconnecter",
+    "nativeLanguageNames": {
+      "ru": "Русский",
+      "de": "Deutsch",
+      "nl": "Nederlands",
+      "fr": "Français",
+      "es": "Español",
+      "it": "Italiano"
+    },
+    "targetLanguageNames": {
+      "en": "English"
+    }
+  },
+  "onboarding": {
+    "slide0": {
+      "title": "Élargis ton\nvocabulaire anglais",
+      "text": "6 500 mots fréquents répartis\nsur 25 niveaux.",
+      "button": "Continuer"
+    },
+    "slide1": {
+      "title": "Commence par les mots\nque tu rencontreras le plus",
+      "text": "Les niveaux sont classés par fréquence,\ndu plus courant au plus rare.",
+      "button": "Parfait"
+    },
+    "slide2": {
+      "title": "Garde le contrôle\nde ta progression",
+      "text": "Saute ce que tu sais, apprends du nouveau,\nrévise ce que tu as oublié.",
+      "button": "C'est ce qu'il me faut"
+    },
+    "slide3": {
+      "title": "Essaie gratuitement\ndès maintenant",
+      "text": "Maîtrise les 6 500 mots qu'utilisent\nles locuteurs natifs cultivés.",
+      "button": "Commencer"
+    }
+  }
+}

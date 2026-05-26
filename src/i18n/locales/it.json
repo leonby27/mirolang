@@ -1,0 +1,87 @@
+{
+  "tabs": {
+    "levels": "Livelli",
+    "history": "Cronologia",
+    "account": "Account"
+  },
+  "nav": {
+    "back": "Indietro",
+    "levelsTitle": "Livelli",
+    "loginTitle": "Accedi",
+    "accountSettingsTitle": "Impostazioni account",
+    "supportTitle": "Assistenza",
+    "accountTitle": "Account",
+    "historyTitle": "Cronologia"
+  },
+  "levels": {
+    "headerTitle": "Supera il tuo plateau\ndi vocabolario inglese",
+    "headerDescription": "6.500 parole frequenti che coprono\n>98 % del vocabolario quotidiano",
+    "levelClosed": "Bloccato",
+    "modalTitle": "Livello bloccato",
+    "modalDescription": "Completa i livelli precedenti al 90 %\no più per sbloccare questo.",
+    "modalUnlockCta": "Sblocca questo livello"
+  },
+  "paywall": {
+    "subtitle": "Supera il tuo plateau linguistico —\nimpara le 6.500 parole usate\ndai madrelingua colti",
+    "yearly": "Annuale",
+    "yearlyPricePerYear": "{{price}} / anno",
+    "yearlyPriceMissing": "— / anno",
+    "proBadge": "Pro",
+    "feature.unlimited.title": "Parole illimitate al giorno",
+    "feature.unlimited.description": "Impara tutte le nuove parole\nche vuoi ogni giorno.",
+    "feature.unlock.title": "Sblocca tutti i livelli",
+    "feature.unlock.description": "Accesso immediato a ogni\nlivello bloccato.",
+    "terms.preamble": "Abbonandoti accetti i nostri",
+    "terms.terms": "Termini",
+    "terms.and": "e l'",
+    "terms.privacy": "Informativa sulla privacy",
+    "cta": "Vai all'abbonamento"
+  },
+  "common": {
+    "close": "Chiudi",
+    "continue": "Continua",
+    "cancel": "Annulla",
+    "ok": "OK",
+    "loading": "Caricamento…"
+  },
+  "settings": {
+    "nativeLanguage": "Lingua madre",
+    "nativeLanguageHint": "Imposta sia la lingua dell'interfaccia sia quella delle traduzioni",
+    "targetLanguage": "Lingua che sto imparando",
+    "targetLanguageComingSoon": "Presto aggiungeremo altre lingue da imparare",
+    "logout": "Esci",
+    "nativeLanguageNames": {
+      "ru": "Русский",
+      "de": "Deutsch",
+      "nl": "Nederlands",
+      "fr": "Français",
+      "es": "Español",
+      "it": "Italiano"
+    },
+    "targetLanguageNames": {
+      "en": "English"
+    }
+  },
+  "onboarding": {
+    "slide0": {
+      "title": "Amplia il tuo\nvocabolario inglese",
+      "text": "6.500 parole frequenti\nsuddivise in 25 livelli.",
+      "button": "Continua"
+    },
+    "slide1": {
+      "title": "Inizia dalle parole\nche incontrerai più spesso",
+      "text": "I livelli sono ordinati per frequenza,\ndal comune al raro.",
+      "button": "Perfetto"
+    },
+    "slide2": {
+      "title": "Controlla tu\nil tuo progresso",
+      "text": "Salta ciò che sai, impara nuove parole,\nrivedi quelle dimenticate.",
+      "button": "Esattamente ciò che mi serve"
+    },
+    "slide3": {
+      "title": "Provalo gratis\nora",
+      "text": "Padroneggia le 6.500 parole\nusate dai madrelingua colti.",
+      "button": "Inizia"
+    }
+  }
+}

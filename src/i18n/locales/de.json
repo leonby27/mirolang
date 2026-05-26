@@ -1,0 +1,87 @@
+{
+  "tabs": {
+    "levels": "Stufen",
+    "history": "Verlauf",
+    "account": "Konto"
+  },
+  "nav": {
+    "back": "Zurück",
+    "levelsTitle": "Stufen",
+    "loginTitle": "Anmelden",
+    "accountSettingsTitle": "Kontoeinstellungen",
+    "supportTitle": "Support",
+    "accountTitle": "Konto",
+    "historyTitle": "Verlauf"
+  },
+  "levels": {
+    "headerTitle": "Durchbrich dein englisches\nWortschatz-Plateau",
+    "headerDescription": "6.500 häufige Wörter — sie decken\n>98 % des Alltagswortschatzes ab",
+    "levelClosed": "Gesperrt",
+    "modalTitle": "Stufe gesperrt",
+    "modalDescription": "Schließe die vorherigen Stufen zu\nmindestens 90 % ab, um diese zu öffnen.",
+    "modalUnlockCta": "Diese Stufe freischalten"
+  },
+  "paywall": {
+    "subtitle": "Durchbrich dein Sprach-Plateau —\nlerne die 6.500 Wörter, die\ngebildete Muttersprachler nutzen",
+    "yearly": "Jährlich",
+    "yearlyPricePerYear": "{{price}} / Jahr",
+    "yearlyPriceMissing": "— / Jahr",
+    "proBadge": "Pro",
+    "feature.unlimited.title": "Unbegrenzte Wörter pro Tag",
+    "feature.unlimited.description": "Lerne so viele neue Wörter\npro Tag, wie du willst.",
+    "feature.unlock.title": "Alle Stufen freischalten",
+    "feature.unlock.description": "Sofortiger Zugriff auf jede\ngesperrte Stufe.",
+    "terms.preamble": "Mit dem Abo akzeptierst du unsere",
+    "terms.terms": "AGB",
+    "terms.and": "und",
+    "terms.privacy": "Datenschutzerklärung",
+    "cta": "Zum Abo"
+  },
+  "common": {
+    "close": "Schließen",
+    "continue": "Weiter",
+    "cancel": "Abbrechen",
+    "ok": "OK",
+    "loading": "Lädt…"
+  },
+  "settings": {
+    "nativeLanguage": "Muttersprache",
+    "nativeLanguageHint": "Bestimmt die Sprache der Oberfläche und der Wortübersetzungen",
+    "targetLanguage": "Sprache, die ich lerne",
+    "targetLanguageComingSoon": "Weitere Lern-Sprachen folgen bald",
+    "logout": "Abmelden",
+    "nativeLanguageNames": {
+      "ru": "Русский",
+      "de": "Deutsch",
+      "nl": "Nederlands",
+      "fr": "Français",
+      "es": "Español",
+      "it": "Italiano"
+    },
+    "targetLanguageNames": {
+      "en": "English"
+    }
+  },
+  "onboarding": {
+    "slide0": {
+      "title": "Erweitere deinen\nenglischen Wortschatz",
+      "text": "6.500 häufige Wörter, verteilt\nauf 25 Stufen.",
+      "button": "Weiter"
+    },
+    "slide1": {
+      "title": "Beginne mit den Wörtern,\ndie am häufigsten vorkommen",
+      "text": "Die Stufen sind nach Worthäufigkeit\nsortiert — vom Gängigen zum Seltenen.",
+      "button": "Super"
+    },
+    "slide2": {
+      "title": "Du behältst die Kontrolle\nüber deinen Fortschritt",
+      "text": "Überspringe Bekanntes, lerne Neues,\nwiederhole Vergessenes.",
+      "button": "Genau das Richtige"
+    },
+    "slide3": {
+      "title": "Probiere es jetzt\nkostenlos aus",
+      "text": "Beherrsche die 6.500 Wörter,\ndie gebildete Muttersprachler\nwirklich nutzen.",
+      "button": "Loslegen"
+    }
+  }
+}

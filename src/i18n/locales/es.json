@@ -1,0 +1,87 @@
+{
+  "tabs": {
+    "levels": "Niveles",
+    "history": "Historial",
+    "account": "Cuenta"
+  },
+  "nav": {
+    "back": "Atrás",
+    "levelsTitle": "Niveles",
+    "loginTitle": "Iniciar sesión",
+    "accountSettingsTitle": "Ajustes de cuenta",
+    "supportTitle": "Soporte",
+    "accountTitle": "Cuenta",
+    "historyTitle": "Historial"
+  },
+  "levels": {
+    "headerTitle": "Rompe tu meseta\nde vocabulario inglés",
+    "headerDescription": "6.500 palabras frecuentes que cubren\n>98 % del vocabulario diario",
+    "levelClosed": "Bloqueado",
+    "modalTitle": "Nivel bloqueado",
+    "modalDescription": "Completa los niveles anteriores\nal 90 % o más para desbloquear este.",
+    "modalUnlockCta": "Desbloquear este nivel"
+  },
+  "paywall": {
+    "subtitle": "Rompe tu meseta lingüística —\ndomina las 6.500 palabras que usan\nlos hablantes nativos cultos",
+    "yearly": "Anual",
+    "yearlyPricePerYear": "{{price}} / año",
+    "yearlyPriceMissing": "— / año",
+    "proBadge": "Pro",
+    "feature.unlimited.title": "Palabras ilimitadas al día",
+    "feature.unlimited.description": "Aprende todas las palabras\nnuevas que quieras cada día.",
+    "feature.unlock.title": "Desbloquear todos los niveles",
+    "feature.unlock.description": "Acceso inmediato a cada\nnivel bloqueado.",
+    "terms.preamble": "Al suscribirte aceptas nuestros",
+    "terms.terms": "Términos",
+    "terms.and": "y la",
+    "terms.privacy": "Política de Privacidad",
+    "cta": "Continuar a la suscripción"
+  },
+  "common": {
+    "close": "Cerrar",
+    "continue": "Continuar",
+    "cancel": "Cancelar",
+    "ok": "Aceptar",
+    "loading": "Cargando…"
+  },
+  "settings": {
+    "nativeLanguage": "Lengua materna",
+    "nativeLanguageHint": "Define el idioma de la interfaz y de las traducciones de las palabras",
+    "targetLanguage": "Idioma que estoy aprendiendo",
+    "targetLanguageComingSoon": "Pronto añadiremos más idiomas para aprender",
+    "logout": "Cerrar sesión",
+    "nativeLanguageNames": {
+      "ru": "Русский",
+      "de": "Deutsch",
+      "nl": "Nederlands",
+      "fr": "Français",
+      "es": "Español",
+      "it": "Italiano"
+    },
+    "targetLanguageNames": {
+      "en": "English"
+    }
+  },
+  "onboarding": {
+    "slide0": {
+      "title": "Amplía tu\nvocabulario inglés",
+      "text": "6.500 palabras frecuentes\nrepartidas en 25 niveles.",
+      "button": "Continuar"
+    },
+    "slide1": {
+      "title": "Empieza por las palabras\nque verás más a menudo",
+      "text": "Los niveles están ordenados por frecuencia,\nde lo común a lo raro.",
+      "button": "Genial"
+    },
+    "slide2": {
+      "title": "Lleva las riendas\nde tu progreso",
+      "text": "Salta lo que ya sabes, aprende lo nuevo,\nrepasa lo olvidado.",
+      "button": "Justo lo que necesito"
+    },
+    "slide3": {
+      "title": "Pruébalo gratis\nahora mismo",
+      "text": "Domina las 6.500 palabras que usan\nlos hablantes nativos cultos.",
+      "button": "Empezar"
+    }
+  }
+}
