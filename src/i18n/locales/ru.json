@@ -89,6 +89,21 @@
       "it": "Italiano"
     }
   },
+  "accountSettings": {
+    "logoutAlert.title": "Выйти из аккаунта?",
+    "logoutAlert.description": "Вы уверены, что хотите выйти из своего аккаунта?",
+    "logoutAlert.confirm": "Да",
+    "logoutAlert.cancel": "Нет",
+    "deleteAlert.title": "Удалить аккаунт",
+    "deleteAlert.description": "Вы уверены? Это действие нельзя будет отменить",
+    "deleteAlert.cancel": "Нет",
+    "deleteAlert.confirm": "Удалить",
+    "deleteError.title": "Ошибка",
+    "deleteError.body": "Не удалось удалить аккаунт. Попробуйте позже.",
+    "deleteAccountAction": "Удалить аккаунт",
+    "providerLine": "Вы авторизованы через {{provider}}",
+    "proSection": "Доступно с MiroLang Pro"
+  },
   "account": {
     "upgradeToProSubtitle": "Попробуйте Pro версию",
     "signInHint": "Чтобы восстановить покупки",

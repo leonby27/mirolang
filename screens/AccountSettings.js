@@ -79,11 +79,11 @@ function AccountSettings({navigation, route}) {
 
   const logOutApple = async () =>
     Alert.alert(
-      'Выйти из аккаунта?',
-      'Вы уверены, что хотите выйти из своего аккаунта?',
+      t('accountSettings.logoutAlert.title'),
+      t('accountSettings.logoutAlert.description'),
       [
         {
-          text: 'Да',
+          text: t('accountSettings.logoutAlert.confirm'),
           style: 'dark',
           onPress: async () => {
             try {
@@ -96,7 +96,7 @@ function AccountSettings({navigation, route}) {
           },
         },
         {
-          text: 'Нет',
+          text: t('accountSettings.logoutAlert.cancel'),
           style: 'default',
         },
       ],
@@ -105,11 +105,11 @@ function AccountSettings({navigation, route}) {
 
   const logOutAndroid = async () =>
     Alert.alert(
-      'Выйти из аккаунта?',
-      'Вы уверены, что хотите выйти из своего аккаунта?',
+      t('accountSettings.logoutAlert.title'),
+      t('accountSettings.logoutAlert.description'),
       [
         {
-          text: 'Да',
+          text: t('accountSettings.logoutAlert.confirm'),
           style: 'default',
           onPress: async () => {
             try {
@@ -131,7 +131,7 @@ function AccountSettings({navigation, route}) {
           },
         },
         {
-          text: 'Нет',
+          text: t('accountSettings.logoutAlert.cancel'),
           style: 'default',
         },
       ],
@@ -148,15 +148,15 @@ function AccountSettings({navigation, route}) {
 
   const deleteAccount = async () =>
     Alert.alert(
-      'Удалить аккаунт',
-      'Вы уверены? Это действие нельзя будет отменить',
+      t('accountSettings.deleteAlert.title'),
+      t('accountSettings.deleteAlert.description'),
       [
         {
-          text: 'Нет',
+          text: t('accountSettings.deleteAlert.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Удалить',
+          text: t('accountSettings.deleteAlert.confirm'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -172,7 +172,10 @@ function AccountSettings({navigation, route}) {
               navigation.goBack();
             } catch (e) {
               console.warn('deleteAccount failed:', e);
-              Alert.alert('Ошибка', 'Не удалось удалить аккаунт. Попробуйте позже.');
+              Alert.alert(
+                t('accountSettings.deleteError.title'),
+                t('accountSettings.deleteError.body'),
+              );
             }
           },
         },
@@ -232,7 +235,7 @@ function AccountSettings({navigation, route}) {
                   lineHeight: 20,
                   color: '#FF5858',
                 }}>
-                Удалить аккаунт
+                {t('accountSettings.deleteAccountAction')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -266,8 +269,9 @@ function AccountSettings({navigation, route}) {
           fontFamily: 'Inter-Regular',
           marginTop: 4,
         }}>
-        Вы авторизованы через{' '}
-        {route.params.provider == 'google' ? 'Google' : 'Apple'}
+        {t('accountSettings.providerLine', {
+          provider: route.params.provider == 'google' ? 'Google' : 'Apple',
+        })}
       </Text>
       {progress?.user?.pro ? (
         <>
@@ -280,7 +284,7 @@ function AccountSettings({navigation, route}) {
               marginTop: 24,
               width: '90%',
             }}>
-            Доступно с MiroLang Pro
+            {t('accountSettings.proSection')}
           </Text>
           <View
             style={{
@@ -304,7 +308,7 @@ function AccountSettings({navigation, route}) {
                   fontSize: 16,
                   lineHeight: 20,
                 }}>
-                Открытие уровней
+                {t('paywall.feature.unlock.title')}
               </Text>
               <Text
                 style={{
@@ -313,7 +317,7 @@ function AccountSettings({navigation, route}) {
                   fontSize: 14,
                   lineHeight: 16,
                 }}>
-                {'Откройте доступ к закрытым\nуровням прямо сейчас.'}
+                {t('paywall.feature.unlock.description')}
               </Text>
             </View>
           </View>
@@ -339,7 +343,7 @@ function AccountSettings({navigation, route}) {
                   fontSize: 16,
                   lineHeight: 20,
                 }}>
-                Безлимит слов в день
+                {t('paywall.feature.unlimited.title')}
               </Text>
               <Text
                 style={{
@@ -348,7 +352,7 @@ function AccountSettings({navigation, route}) {
                   fontSize: 14,
                   lineHeight: 16,
                 }}>
-                {'Учите неограниченное количество\nновых слов каждый день.'}
+                {t('paywall.feature.unlimited.description')}
               </Text>
             </View>
           </View>

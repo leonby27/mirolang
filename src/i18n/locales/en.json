@@ -89,6 +89,21 @@
       "it": "Italiano"
     }
   },
+  "accountSettings": {
+    "logoutAlert.title": "Sign out?",
+    "logoutAlert.description": "Are you sure you want to sign out of your account?",
+    "logoutAlert.confirm": "Yes",
+    "logoutAlert.cancel": "No",
+    "deleteAlert.title": "Delete account",
+    "deleteAlert.description": "Are you sure? This action cannot be undone.",
+    "deleteAlert.cancel": "No",
+    "deleteAlert.confirm": "Delete",
+    "deleteError.title": "Error",
+    "deleteError.body": "Couldn't delete the account. Try again later.",
+    "deleteAccountAction": "Delete account",
+    "providerLine": "Signed in with {{provider}}",
+    "proSection": "Available with MiroLang Pro"
+  },
   "account": {
     "upgradeToProSubtitle": "Try the Pro version",
     "signInHint": "To restore purchases",
