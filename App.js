@@ -2,6 +2,7 @@ import {useEffect} from 'react';
 import {View, Platform} from 'react-native';
 import crashlytics from '@react-native-firebase/crashlytics';
 import analytics from '@react-native-firebase/analytics';
+import {initI18n} from './src/i18n';
 
 let rejectionTrackerInstalled = false;
 import {NavigationContainer} from '@react-navigation/native';
@@ -10,6 +11,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Svg, {Path, G, ClipPath, Rect, Defs} from 'react-native-svg';
+import {useTranslation} from 'react-i18next';
 
 import AccountMain from './screens/AccountMain';
 import HistoryMain from './screens/HistoryMain';
@@ -41,11 +43,12 @@ const stackOptions = {
 };
 
 function Levels() {
+  const {t} = useTranslation();
   return (
     <View style={{flex: 1, backgroundColor: '#000000'}}>
       <Stack.Navigator>
         <Stack.Screen
-          options={{headerShown: false, title: 'Уровни'}}
+          options={{headerShown: false, title: t('nav.levelsTitle')}}
           name="LevelsMain"
           component={LevelsMain}
         />
@@ -53,7 +56,7 @@ function Levels() {
           options={({route}) => ({
             ...stackOptions,
             title: route.params.title,
-            headerBackTitle: 'Назад',
+            headerBackTitle: t('nav.back'),
             headerBackTitleStyle: {fontSize: 18, fontFamily: 'Inter-Regular'},
           })}
           name="Prestart"
@@ -63,7 +66,7 @@ function Levels() {
           options={{
             ...stackOptions,
             headerTitleAlign: 'center',
-            title: 'Войти в аккаунт',
+            title: t('nav.loginTitle'),
           }}
           name="Login"
           component={Login}
@@ -74,11 +77,12 @@ function Levels() {
 }
 
 function History() {
+  const {t} = useTranslation();
   return (
     <View style={{flex: 1, backgroundColor: '#000000'}}>
       <Stack.Navigator>
         <Stack.Screen
-          options={{...stackOptions, title: 'История'}}
+          options={{...stackOptions, title: t('nav.historyTitle')}}
           name="HistoryMain"
           component={HistoryMain}
         />
@@ -93,6 +97,7 @@ function History() {
 }
 
 function Account() {
+  const {t} = useTranslation();
   return (
     <View style={{flex: 1, backgroundColor: '#000000'}}>
       <Stack.Navigator>
@@ -100,7 +105,7 @@ function Account() {
           options={{
             ...stackOptions,
             headerTitleAlign: 'left',
-            title: 'Аккаунт',
+            title: t('nav.accountTitle'),
           }}
           name="AccountMain"
           component={AccountMain}
@@ -109,7 +114,7 @@ function Account() {
           options={{
             ...stackOptions,
             headerTitleAlign: 'center',
-            title: 'Войти в аккаунт',
+            title: t('nav.loginTitle'),
           }}
           name="Login"
           component={Login}
@@ -118,7 +123,7 @@ function Account() {
           options={{
             ...stackOptions,
             headerTitleAlign: 'center',
-            title: 'Настройки аккаунта',
+            title: t('nav.accountSettingsTitle'),
           }}
           name="AccountSettings"
           component={AccountSettings}
@@ -127,7 +132,7 @@ function Account() {
           options={{
             ...stackOptions,
             headerTitleAlign: 'center',
-            title: 'Поддержка',
+            title: t('nav.supportTitle'),
           }}
           name="Support"
           component={Support}
@@ -138,6 +143,7 @@ function Account() {
 }
 
 function ScreensWihBottomTab() {
+  const {t} = useTranslation();
   return (
     <BottomTab.Navigator
       screenOptions={{
@@ -157,7 +163,7 @@ function ScreensWihBottomTab() {
       }}>
       <BottomTab.Screen
         options={{
-          title: 'Уровни',
+          title: t('tabs.levels'),
           tabBarIcon: ({color}) => (
             <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <Path
@@ -180,7 +186,7 @@ function ScreensWihBottomTab() {
       />
       <BottomTab.Screen
         options={{
-          title: 'История',
+          title: t('tabs.history'),
           tabBarIcon: ({color}) => (
             <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <Path
@@ -195,7 +201,7 @@ function ScreensWihBottomTab() {
       />
       <BottomTab.Screen
         options={{
-          title: 'Аккаунт',
+          title: t('tabs.account'),
           tabBarIcon: ({color}) => (
             <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <G clip-path="url(#clip0_2201_1255)">
@@ -220,8 +226,19 @@ function ScreensWihBottomTab() {
 }
 
 export default function App() {
+  const {t} = useTranslation();
+
   useEffect(() => {
-    SplashScreen.hide();
+    let cancelled = false;
+    (async () => {
+      try {
+        await initI18n();
+      } catch (e) {
+        try { crashlytics().recordError(e); } catch {}
+      }
+      if (cancelled) return;
+      SplashScreen.hide();
+    })();
     // Global error handler — forwards to Crashlytics
     const defaultHandler = global.ErrorUtils?.getGlobalHandler?.();
     global.ErrorUtils?.setGlobalHandler?.((error, isFatal) => {
@@ -244,6 +261,7 @@ export default function App() {
         rejectionTrackerInstalled = true;
       } catch {}
     }
+    return () => { cancelled = true; };
   }, []);
 
   return (
@@ -269,7 +287,7 @@ export default function App() {
                 options={{
                   ...stackOptions,
                   headerTitle: '',
-                  headerBackTitle: 'Назад',
+                  headerBackTitle: t('nav.back'),
                   headerBackTitleStyle: {
                     fontSize: 18,
                     fontFamily: 'Inter-Regular',
@@ -282,7 +300,7 @@ export default function App() {
                 options={{
                   ...stackOptions,
                   headerTitle: '',
-                  headerBackTitle: 'Назад',
+                  headerBackTitle: t('nav.back'),
                   headerBackTitleStyle: {
                     fontSize: 18,
                     fontFamily: 'Inter-Regular',

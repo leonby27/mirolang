@@ -10,10 +10,12 @@ import {
 import Swiper from 'react-native-swiper';
 import Svg, {Path, Rect} from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useTranslation} from 'react-i18next';
 
 const {height, width} = Dimensions.get('window');
 
 function SwiperComponent({setShowOnbording, getProgress}) {
+  const {t} = useTranslation();
   const [currentIndex, setIndex] = useState(0);
 
   const removeOnbording = async () => {
@@ -46,27 +48,27 @@ function SwiperComponent({setShowOnbording, getProgress}) {
   const onbordingData = [
     {
       id: 0,
-      mainText: 'Выучи английский\nвсего за 25 уровней',
-      text: '6,500 слов (98% всей лексики) разбиты на\n25 уровней сложности.',
-      buttonText: 'Продолжить',
+      mainText: t('onboarding.slide0.title'),
+      text: t('onboarding.slide0.text'),
+      buttonText: t('onboarding.slide0.button'),
     },
     {
       id: 1,
-      mainText: 'Начни учить с самых\nпопулярных слов',
-      text: 'Уровни разбиты по частоте употребления,\nначиная с самого простого.',
-      buttonText: 'Отлично',
+      mainText: t('onboarding.slide1.title'),
+      text: t('onboarding.slide1.text'),
+      buttonText: t('onboarding.slide1.button'),
     },
     {
       id: 2,
-      mainText: 'Гибко управляй\nсвоим прогрессом',
-      text: 'Пропускай знакомые слова, учи новые,\nвспоминай забытые.',
-      buttonText: 'То, что нужно!',
+      mainText: t('onboarding.slide2.title'),
+      text: t('onboarding.slide2.text'),
+      buttonText: t('onboarding.slide2.button'),
     },
     {
       id: 3,
-      mainText: 'Попробуйте бесплатно\nпрямо сейчас ',
-      text: 'С MiroLang вы увеличите свой словарный\nзапас в разы быстрее!',
-      buttonText: 'Начать',
+      mainText: t('onboarding.slide3.title'),
+      text: t('onboarding.slide3.text'),
+      buttonText: t('onboarding.slide3.button'),
     },
   ];
 

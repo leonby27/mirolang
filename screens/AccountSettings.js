@@ -13,8 +13,11 @@ import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import Svg, {Path} from 'react-native-svg';
+import {useTranslation} from 'react-i18next';
+import {SUPPORTED_LOCALES, setAppLocale} from '../src/i18n';
 
 function AccountSettings({navigation, route}) {
+  const {t, i18n} = useTranslation();
   const [showOptions, setShowOptions] = useState(false);
   const [progress, setProgress] = useState({
     user: null,
@@ -367,12 +370,61 @@ function AccountSettings({navigation, route}) {
         </>
       ) : null}
 
+      <Text
+        style={{
+          color: 'rgba(255, 255, 255, 0.50)',
+          fontFamily: 'Inter-Regular',
+          fontSize: 16,
+          lineHeight: 20,
+          marginTop: 32,
+          width: '90%',
+        }}>
+        {t('settings.language')}
+      </Text>
+      <View
+        style={{
+          width: '90%',
+          flexDirection: 'row',
+          gap: 8,
+          marginTop: 12,
+        }}>
+        {SUPPORTED_LOCALES.map(loc => {
+          const isActive = i18n.language === loc;
+          return (
+            <TouchableOpacity
+              key={loc}
+              onPress={() => setAppLocale(loc)}
+              style={{
+                flex: 1,
+                paddingVertical: 14,
+                alignItems: 'center',
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: isActive ? '#F1CC06' : '#313843',
+                backgroundColor: isActive
+                  ? 'rgba(241, 204, 6, 0.1)'
+                  : 'rgba(34, 37, 46, 0.5)',
+              }}>
+              <Text
+                style={{
+                  fontFamily: isActive ? 'Inter-Bold' : 'Inter-Regular',
+                  fontSize: 16,
+                  lineHeight: 20,
+                  color: isActive ? '#F1CC06' : '#FFFFFF',
+                }}>
+                {t(`settings.languageNames.${loc}`)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
       <TouchableOpacity
         onPress={Platform.OS === 'android' ? logOutAndroid : logOutApple}
         style={{
           width: '90%',
           padding: 18,
-          top: 20,
+          marginTop: 20,
           alignItems: 'center',
           borderRadius: 16,
           borderWidth: 1,
@@ -387,7 +439,7 @@ function AccountSettings({navigation, route}) {
             color: '#FFFFFF',
             opacity: 0.7,
           }}>
-          Выйти из аккаунта
+          {t('settings.logout')}
         </Text>
       </TouchableOpacity>
     </SafeAreaView>

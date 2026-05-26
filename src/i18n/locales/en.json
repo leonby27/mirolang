@@ -1,0 +1,77 @@
+{
+  "tabs": {
+    "levels": "Levels",
+    "history": "History",
+    "account": "Account"
+  },
+  "nav": {
+    "back": "Back",
+    "levelsTitle": "Levels",
+    "loginTitle": "Sign in",
+    "accountSettingsTitle": "Account settings",
+    "supportTitle": "Support",
+    "accountTitle": "Account",
+    "historyTitle": "History"
+  },
+  "levels": {
+    "headerTitle": "Break through your English\nvocabulary plateau",
+    "headerDescription": "6,500 high-frequency words covering\n>98% of everyday vocabulary",
+    "levelClosed": "Locked",
+    "modalTitle": "Level locked",
+    "modalDescription": "Finish the previous levels at 90%+\nto unlock this one.",
+    "modalUnlockCta": "Unlock this level"
+  },
+  "paywall": {
+    "subtitle": "Break through your language plateau —\nmaster the 6,500 words educated\nnative speakers actually use",
+    "yearly": "Yearly",
+    "yearlyPricePerYear": "{{price}} / year",
+    "yearlyPriceMissing": "— / year",
+    "proBadge": "Pro",
+    "feature.unlimited.title": "Unlimited daily words",
+    "feature.unlimited.description": "Learn as many new words\nas you want every day.",
+    "feature.unlock.title": "Unlock all levels",
+    "feature.unlock.description": "Instant access to every\nlocked level.",
+    "terms.preamble": "By subscribing you agree to our",
+    "terms.terms": "Terms",
+    "terms.and": "and",
+    "terms.privacy": "Privacy Policy",
+    "cta": "Continue to subscription"
+  },
+  "common": {
+    "close": "Close",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "loading": "Loading..."
+  },
+  "settings": {
+    "language": "Interface language",
+    "logout": "Sign out",
+    "languageNames": {
+      "ru": "Русский",
+      "en": "English"
+    }
+  },
+  "onboarding": {
+    "slide0": {
+      "title": "Expand your English\nvocabulary",
+      "text": "6,500 high-frequency words\nsplit across 25 levels.",
+      "button": "Continue"
+    },
+    "slide1": {
+      "title": "Start with the words\nyou'll see most often",
+      "text": "Levels are ordered by word frequency,\nfrom common to rare.",
+      "button": "Great"
+    },
+    "slide2": {
+      "title": "Stay in control\nof your progress",
+      "text": "Skip what you know, learn what's new,\nrevisit what you forgot.",
+      "button": "Just what I need"
+    },
+    "slide3": {
+      "title": "Try it free\nright now",
+      "text": "Master the 6,500 words educated\nnative speakers actually use.",
+      "button": "Start"
+    }
+  }
+}

@@ -9,6 +9,7 @@ import {
   Linking,
 } from 'react-native';
 import Svg, {Path, Rect, Circle} from 'react-native-svg';
+import {useTranslation} from 'react-i18next';
 import ProVersion from '../src/components/ProVersion';
 import {initIAP, loadProducts} from '../src/components/iap';
 
@@ -27,6 +28,7 @@ function MirolangPro({
   login,
   learn,
 }) {
+  const {t} = useTranslation();
   const [yearlyPrice, setYearlyPrice] = useState('');
 
   useEffect(() => {
@@ -121,9 +123,7 @@ function MirolangPro({
             width: '90%',
             marginBottom: 10,
           }}>
-          {
-            'Максимум возможностей и эксклюзивные\nфункции с подпиской MiroLang Pro'
-          }
+          {t('paywall.subtitle')}
         </Text>
 
         <View
@@ -160,7 +160,7 @@ function MirolangPro({
                 fontSize: 16,
                 lineHeight: 20,
               }}>
-              Ежегодно
+              {t('paywall.yearly')}
             </Text>
             <View
               style={{
@@ -178,7 +178,7 @@ function MirolangPro({
                   fontSize: 12,
                   lineHeight: 14,
                 }}>
-                Pro
+                {t('paywall.proBadge')}
               </Text>
             </View>
             <Text
@@ -191,7 +191,7 @@ function MirolangPro({
                 fontWeight: '400',
                 lineHeight: 20,
               }}>
-              {yearlyPrice ? `${yearlyPrice} в год` : '— в год'}
+              {yearlyPrice ? t('paywall.yearlyPricePerYear', {price: yearlyPrice}) : t('paywall.yearlyPriceMissing')}
             </Text>
           </View>
         </View>
@@ -222,7 +222,7 @@ function MirolangPro({
                     lineHeight: 20,
                     fontWeight: 700,
                   }}>
-                  Безлимит слов в день
+                  {t('paywall.feature.unlimited.title')}
                 </Text>
                 <Text
                   style={{
@@ -231,7 +231,7 @@ function MirolangPro({
                     fontSize: 14,
                     lineHeight: 16,
                   }}>
-                  {'Учите неограниченное количество\nновых слов каждый день.'}
+                  {t('paywall.feature.unlimited.description')}
                 </Text>
               </View>
             </View>
@@ -258,7 +258,7 @@ function MirolangPro({
                     fontSize: 16,
                     lineHeight: 20,
                   }}>
-                  Открытие уровней
+                  {t('paywall.feature.unlock.title')}
                 </Text>
                 <Text
                   style={{
@@ -267,7 +267,7 @@ function MirolangPro({
                     fontSize: 14,
                     lineHeight: 16,
                   }}>
-                  {'Откройте доступ к закрытым\nуровням прямо сейчас.'}
+                  {t('paywall.feature.unlock.description')}
                 </Text>
               </View>
             </View>
@@ -297,7 +297,7 @@ function MirolangPro({
                     fontSize: 16,
                     lineHeight: 20,
                   }}>
-                  Открытие уровней
+                  {t('paywall.feature.unlock.title')}
                 </Text>
                 <Text
                   style={{
@@ -306,7 +306,7 @@ function MirolangPro({
                     fontSize: 14,
                     lineHeight: 16,
                   }}>
-                  {'Откройте доступ к закрытым\nуровням прямо сейчас.'}
+                  {t('paywall.feature.unlock.description')}
                 </Text>
               </View>
             </View>
@@ -335,7 +335,7 @@ function MirolangPro({
                     lineHeight: 20,
                     fontWeight: 700,
                   }}>
-                  Безлимит слов в день
+                  {t('paywall.feature.unlimited.title')}
                 </Text>
                 <Text
                   style={{
@@ -344,7 +344,7 @@ function MirolangPro({
                     fontSize: 14,
                     lineHeight: 16,
                   }}>
-                  {'Учите неограниченное количество\nновых слов каждый день.'}
+                  {t('paywall.feature.unlimited.description')}
                 </Text>
               </View>
             </View>
@@ -352,19 +352,19 @@ function MirolangPro({
         )}
         <View style={styles.textContainer}>
           <Text style={styles.mainText}>
-            {'Подключая полную версию, вы принимаете наши\n'}
+            {t('paywall.terms.preamble')}
           </Text>
           <View style={styles.row}>
             <TouchableOpacity
               style={styles.linkContainer}
               onPress={() => Linking.openURL('https://mirolang.ru/terms').catch(err => console.warn('openURL failed:', err))}>
-              <Text style={styles.link}>Условия</Text>
+              <Text style={styles.link}>{t('paywall.terms.terms')}</Text>
             </TouchableOpacity>
-            <Text style={styles.text}>{'и'}</Text>
+            <Text style={styles.text}>{t('paywall.terms.and')}</Text>
             <TouchableOpacity
               style={styles.linkContainer}
               onPress={() => Linking.openURL('https://mirolang.ru/privacy').catch(err => console.warn('openURL failed:', err))}>
-              <Text style={styles.link}>Политику конфиденциальности</Text>
+              <Text style={styles.link}>{t('paywall.terms.privacy')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -428,7 +428,7 @@ function MirolangPro({
               color: '#14161B',
               paddingLeft: 10,
             }}>
-            Перейти к подписке
+            {t('paywall.cta')}
           </Text>
         </TouchableOpacity>
       </View>

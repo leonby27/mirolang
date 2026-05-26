@@ -1,6 +1,7 @@
 import React, {useRef, useState, useEffect, useMemo, useCallback} from 'react';
 import {View, Text, SafeAreaView, SectionList, StyleSheet, Image, Modal, Dimensions, TouchableOpacity, Alert} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import {useTranslation} from 'react-i18next';
 
 import data from '../src/data';
 import InactiveIcon from '../src/icons/inactive';
@@ -15,6 +16,7 @@ import MirolangPro from './MirolangPro';
 const {height, width} = Dimensions.get('window');
 
 function LevelsMain({navigation}) {
+  const {t} = useTranslation();
   const bottomSheetModalRef = useRef(null);
   const ProBottomSheetModalRef = useRef(null);
   const [showOnbording, setShowOnbording] = useState(false);
@@ -161,13 +163,9 @@ function LevelsMain({navigation}) {
               style={{width: 64, height: 64}}
               source={require('../src/england.png')}
             />
-            <Text style={styles.headerTitle}>
-              {'Выучи английские слова\nвсего за 25 уровней!'}
-            </Text>
+            <Text style={styles.headerTitle}>{t('levels.headerTitle')}</Text>
             <Text style={styles.headerDescription}>
-              {
-                'Здесь собрано более 6,500 слов,\nчто составляет >98% всей лексики!'
-              }
+              {t('levels.headerDescription')}
             </Text>
           </View>
         }
@@ -246,7 +244,7 @@ function LevelsMain({navigation}) {
                     lineHeight: 20,
                     fontFamily: 'Inter-Bold',
                   }}>
-                  {item.state != 'inactive' ? item.title : 'Уровень закрыт'}
+                  {item.state != 'inactive' ? item.title : t('levels.levelClosed')}
                   {item.state != 'finished' && item.state != 'inactive' && (
                     <>
                       {Math.round(
@@ -372,10 +370,10 @@ function LevelsMain({navigation}) {
               fontSize: 24,
               lineHeight: 32,
             }}>
-            Уровень закрыт
+            {t('levels.modalTitle')}
           </Text>
           <Text style={styles.headerDescription}>
-            {'Пройдите предыдущие уровни хотя бы на\n90%, чтобы открыть этот.'}
+            {t('levels.modalDescription')}
           </Text>
         </View>
 
@@ -404,7 +402,7 @@ function LevelsMain({navigation}) {
                 color: '#14161B',
                 paddingLeft: 10,
               }}>
-              Хочу открыть уровень
+              {t('levels.modalUnlockCta')}
             </Text>
           </TouchableOpacity>
         ) : null}
