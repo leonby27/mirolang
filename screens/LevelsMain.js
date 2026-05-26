@@ -3,8 +3,7 @@ import {View, Text, SafeAreaView, SectionList, StyleSheet, Image, Modal, Dimensi
 import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 
-import {getContentData} from '../src/contentData';
-import {useContentLanguage} from '../src/i18n';
+import {getContentData, useContentInfo} from '../src/contentData';
 import InactiveIcon from '../src/icons/inactive';
 import ActiveIcon from '../src/icons/active';
 import FinishedIcon from '../src/icons/finished';
@@ -71,7 +70,10 @@ function LevelsMain({navigation}) {
 
   const [categories, setCategories] = useState([]);
 
-  const contentLang = useContentLanguage();
+  // Subscribe to both axes (native + target) — when either changes the
+  // dataset selection or flipped flag can flip, so we need to recompute.
+  const contentInfo = useContentInfo();
+  const contentKey = `${contentInfo.native}:${contentInfo.target}`;
 
   const processData = progress => {
     const data = getContentData();
@@ -118,9 +120,9 @@ function LevelsMain({navigation}) {
       getProgress();
     });
     return focusHandler;
-    // contentLang in deps so switching language re-runs processData against
-    // the new dataset.
-  }, [navigation, contentLang]);
+    // contentKey in deps so switching either side of the pair re-runs
+    // processData against the new dataset.
+  }, [navigation, contentKey]);
 
   const getProgress = async () => {
     try {

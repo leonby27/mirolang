@@ -44,10 +44,20 @@ const STORAGE_KEY = 'app.locale';
 // Internally `currentContentLanguage` is still the source of truth for
 // the data resolver — `setNativeLanguage` wraps both that and the UI
 // locale change so callers don't have to coordinate them.
-export const SUPPORTED_NATIVE_LANGUAGES = ['ru', 'de', 'nl', 'fr', 'es', 'it'];
+// Every supported pair has English on one side: either the user knows
+// English and is learning a foreign language, or knows a foreign language
+// and is learning English. We don't have data files for foreign↔foreign
+// pairs (e.g. native=DE + target=FR), so `setNativeLanguage` /
+// `setTargetLanguage` coerce the pair to a valid combination if needed.
+export const SUPPORTED_NATIVE_LANGUAGES = ['ru', 'en', 'de', 'nl', 'fr', 'es', 'it'];
 export const DEFAULT_NATIVE_LANGUAGE = 'ru';
-export const SUPPORTED_TARGET_LANGUAGES = ['en'];
+export const SUPPORTED_TARGET_LANGUAGES = ['en', 'ru', 'de', 'nl', 'fr', 'es', 'it'];
 export const DEFAULT_TARGET_LANGUAGE = 'en';
+
+// Last-used foreign language, used when the user switches native FROM 'en'
+// (or target FROM 'en') so we can pick a sensible default for the other
+// side instead of forcing a fixed value.
+let lastForeignChoice = 'de';
 
 // Back-compat alias — the resolver and any old code keeps using these
 // names. They reference the same list / value as the native-language
@@ -120,6 +130,7 @@ async function loadContentLanguage() {
   } catch {}
   // First launch: default to RU (existing behaviour). When other source
   // languages exist, callers can decide whether to seed from device locale.
+  if (next !== 'en') lastForeignChoice = next;
   if (next === currentContentLanguage) return;
   currentContentLanguage = next;
   // Notify components that subscribed before init completed.
@@ -136,6 +147,7 @@ async function loadTargetLanguage() {
       next = saved;
     }
   } catch {}
+  if (next !== 'en') lastForeignChoice = next;
   if (next === currentTargetLanguage) return;
   currentTargetLanguage = next;
   for (const listener of targetLanguageListeners) {
@@ -183,13 +195,58 @@ export function getNativeLanguage() {
   return currentContentLanguage;
 }
 
-export async function setNativeLanguage(lang) {
-  if (!SUPPORTED_NATIVE_LANGUAGES.includes(lang)) return;
-  await setContentLanguage(lang);
-  const uiLang = SUPPORTED_LOCALES.includes(lang) ? lang : DEFAULT_LOCALE;
+/**
+ * Set the language pair, enforcing the invariant that exactly one side is
+ * 'en'. If the caller asks for an invalid combination (both 'en' or both
+ * foreign), we coerce the OTHER side to make the pair valid.
+ *
+ *   pivot = "native": native is authoritative, target gets coerced
+ *   pivot = "target": target is authoritative, native gets coerced
+ */
+async function applyLanguagePair(native, target, pivot) {
+  if (!SUPPORTED_NATIVE_LANGUAGES.includes(native)) return;
+  if (!SUPPORTED_TARGET_LANGUAGES.includes(target)) return;
+
+  if (pivot === 'native') {
+    if (native === 'en') {
+      // Native EN → target must be foreign. Keep target if it's already
+      // foreign; otherwise pick last-used foreign.
+      if (target === 'en') target = lastForeignChoice;
+    } else {
+      // Native foreign → target must be EN.
+      target = 'en';
+      lastForeignChoice = native;
+    }
+  } else {
+    if (target === 'en') {
+      if (native === 'en') native = lastForeignChoice;
+    } else {
+      native = 'en';
+      lastForeignChoice = target;
+    }
+  }
+
+  // Persist + propagate. setContentLanguage / target setter both no-op if
+  // unchanged, so calling them unconditionally is safe.
+  await setContentLanguage(native);
+  if (target !== currentTargetLanguage) {
+    currentTargetLanguage = target;
+    try {
+      await AsyncStorage.setItem(TARGET_STORAGE_KEY, target);
+    } catch {}
+    for (const listener of targetLanguageListeners) {
+      try { listener(target); } catch {}
+    }
+  }
+  // UI follows native; falls back to English when we have no locale file.
+  const uiLang = SUPPORTED_LOCALES.includes(native) ? native : DEFAULT_LOCALE;
   if (i18n.language !== uiLang) {
     await setAppLocale(uiLang);
   }
+}
+
+export async function setNativeLanguage(lang) {
+  await applyLanguagePair(lang, currentTargetLanguage, 'native');
 }
 
 export function useNativeLanguage() {
@@ -207,15 +264,7 @@ export function getTargetLanguage() {
 }
 
 export async function setTargetLanguage(lang) {
-  if (!SUPPORTED_TARGET_LANGUAGES.includes(lang)) return;
-  if (lang === currentTargetLanguage) return;
-  currentTargetLanguage = lang;
-  try {
-    await AsyncStorage.setItem(TARGET_STORAGE_KEY, lang);
-  } catch {}
-  for (const listener of targetLanguageListeners) {
-    try { listener(lang); } catch {}
-  }
+  await applyLanguagePair(currentContentLanguage, lang, 'target');
 }
 
 export function subscribeTargetLanguage(listener) {

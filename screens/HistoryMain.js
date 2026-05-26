@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, FlatList, StyleSheet, Image, SafeAreaView, TouchableOpacity } from 'react-native';
 import Svg, { Path } from 'react-native-svg'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getContentData} from '../src/contentData';
-import {useContentLanguage} from '../src/i18n';
+import {getContentData, useContentInfo} from '../src/contentData';
 
 function HistoryMain({navigation}) {
 
-  const contentLang = useContentLanguage();
+  const contentInfo = useContentInfo();
+  const contentKey = `${contentInfo.native}:${contentInfo.target}`;
   const [wordsCount, setWordsCount] = useState({
     'learned': 0,
     'learning' : 0,
@@ -20,8 +20,8 @@ function HistoryMain({navigation}) {
     });
     getProgress();
     return focusHandler;
-    // contentLang in deps so the counts recompute when source language switches.
-  }, [navigation, contentLang]);
+    // contentKey in deps so the counts recompute when either side of the pair changes.
+  }, [navigation, contentKey]);
 
   const normalizeData = (progress) => {
     const data = getContentData();

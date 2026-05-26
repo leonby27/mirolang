@@ -16,8 +16,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import Tts from 'react-native-tts';
 import Sound from 'react-native-sound';
+import {useContentInfo} from '../src/contentData';
 
 function Overview({navigation, route}) {
+  const {ttsLang} = useContentInfo();
   const width = Dimensions.get('window').width;
   const height = Dimensions.get('window').height;
   const [index, setIndex] = useState(1);
@@ -41,7 +43,7 @@ function Overview({navigation, route}) {
   }, []);
   const [progress, setProgress] = useState(route.params.progress);
   useEffect(() => {
-    Tts.setDefaultLanguage('en-CA');
+    Tts.setDefaultLanguage(ttsLang || 'en-US');
     const startSub = Tts.addEventListener('tts-start', e => __DEV__ && console.log('start', e));
     const finishSub = Tts.addEventListener('tts-finish', e => __DEV__ && console.log('finish', e));
     const cancelSub = Tts.addEventListener('tts-cancel', e => __DEV__ && console.log('cancel', e));
@@ -50,7 +52,7 @@ function Overview({navigation, route}) {
       try { finishSub?.remove?.(); } catch {}
       try { cancelSub?.remove?.(); } catch {}
     };
-  }, []);
+  }, [ttsLang]);
 
   useEffect(() => {
     const blurHandler = navigation.addListener('blur', async () => {

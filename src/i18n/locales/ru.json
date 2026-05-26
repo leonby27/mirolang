@@ -48,10 +48,11 @@
     "nativeLanguage": "Родной язык",
     "nativeLanguageHint": "Определяет язык интерфейса и язык переводов слов",
     "targetLanguage": "Язык, который изучаю",
-    "targetLanguageComingSoon": "Скоро добавим больше языков для изучения",
+    "targetLanguageHint": "Выберите язык, который хотите выучить",
     "logout": "Выйти из аккаунта",
     "nativeLanguageNames": {
       "ru": "Русский",
+      "en": "English",
       "de": "Deutsch",
       "nl": "Nederlands",
       "fr": "Français",
@@ -59,7 +60,13 @@
       "it": "Italiano"
     },
     "targetLanguageNames": {
-      "en": "English"
+      "en": "English",
+      "ru": "Русский",
+      "de": "Deutsch",
+      "nl": "Nederlands",
+      "fr": "Français",
+      "es": "Español",
+      "it": "Italiano"
     }
   },
   "account": {

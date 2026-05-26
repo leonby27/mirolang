@@ -48,10 +48,11 @@
     "nativeLanguage": "Native language",
     "nativeLanguageHint": "Sets both the interface language and the word-translation language",
     "targetLanguage": "Language I'm learning",
-    "targetLanguageComingSoon": "More target languages are coming soon",
+    "targetLanguageHint": "Pick the language you want to learn",
     "logout": "Sign out",
     "nativeLanguageNames": {
       "ru": "Русский",
+      "en": "English",
       "de": "Deutsch",
       "nl": "Nederlands",
       "fr": "Français",
@@ -59,7 +60,13 @@
       "it": "Italiano"
     },
     "targetLanguageNames": {
-      "en": "English"
+      "en": "English",
+      "ru": "Русский",
+      "de": "Deutsch",
+      "nl": "Nederlands",
+      "fr": "Français",
+      "es": "Español",
+      "it": "Italiano"
     }
   },
   "account": {

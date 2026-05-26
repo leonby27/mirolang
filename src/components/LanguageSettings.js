@@ -16,6 +16,7 @@ import {
   setNativeLanguage,
   useNativeLanguage,
   SUPPORTED_TARGET_LANGUAGES,
+  setTargetLanguage,
   useTargetLanguage,
 } from '../i18n';
 
@@ -98,21 +99,40 @@ export default function LanguageSettings({style}) {
         }}>
         {t('settings.targetLanguage')}
       </Text>
+      <Text
+        style={{
+          color: 'rgba(255, 255, 255, 0.30)',
+          fontFamily: 'Inter-Regular',
+          fontSize: 13,
+          lineHeight: 16,
+          marginTop: 4,
+          width: '90%',
+        }}>
+        {t('settings.targetLanguageHint')}
+      </Text>
       <View
         style={{
           width: '90%',
           flexDirection: 'row',
+          flexWrap: 'wrap',
           gap: 8,
           marginTop: 12,
         }}>
         {SUPPORTED_TARGET_LANGUAGES.map(lang => {
           const isActive = targetLang === lang;
+          // Show only the half of the matrix that's currently valid: when
+          // the user is learning a foreign language (native=en), the target
+          // picker offers every foreign language; when learning English,
+          // it offers just "English".
+          const isVisible = nativeLang === 'en' ? lang !== 'en' : lang === 'en';
+          if (!isVisible) return null;
           return (
-            <View
+            <TouchableOpacity
               key={lang}
+              onPress={() => setTargetLanguage(lang)}
               style={{
-                paddingVertical: 14,
-                paddingHorizontal: 20,
+                paddingVertical: 12,
+                paddingHorizontal: 16,
                 alignItems: 'center',
                 borderRadius: 12,
                 borderWidth: 1,
@@ -124,27 +144,16 @@ export default function LanguageSettings({style}) {
               <Text
                 style={{
                   fontFamily: isActive ? 'Inter-Bold' : 'Inter-Regular',
-                  fontSize: 16,
+                  fontSize: 15,
                   lineHeight: 20,
                   color: isActive ? '#F1CC06' : '#FFFFFF',
                 }}>
                 {t(`settings.targetLanguageNames.${lang}`)}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>
-      <Text
-        style={{
-          color: 'rgba(255, 255, 255, 0.30)',
-          fontFamily: 'Inter-Regular',
-          fontSize: 13,
-          lineHeight: 16,
-          marginTop: 8,
-          width: '90%',
-        }}>
-        {t('settings.targetLanguageComingSoon')}
-      </Text>
     </View>
   );
 }

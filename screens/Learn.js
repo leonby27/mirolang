@@ -7,6 +7,7 @@ import {StackActions} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import Sound from 'react-native-sound';
 import Swiper from 'react-native-deck-swiper';
+import {useContentInfo} from '../src/contentData';
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import MirolangPro from './MirolangPro';
 
@@ -37,9 +38,14 @@ function LearnScreen({navigation, route}) {
   const [finished, setFinished] = useState(false);
   const [nextCardTime, setNextCardTime] = useState(null);
   const [isSwipeRight, setIsSwipeRight] = useState(false);
+  const {ttsLang} = useContentInfo();
 
   useEffect(() => {
-    Tts.setDefaultLanguage('en-CA');
+    // TTS pronounces the "front of card" word, so we pick the locale that
+    // matches the current language pair: English when learning EN, the
+    // foreign target locale when an English speaker is learning a foreign
+    // language. Re-runs if the pair changes mid-screen.
+    Tts.setDefaultLanguage(ttsLang || 'en-US');
     const startSub = Tts.addEventListener('tts-start', e => __DEV__ && console.log('start', e));
     const finishSub = Tts.addEventListener('tts-finish', e => __DEV__ && console.log('finish', e));
     const cancelSub = Tts.addEventListener('tts-cancel', e => __DEV__ && console.log('cancel', e));
@@ -48,7 +54,7 @@ function LearnScreen({navigation, route}) {
       try { finishSub?.remove?.(); } catch {}
       try { cancelSub?.remove?.(); } catch {}
     };
-  }, []);
+  }, [ttsLang]);
 
   const ProSnapPoints = useMemo(() => ['40%'], []);
   const [showProScreen, setShowProScreen] = useState(false);
