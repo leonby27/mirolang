@@ -17,8 +17,10 @@ import firestore from '@react-native-firebase/firestore';
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import {getContentData} from '../src/contentData';
 import {loadProgress, saveProgress} from '../src/progress';
+import {useTranslation} from 'react-i18next';
 
 function HistoryScreen({route, navigation}) {
+  const {t} = useTranslation();
   const [dayFilter, setDayFilter] = useState(7);
   const [sort, setSort] = useState('new');
   const [androidSortModal, setAndroidSortModal] = useState(false);
@@ -269,12 +271,12 @@ function HistoryScreen({route, navigation}) {
                     : 'rgba(255, 255, 255, 0.30)',
               }}>
               {status == 6
-                ? 'Слово выучено'
+                ? t('historyScreen.status.learned')
                 : status > 6
-                ? 'Пропущено'
+                ? t('historyScreen.status.skipped')
                 : status > 0 && status < 6
-                ? 'Осталось повторов: ' + (6 - status).toString()
-                : 'Ещё не появлялось'}
+                ? t('historyScreen.status.repeatsLeft', {n: 6 - status})
+                : t('historyScreen.status.notSeen')}
             </Text>
           </View>
         </View>
@@ -341,7 +343,7 @@ function HistoryScreen({route, navigation}) {
                       setSort('new'), setAndroidSortModal(false);
                     }}
                     style={{padding: 12}}>
-                    <Text style={{fontSize: 20}}>Новые вверху</Text>
+                    <Text style={{fontSize: 20}}>{t('historyScreen.sort.newFirst')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
@@ -352,7 +354,7 @@ function HistoryScreen({route, navigation}) {
                       borderTopWidth: 1,
                       borderColor: 'lightgray',
                     }}>
-                    <Text style={{fontSize: 20}}>Старые вверху</Text>
+                    <Text style={{fontSize: 20}}>{t('historyScreen.sort.oldFirst')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
@@ -363,7 +365,7 @@ function HistoryScreen({route, navigation}) {
                       borderTopWidth: 1,
                       borderColor: 'lightgray',
                     }}>
-                    <Text style={{fontSize: 20}}>По уровню (1-25)</Text>
+                    <Text style={{fontSize: 20}}>{t('historyScreen.sort.levelUp')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
@@ -374,7 +376,7 @@ function HistoryScreen({route, navigation}) {
                       borderTopWidth: 1,
                       borderColor: 'lightgray',
                     }}>
-                    <Text style={{fontSize: 20}}>По уровню (25-1)</Text>
+                    <Text style={{fontSize: 20}}>{t('historyScreen.sort.levelDown')}</Text>
                   </TouchableOpacity>
                   {route.params.mode == 'learning' && (
                     <TouchableOpacity
@@ -387,7 +389,7 @@ function HistoryScreen({route, navigation}) {
                         borderColor: 'lightgray',
                       }}>
                       <Text style={{fontSize: 20}}>
-                        Осталось повторов (1-5)
+                        {t('historyScreen.sort.repeatUp')}
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -402,7 +404,7 @@ function HistoryScreen({route, navigation}) {
                         borderColor: 'lightgray',
                       }}>
                       <Text style={{fontSize: 20}}>
-                        Осталось повторов (5-1)
+                        {t('historyScreen.sort.repeatDown')}
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -426,7 +428,7 @@ function HistoryScreen({route, navigation}) {
                         dayFilter == 7 ? 'white' : 'rgba(255, 255, 255, 0.50)',
                     },
                   ]}>
-                  7 дней
+                  {t('historyScreen.day.7')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -448,7 +450,7 @@ function HistoryScreen({route, navigation}) {
                         dayFilter == 30 ? 'white' : 'rgba(255, 255, 255, 0.50)',
                     },
                   ]}>
-                  30 дней
+                  {t('historyScreen.day.30')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -470,7 +472,7 @@ function HistoryScreen({route, navigation}) {
                         dayFilter == 90 ? 'white' : 'rgba(255, 255, 255, 0.50)',
                     },
                   ]}>
-                  90 дней
+                  {t('historyScreen.day.90')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -494,7 +496,7 @@ function HistoryScreen({route, navigation}) {
                           : 'rgba(255, 255, 255, 0.50)',
                     },
                   ]}>
-                  Всё
+                  {t('historyScreen.day.all')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -507,23 +509,23 @@ function HistoryScreen({route, navigation}) {
                           options:
                             route.params.mode == 'learning'
                               ? [
-                                  'Отменить',
-                                  'Новые вверху',
-                                  ' Старые вверху',
-                                  'По уровню (1-25)',
-                                  'По уровню (25-1)',
-                                  'Осталось повторов (1-5)',
-                                  'Осталось повторов (5-1)',
+                                  t('historyScreen.sort.cancel'),
+                                  t('historyScreen.sort.newFirst'),
+                                  t('historyScreen.sort.oldFirst'),
+                                  t('historyScreen.sort.levelUp'),
+                                  t('historyScreen.sort.levelDown'),
+                                  t('historyScreen.sort.repeatUp'),
+                                  t('historyScreen.sort.repeatDown'),
                                 ]
                               : [
-                                  'Отменить',
-                                  'Новые вверху',
-                                  ' Старые вверху',
-                                  'По уровню (1-25)',
-                                  'По уровню (25-1)',
+                                  t('historyScreen.sort.cancel'),
+                                  t('historyScreen.sort.newFirst'),
+                                  t('historyScreen.sort.oldFirst'),
+                                  t('historyScreen.sort.levelUp'),
+                                  t('historyScreen.sort.levelDown'),
                                 ],
                           cancelButtonIndex: 0,
-                          title: 'Сортировать',
+                          title: t('historyScreen.sort.title'),
                           userInterfaceStyle: 'dark',
                         },
                         buttonIndex => {
@@ -567,16 +569,16 @@ function HistoryScreen({route, navigation}) {
                 </Svg>
                 <Text style={styles.orderButtonText}>
                   {sort == 'new'
-                    ? 'Новые вверху'
+                    ? t('historyScreen.sort.newFirst')
                     : sort == 'old'
-                    ? 'Старые вверху'
+                    ? t('historyScreen.sort.oldFirst')
                     : sort == 'levelup'
-                    ? 'По уровню (1-25)'
+                    ? t('historyScreen.sort.levelUp')
                     : sort == 'leveldown'
-                    ? 'По уровню (25-1)'
+                    ? t('historyScreen.sort.levelDown')
                     : sort == 'repeatup'
-                    ? 'Осталось повт. (1-5)'
-                    : 'Осталось повт. (5-1)'}
+                    ? t('historyScreen.sort.repeatUpShort')
+                    : t('historyScreen.sort.repeatDownShort')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -588,31 +590,16 @@ function HistoryScreen({route, navigation}) {
                   })
                 }
                 style={styles.overviewButton}>
-                <Text style={styles.overviewButtonText}>Пролистать</Text>
+                <Text style={styles.overviewButtonText}>{t('historyScreen.scroll')}</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.info}>
               {dayFilter != 'all'
-                ? 'За ' +
-                  dayFilter.toString() +
-                  ' дней я ' +
-                  (mode == 'learning'
-                    ? 'повторил'
-                    : mode == 'learned'
-                    ? 'выучил'
-                    : 'пропустил') +
-                  '  ·  ' +
-                  words.length +
-                  ' слова'
-                : 'За все время я ' +
-                  (mode == 'learning'
-                    ? 'повторил'
-                    : mode == 'learned'
-                    ? 'выучил'
-                    : 'пропустил') +
-                  '  ·  ' +
-                  words.length +
-                  ' слова'}
+                ? t(`historyScreen.stat.window.${mode}`, {
+                    days: dayFilter,
+                    count: words.length,
+                  })
+                : t(`historyScreen.stat.all.${mode}`, {count: words.length})}
             </Text>
           </View>
         }
@@ -659,7 +646,7 @@ function HistoryScreen({route, navigation}) {
                 lineHeight: 20,
                 color: 'rgba(255, 255, 255, 0.5)',
               }}>
-              Действия
+              {t('historyScreen.actions')}
             </Text>
 
             {mode == 'learned' ? (
@@ -689,7 +676,7 @@ function HistoryScreen({route, navigation}) {
                     lineHeight: 20,
                     color: 'white',
                   }}>
-                  Сбросить прогресс по слову
+                  {t('historyScreen.action.resetWord')}
                 </Text>
               </TouchableOpacity>
             ) : mode == 'learning' ? (
@@ -721,7 +708,7 @@ function HistoryScreen({route, navigation}) {
                       lineHeight: 20,
                       color: 'white',
                     }}>
-                    Сбросить прогресс по слову
+                    {t('historyScreen.action.resetWord')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -751,7 +738,7 @@ function HistoryScreen({route, navigation}) {
                       lineHeight: 20,
                       color: 'white',
                     }}>
-                    Отметить как выученное
+                    {t('historyScreen.action.markLearned')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -782,7 +769,7 @@ function HistoryScreen({route, navigation}) {
                     lineHeight: 20,
                     color: 'white',
                   }}>
-                  Учить слово
+                  {t('historyScreen.action.learnWord')}
                 </Text>
               </TouchableOpacity>
             )}
