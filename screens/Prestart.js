@@ -16,10 +16,15 @@ import {
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import {loadProgress, saveProgress} from '../src/progress';
-import {useGuardAgainstPairChange} from '../src/contentData';
+import {useContentInfo, useGuardAgainstPairChange} from '../src/contentData';
 import firestore from '@react-native-firebase/firestore';
+import {useTranslation} from 'react-i18next';
 
 function Prestart({navigation, route}) {
+  const {t} = useTranslation();
+  const {native, target} = useContentInfo();
+  const targetLangName = t(`settings.targetLanguageNames.${target}`);
+  const nativeLangName = t(`settings.nativeLanguageNames.${native}`);
   const {level, description} = route.params;
   useGuardAgainstPairChange(navigation);
   const [progress, setProgress] = useState({
@@ -100,15 +105,15 @@ function Prestart({navigation, route}) {
 
   const AskForDeleteProgress = () =>
     Alert.alert(
-      'Сбросить прогресс уровня?',
-      'Это действие сбросит прогресс по этому уровню к 0%',
+      t('prestart.resetLevel.title'),
+      t('prestart.resetLevel.description'),
       [
         {
-          text: 'Нет',
+          text: t('prestart.resetLevel.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Сбросить',
+          text: t('prestart.resetLevel.confirm'),
           onPress: async () => {
             const updatedProgress = JSON.parse(JSON.stringify(progress));
             if (updatedProgress.data?.[level.id]) {
@@ -394,12 +399,12 @@ function Prestart({navigation, route}) {
                     : 'rgba(255, 255, 255, 0.30)',
               }}>
               {status == 6
-                ? 'Слово выучено'
+                ? t('prestart.word.learned')
                 : status > 6
-                ? 'Пропущено'
+                ? t('prestart.word.skipped')
                 : status > 0 && status < 6
-                ? 'Осталось повторов: ' + (6 - status).toString()
-                : 'Ещё не появлялось'}
+                ? t('prestart.word.repeatsLeft', {n: 6 - status})
+                : t('prestart.word.notSeen')}
             </Text>
           </View>
         </View>
@@ -463,7 +468,7 @@ function Prestart({navigation, route}) {
                       : 'rgba(255, 255, 255, 0.50)',
                 },
               ]}>
-              {status == 6 ? 'Сброс' : 'Учить'}
+              {status == 6 ? t('prestart.word.reset') : t('prestart.word.learn')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -480,11 +485,12 @@ function Prestart({navigation, route}) {
         />
         <View style={{gap: 2}}>
           <Text style={styles.title}>
-            Прогресс:{' '}
-            {Math.round(
-              (100 * getWordsCount('passed', false)) / (level.words?.length || 1),
-            )}
-            %
+            {t('prestart.progress.label', {
+              percent: Math.round(
+                (100 * getWordsCount('passed', false)) /
+                  (level.words?.length || 1),
+              ),
+            })}
           </Text>
           <Text style={styles.description}>{description}</Text>
         </View>
@@ -505,23 +511,22 @@ function Prestart({navigation, route}) {
       </TouchableOpacity>
 
       <Text style={styles.info}>
-        Следующий уровень вам станет доступным после того, как вы пройдёте 90%
-        всего материала.
+        {t('prestart.unlockNext')}
       </Text>
 
       <TouchableOpacity
         onPress={() => translateModeBottomSheetRef.current?.present()}
         style={styles.filterButton}>
-        <Text style={styles.title}>Режим показа</Text>
+        <Text style={styles.title}>{t('prestart.showMode.title')}</Text>
         <View style={{flexDirection: 'row', gap: 8}}>
           <Text style={styles.choosenFilter}>
             {translateMode == 'english'
-              ? 'Вначале на англ.'
+              ? t('prestart.showMode.targetShort', {lang: targetLangName})
               : translateMode == 'russian'
-              ? 'Вначале на рус.'
+              ? t('prestart.showMode.nativeShort', {lang: nativeLangName})
               : translateMode == 'swap'
-              ? 'Чередовать'
-              : 'В случайном пор.'}
+              ? t('prestart.showMode.swapShort')
+              : t('prestart.showMode.randomShort')}
           </Text>
           <Svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <Path
@@ -536,19 +541,12 @@ function Prestart({navigation, route}) {
       <TouchableOpacity
         onPress={() => filterBottomSheetRef.current?.present()}
         style={styles.filterButton}>
-        <Text style={styles.title}>Фильтр</Text>
+        <Text style={styles.title}>{t('prestart.filter.title')}</Text>
         <View style={{flexDirection: 'row', gap: 8}}>
           <Text style={styles.choosenFilter}>
-            {filter == 'all'
-              ? 'Без фильтра · '
-              : filter == 'new'
-              ? 'Ещё не появлялись · '
-              : filter == 'repeat'
-              ? 'Повторы · '
-              : filter == 'learned'
-              ? 'Выученные · '
-              : 'Пропущенные · '}
-            {getWordsCount(filter, true)}
+            {t(`prestart.filter.summary.${filter}`, {
+              count: getWordsCount(filter, true),
+            })}
           </Text>
           <Svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <Path
@@ -565,8 +563,8 @@ function Prestart({navigation, route}) {
         style={styles.startLearningButton}>
         <Text style={styles.startLearningText}>
           {filter == 'learned' || filter == 'skipped'
-            ? 'Пролистать слова'
-            : 'Учить слова'}
+            ? t('prestart.cta.browse')
+            : t('prestart.cta.learn')}
         </Text>
       </TouchableOpacity>
 
@@ -580,7 +578,7 @@ function Prestart({navigation, route}) {
         <View style={{flex: 1}}>
           <View style={styles.progressSheetHeader}>
             <View style={styles.progressSheetHeaderContent}>
-              <Text style={styles.progressSheetLevel}>Уровень {level.id}</Text>
+              <Text style={styles.progressSheetLevel}>{t('prestart.levelLabel', {id: level.id})}</Text>
               <TouchableOpacity
                 onPress={handleOpenClose}
                 style={styles.cancelButton}>
@@ -673,14 +671,14 @@ function Prestart({navigation, route}) {
                         color: 'white',
                       }}>
                       {progressFilter == 'all'
-                        ? 'Все слова'
+                        ? t('prestart.progress.filter.all')
                         : progressFilter == 'repeat'
-                        ? 'Повторяю'
+                        ? t('prestart.progress.filter.repeat')
                         : progressFilter == 'learned'
-                        ? 'Выученные'
+                        ? t('prestart.progress.filter.learned')
                         : progressFilter == 'skipped'
-                        ? 'Пропущенные'
-                        : 'Ещё не появл...'}
+                        ? t('prestart.progress.filter.skipped')
+                        : t('prestart.progress.filter.new')}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -706,7 +704,7 @@ function Prestart({navigation, route}) {
                         lineHeight: 20,
                         color: '#FF5858',
                       }}>
-                      Полный сброс
+                      {t('prestart.progress.fullReset')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -715,16 +713,9 @@ function Prestart({navigation, route}) {
                     styles.description,
                     {width: '90%', marginBottom: 10},
                   ]}>
-                  {progressFilter == 'all'
-                    ? 'Все слова из списка  ·  '
-                    : progressFilter == 'repeat'
-                    ? 'Слова, которые я повторяю  ·  '
-                    : progressFilter == 'learned'
-                    ? 'Слова, которые я выучил  ·  '
-                    : progressFilter == 'skipped'
-                    ? 'Пропущенные слова  ·  '
-                    : 'Слова ещё не появлялись  ·  '}
-                  {getWordsCount(progressFilter, false) + ' слов'}
+                  {t(`prestart.progress.summary.${progressFilter}`, {
+                    count: getWordsCount(progressFilter, false),
+                  })}
                 </Text>
               </View>
             }
@@ -762,7 +753,7 @@ function Prestart({navigation, route}) {
               lineHeight: 20,
               color: 'rgba(255, 255, 255, 0.50)',
             }}>
-            Фильтр
+            {t('prestart.filter.title')}
           </Text>
           <View style={{width: '100%', gap: 1, marginTop: 8}}>
             <TouchableOpacity
@@ -790,7 +781,7 @@ function Prestart({navigation, route}) {
                       ? 'white'
                       : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Все слова
+                {t('prestart.progress.filter.all')}
               </Text>
               <Text
                 style={{
@@ -839,7 +830,7 @@ function Prestart({navigation, route}) {
                       ? 'white'
                       : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Ещё не появлялись
+                {t('prestart.filter.newLabel')}
               </Text>
               <Text
                 style={{
@@ -888,7 +879,7 @@ function Prestart({navigation, route}) {
                       ? 'white'
                       : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Повторяю
+                {t('prestart.progress.filter.repeat')}
               </Text>
               <Text
                 style={{
@@ -937,7 +928,7 @@ function Prestart({navigation, route}) {
                       ? 'white'
                       : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Выученные
+                {t('prestart.filter.learnedLabel')}
               </Text>
               <Text
                 style={{
@@ -988,7 +979,7 @@ function Prestart({navigation, route}) {
                       ? 'white'
                       : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Пропущенные
+                {t('prestart.filter.skippedLabel')}
               </Text>
               <Text
                 style={{
@@ -1024,15 +1015,7 @@ function Prestart({navigation, route}) {
                 lineHeight: 16,
                 color: 'rgba(255, 255, 255, 0.50)',
               }}>
-              {progressFilter == 'all'
-                ? 'Вам будут показаны новые слова и те, которые вы повторяете.'
-                : progressFilter == 'new'
-                ? 'Вам будут показаны слова, которые вы ещё не встречали в карточках на этом уровне.'
-                : progressFilter == 'repeat'
-                ? 'Вам будут показаны те слова, которые осталось повторить один или несколько раз.'
-                : progressFilter == 'learned'
-                ? 'Вам будут показаны выученные слова. Это полезно, чтобы проверить усвоенный материал.'
-                : 'Вам будут показаны пропущенные слова. Проверьте, не пропустили ли вы незнакомое слово.'}
+              {t(`prestart.filter.desc.${progressFilter}`)}
             </Text>
           </View>
         </BottomSheetScrollView>
@@ -1066,7 +1049,7 @@ function Prestart({navigation, route}) {
               lineHeight: 20,
               color: 'rgba(255, 255, 255, 0.50)',
             }}>
-            Режим показа
+            {t('prestart.showMode.title')}
           </Text>
           <View style={{width: '100%', gap: 1, marginTop: 8}}>
             <TouchableOpacity
@@ -1094,7 +1077,7 @@ function Prestart({navigation, route}) {
                       ? 'white'
                       : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Вначале на английском
+                {t('prestart.showMode.targetFirst', {lang: targetLangName})}
               </Text>
               {translateMode == 'english' && (
                 <Svg
@@ -1133,7 +1116,7 @@ function Prestart({navigation, route}) {
                       ? 'white'
                       : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Вначале на русском
+                {t('prestart.showMode.nativeFirst', {lang: nativeLangName})}
               </Text>
               {translateMode == 'russian' && (
                 <Svg
@@ -1172,7 +1155,7 @@ function Prestart({navigation, route}) {
                       ? 'white'
                       : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Чередовать
+                {t('prestart.showMode.swap')}
               </Text>
               {translateMode == 'swap' && (
                 <Svg
@@ -1213,7 +1196,7 @@ function Prestart({navigation, route}) {
                       ? 'white'
                       : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                В случайном порядке
+                {t('prestart.showMode.random')}
               </Text>
               {translateMode == 'random' && (
                 <Svg
@@ -1240,12 +1223,12 @@ function Prestart({navigation, route}) {
                 color: 'rgba(255, 255, 255, 0.50)',
               }}>
               {translateMode == 'english'
-                ? 'Будет показано слово на английском языке, а вы должны будете вспомнить его перевод'
+                ? t('prestart.showMode.desc.target', {lang: targetLangName})
                 : translateMode == 'russian'
-                ? 'Будет показано слово на русском языке, а вы должны будете вспомнить его перевод'
+                ? t('prestart.showMode.desc.native', {lang: nativeLangName})
                 : translateMode == 'swap'
-                ? 'Вам будут показаны те слова, которые осталось повторить один или несколько раз.'
-                : 'Вам будут показаны выученные слова. Это полезно, чтобы проверить усвоенный материал.'}
+                ? t('prestart.showMode.desc.swap')
+                : t('prestart.showMode.desc.random')}
             </Text>
           </View>
         </BottomSheetScrollView>
@@ -1279,7 +1262,7 @@ function Prestart({navigation, route}) {
               lineHeight: 20,
               color: 'rgba(255, 255, 255, 0.50)',
             }}>
-            Режим показа
+            {t('prestart.showMode.title')}
           </Text>
           <View style={{width: '100%', gap: 1, marginTop: 8}}>
             <TouchableOpacity
@@ -1305,7 +1288,7 @@ function Prestart({navigation, route}) {
                   color:
                     filter == 'all' ? 'white' : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Без фильтра
+                {t('prestart.filter.allLabel')}
               </Text>
               <Text
                 style={{
@@ -1315,8 +1298,8 @@ function Prestart({navigation, route}) {
                   lineHeight: 20,
                   color: 'rgba(255, 255, 255, 0.30)',
                 }}>
-                {getWordsCount('all', false)} (доступно:{' '}
-                {getWordsCount('all', true)})
+                {getWordsCount('all', false)}
+                {t('prestart.available', {count: getWordsCount('all', true)})}
               </Text>
               {filter == 'all' && (
                 <Svg
@@ -1353,7 +1336,7 @@ function Prestart({navigation, route}) {
                   color:
                     filter == 'new' ? 'white' : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Ещё не появлялись
+                {t('prestart.filter.newLabel')}
               </Text>
               <Text
                 style={{
@@ -1400,7 +1383,7 @@ function Prestart({navigation, route}) {
                   color:
                     filter == 'repeat' ? 'white' : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Повторы
+                {t('prestart.filter.repeatLabel')}
               </Text>
               <Text
                 style={{
@@ -1410,8 +1393,8 @@ function Prestart({navigation, route}) {
                   lineHeight: 20,
                   color: 'rgba(255, 255, 255, 0.30)',
                 }}>
-                {getWordsCount('repeat', false)} (доступно:{' '}
-                {getWordsCount('repeat', true)})
+                {getWordsCount('repeat', false)}
+                {t('prestart.available', {count: getWordsCount('repeat', true)})}
               </Text>
               {filter == 'repeat' && (
                 <Svg
@@ -1448,7 +1431,7 @@ function Prestart({navigation, route}) {
                   color:
                     filter == 'learned' ? 'white' : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Выученные
+                {t('prestart.filter.learnedLabel')}
               </Text>
               <Text
                 style={{
@@ -1497,7 +1480,7 @@ function Prestart({navigation, route}) {
                   color:
                     filter == 'skipped' ? 'white' : 'rgba(255, 255, 255, 0.70)',
                 }}>
-                Пропущенные
+                {t('prestart.filter.skippedLabel')}
               </Text>
               <Text
                 style={{
@@ -1533,15 +1516,7 @@ function Prestart({navigation, route}) {
                 lineHeight: 16,
                 color: 'rgba(255, 255, 255, 0.50)',
               }}>
-              {filter == 'all'
-                ? 'Вам будут показаны новые слова и те, которые вы повторяете.'
-                : filter == 'new'
-                ? 'Вам будут показаны слова, которые вы ещё не встречали в карточках на этом уровне.'
-                : filter == 'repeat'
-                ? 'Вам будут показаны те слова, которые осталось повторить один или несколько раз.'
-                : filter == 'learned'
-                ? 'Вам будут показаны выученные слова. Это полезно, чтобы проверить усвоенный материал.'
-                : 'Вам будут показаны пропущенные слова. Проверьте, не пропустили ли вы незнакомое слово.'}
+              {t(`prestart.filter.desc.${filter}`)}
             </Text>
           </View>
         </BottomSheetScrollView>
