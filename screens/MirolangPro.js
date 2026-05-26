@@ -231,7 +231,7 @@ function MirolangPro({
             hint={
               yearlyPerMonth
                 ? t('paywall.tier.yearlyHint', {price: yearlyPerMonth})
-                : ''
+                : t('paywall.tier.yearlyHintFallback')
             }
             selected={selectedTier === 'yearly'}
             onPress={() => setSelectedTier('yearly')}

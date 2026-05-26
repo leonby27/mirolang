@@ -41,6 +41,7 @@
     "tier.monthly": "Месяц",
     "tier.lifetimeHint": "Один раз — и навсегда",
     "tier.yearlyHint": "{{price}} в месяц",
+    "tier.yearlyHintFallback": "Экономия 52% против месячной",
     "tier.monthlyHint": "Гибкая отписка",
     "bestValue": "Лучшее предложение",
     "restore": "Восстановить покупки",

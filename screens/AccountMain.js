@@ -160,20 +160,43 @@ function AccountMain({navigation}) {
           }
         />
 
-        <View style={{gap: 4, marginLeft: 12}}>
-          <Text
-            style={{
-              color: 'white',
-              fontFamily: 'Inter-Bold',
-              fontSize: 16,
-              lineHeight: 20,
-            }}>
-            {!progress.user?.email
-              ? t('nav.loginTitle')
-              : String(progress.user.email).length > 25
-              ? String(progress.user.email).slice(0, 24) + '…'
-              : String(progress.user.email)}
-          </Text>
+        <View style={{gap: 4, marginLeft: 12, flexShrink: 1}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap'}}>
+            <Text
+              style={{
+                color: 'white',
+                fontFamily: 'Inter-Bold',
+                fontSize: 16,
+                lineHeight: 20,
+              }}>
+              {!progress.user?.email
+                ? t('nav.loginTitle')
+                : String(progress.user.email).length > 25
+                ? String(progress.user.email).slice(0, 24) + '…'
+                : String(progress.user.email)}
+            </Text>
+            {/* Pro badge — confirms an active subscription so the user
+                doesn't wonder whether their purchase landed. */}
+            {progress?.user?.pro ? (
+              <View
+                style={{
+                  paddingHorizontal: 6,
+                  paddingVertical: 2,
+                  backgroundColor: '#F1CC06',
+                  borderRadius: 6,
+                }}>
+                <Text
+                  style={{
+                    color: '#14161B',
+                    fontFamily: 'Inter-Bold',
+                    fontSize: 11,
+                    lineHeight: 14,
+                  }}>
+                  Pro
+                </Text>
+              </View>
+            ) : null}
+          </View>
           <Text
             style={{
               color: 'rgba(255, 255, 255, 0.50)',

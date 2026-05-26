@@ -41,6 +41,7 @@
     "tier.monthly": "Monthly",
     "tier.lifetimeHint": "One payment — forever",
     "tier.yearlyHint": "{{price}} / month",
+    "tier.yearlyHintFallback": "Save 52% vs monthly",
     "tier.monthlyHint": "Cancel anytime",
     "bestValue": "Best value",
     "restore": "Restore purchases",
