@@ -99,6 +99,50 @@
     "supportHint": "Developer contacts",
     "restoreHint": "Activate an existing subscription"
   },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "So your progress doesn't get lost",
+    "google": "Sign in with Google",
+    "apple": "Sign in with Apple",
+    "errorTitle": "Sign-in failed"
+  },
+  "learn": {
+    "header.studying": "Learning:",
+    "header.cancel": "Undo",
+    "header.levelTitle": "Level {{id}}",
+    "card.repeatsLeft": "Repeats left: {{n}}",
+    "card.resetWord": "Reset word progress",
+    "card.markLearned": "Mark as learned",
+    "swipe.know": "I knew it",
+    "swipe.dontKnow": "Forgot",
+    "swipe.skip": "Skip",
+    "swipe.learn": "Learn",
+    "finished.learnedAll": "You've learned all the words!",
+    "finished.noNew": "No new words left",
+    "finished.noRepeats": "No words to repeat",
+    "finished.comingSoon": "More words coming soon",
+    "finished.noNewDescription": "No new words available. You can\npick another category or adjust\nyour progress.",
+    "finished.repeatsAvailable": "Repeats will be available in:",
+    "finished.flipAllNew": "You've gone through all available words.\nReset the filter, or pick another\ndifficulty level.",
+    "finished.flipAllRepeats": "You've reviewed all words. Reset the\nfilter, or pick another level.",
+    "intervalHint": "For better retention, cards are shown again at intervals from 5 minutes up to 7 days.",
+    "actions.refresh": "Refresh",
+    "actions.close": "Close",
+    "counter.studyingNew": "New words today: {{count}} / 10",
+    "promo.unlimited": "Get MiroLang Pro and learn\nunlimited words every day",
+    "promo.title": "MiroLang Pro features",
+    "time.days": "d",
+    "time.hours": "h",
+    "time.minutes": "min"
+  },
+  "support": {
+    "emailLabel": "Contact email",
+    "websiteLabel": "Website with all the info",
+    "mailSubject": "MiroLang support",
+    "mailGreeting": "Hi, ",
+    "mailUnsupported": "Mail app is not available",
+    "description": " — an app where you can learn\nvocabulary level by level, review what\nyou've already learned, and lock it in."
+  },
   "history": {
     "learned": {
       "title": "Learned",

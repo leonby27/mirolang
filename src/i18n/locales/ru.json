@@ -99,6 +99,50 @@
     "supportHint": "Контакты разработчика",
     "restoreHint": "Активируйте существующую подписку"
   },
+  "login": {
+    "title": "Авторизуйтесь",
+    "subtitle": "Так вы не потеряете ваш прогресс",
+    "google": "Войти через Google",
+    "apple": "Войти через Apple",
+    "errorTitle": "Ошибка входа"
+  },
+  "learn": {
+    "header.studying": "Учу:",
+    "header.cancel": "Отменить",
+    "header.levelTitle": "Уровень {{id}}",
+    "card.repeatsLeft": "Осталось повторов: {{n}}",
+    "card.resetWord": "Сбросить прогресс по слову",
+    "card.markLearned": "Отметить как выученное",
+    "swipe.know": "Вспомнил",
+    "swipe.dontKnow": "Забыл",
+    "swipe.skip": "Пропуск",
+    "swipe.learn": "Учить",
+    "finished.learnedAll": "Вы выучили все слова!",
+    "finished.noNew": "Не осталось новых слов",
+    "finished.noRepeats": "Нет слов для повторения",
+    "finished.comingSoon": "Слова скоро появятся",
+    "finished.noNewDescription": "Больше нет доступных новых слов. Вы\nможете выбрать другую категорию либо\nнастроить ваш прогресс.",
+    "finished.repeatsAvailable": "Повторения будут доступны через:",
+    "finished.flipAllNew": "Вы пролистали все доступные слова.\nСбросьте фильтр, либо выберите другой\nуровень сложности.",
+    "finished.flipAllRepeats": "Вы повторили все слова. Сбросьте фильтр,\nлибо выберите другой уровень.",
+    "intervalHint": "Для более эффективного запоминания слов, вам показываются повторы карточек с интервалом от 5 минут до 7 дней.",
+    "actions.refresh": "Обновить",
+    "actions.close": "Закрыть",
+    "counter.studyingNew": "Учу новые слова: {{count}} / 10",
+    "promo.unlimited": "Подключите MiroLang Pro и учите\nнеограниченное количество слов в день",
+    "promo.title": "Возможности MiroLang Pro",
+    "time.days": "дн.",
+    "time.hours": "ч.",
+    "time.minutes": "мин."
+  },
+  "support": {
+    "emailLabel": "Email для обратной связи",
+    "websiteLabel": "Сайт со всей информацией",
+    "mailSubject": "Поддержка MiroLang",
+    "mailGreeting": "Здравствуйте, ",
+    "mailUnsupported": "Почтовое приложение не поддерживается",
+    "description": " — это приложение, где вы можете\nизучать слова по уровню сложности, повторять\nто, что уже выучили, и закреплять материал."
+  },
   "history": {
     "learned": {
       "title": "Выученные",

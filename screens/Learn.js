@@ -7,6 +7,7 @@ import {StackActions} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import Sound from 'react-native-sound';
 import Swiper from 'react-native-deck-swiper';
+import {useTranslation} from 'react-i18next';
 import {useContentInfo, useGuardAgainstPairChange} from '../src/contentData';
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import MirolangPro from './MirolangPro';
@@ -24,6 +25,7 @@ function LearnScreen({navigation, route}) {
     };
   }, []);
 
+  const {t} = useTranslation();
   const bottomSheetModalRef = useRef(null);
   const ProBottomSheetModalRef = useRef(null);
   const [CardIndex, setCardindex] = useState(0);
@@ -136,7 +138,7 @@ function LearnScreen({navigation, route}) {
                   color: 'rgba(255, 255, 255, 0.5)',
                 },
               ]}>
-              Учу:
+              {t('learn.header.studying')}
             </Text>
             <TouchableOpacity
               style={styles.cancelbutton}
@@ -178,7 +180,7 @@ function LearnScreen({navigation, route}) {
                 fill="white"
               />
             </Svg>
-            <Text style={styles.canceltext}>Отменить</Text>
+            <Text style={styles.canceltext}>{t('learn.header.cancel')}</Text>
           </TouchableOpacity>
         ),
       });
@@ -457,7 +459,7 @@ function LearnScreen({navigation, route}) {
     const hours = Math.floor(daysms / (60 * 60 * 1000));
     const hoursms = ms % (60 * 60 * 1000);
     const minutes = Math.ceil(hoursms / (60 * 1000));
-    var string = days + ' дн. ' + hours + ' ч. и ' + minutes + ' мин.';
+    var string = `${days} ${t('learn.time.days')} ${hours} ${t('learn.time.hours')} ${minutes} ${t('learn.time.minutes')}`;
 
     return string;
   }
@@ -543,7 +545,7 @@ function LearnScreen({navigation, route}) {
                     />
                   </Svg>
                   <Text style={styles.RepeatText}>
-                    Осталось повторов: {6 - card?.status}
+                    {t('learn.card.repeatsLeft', {n: 6 - card?.status})}
                   </Text>
                 </View>
                 <View
@@ -659,7 +661,7 @@ function LearnScreen({navigation, route}) {
                       lineHeight: 20,
                       color: '#FF5858',
                     }}>
-                    Сбросить прогресс по слову
+                    {t('learn.card.resetWord')}
                   </Text>
                 </TouchableOpacity>
                 {card?.status > 0 && (
@@ -690,14 +692,14 @@ function LearnScreen({navigation, route}) {
                         lineHeight: 20,
                         color: 'rgba(255, 255, 255, 0.70)',
                       }}>
-                      Отметить как выученное
+                      {t('learn.card.markLearned')}
                     </Text>
                   </TouchableOpacity>
                 )}
               </View>
             </View>
           </View>
-          <Text style={styles.level}>Уровень {level.id}</Text>
+          <Text style={styles.level}>{t('learn.header.levelTitle', {id: level.id})}</Text>
           <Text style={styles.word}>
             {translateMode == 'english'
               ? card?.word
@@ -783,7 +785,7 @@ function LearnScreen({navigation, route}) {
                 learn === false && {backgroundColor: '#108C15'},
               ]}>
               <Text style={styles.swipeButtonText}>
-                {card?.status > 0 ? 'Вспомнил' : 'Пропуск'}
+                {card?.status > 0 ? t('learn.swipe.know') : t('learn.swipe.skip')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -793,7 +795,7 @@ function LearnScreen({navigation, route}) {
                 learn === true && {backgroundColor: '#FF5858'},
               ]}>
               <Text style={styles.swipeButtonText}>
-                {card?.status > 0 ? 'Забыл' : 'Учить'}
+                {card?.status > 0 ? t('learn.swipe.dontKnow') : t('learn.swipe.learn')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -832,14 +834,14 @@ function LearnScreen({navigation, route}) {
               color: 'white',
             }}>
             {filter == 'all' && nextCardTime == null
-              ? 'Вы выучили все слова!'
+              ? t('learn.finished.learnedAll')
               : filter == 'all' && nextCardTime != null
-              ? 'Слова скоро появятся'
+              ? t('learn.finished.comingSoon')
               : filter == 'new'
-              ? 'Не осталось новых слов'
+              ? t('learn.finished.noNew')
               : filter == 'repeat' && nextCardTime == null
-              ? 'Нет слов для повторения'
-              : 'Слова скоро появятся'}
+              ? t('learn.finished.noRepeats')
+              : t('learn.finished.comingSoon')}
           </Text>
           <Text
             style={{
@@ -852,14 +854,14 @@ function LearnScreen({navigation, route}) {
               color: 'rgba(255, 255, 255, 0.50)',
             }}>
             {filter == 'all' && nextCardTime == null
-              ? 'Больше нет доступных новых слов. Вы\nможете выбрать другую категорию либо\nнастроить ваш прогресс.'
+              ? t('learn.finished.noNewDescription')
               : filter == 'all' && nextCardTime != null
-              ? 'Повторения будут доступны через:'
+              ? t('learn.finished.repeatsAvailable')
               : filter == 'new'
-              ? 'Вы пролистали все доступные слова.\nСбросьте фильтр, либо выберите другой\nуровень сложности.'
+              ? t('learn.finished.flipAllNew')
               : filter == 'repeat' && nextCardTime == null
-              ? 'Вы повторили все слова. Сбросьте фильтр,\nлибо выберите другой уровень.'
-              : 'Повторения будут доступны через:'}
+              ? t('learn.finished.flipAllRepeats')
+              : t('learn.finished.repeatsAvailable')}
           </Text>
 
           {nextCardTime != null && (
@@ -894,8 +896,7 @@ function LearnScreen({navigation, route}) {
                   fontFamily: 'Inter-Regular',
                   marginBottom: 40,
                 }}>
-                Для более эффективного запоминания слов, вам показываются
-                повторы карточек с интервалом от 5 минут до 7 дней.
+                {t('learn.intervalHint')}
               </Text>
             )}
             <TouchableOpacity
@@ -926,7 +927,7 @@ function LearnScreen({navigation, route}) {
                   lineHeight: 20,
                   color: '#000000',
                 }}>
-                {nextCardTime == 0 ? 'Обновить' : 'Закрыть'}
+                {nextCardTime == 0 ? t('learn.actions.refresh') : t('learn.actions.close')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -941,8 +942,8 @@ function LearnScreen({navigation, route}) {
               left: {
                 title:
                   progress?.data?.[level.id]?.[words[CardIndex]?.id]?.status > 0
-                    ? 'Вспомнил'
-                    : 'Пропуск',
+                    ? t('learn.swipe.know')
+                    : t('learn.swipe.skip'),
                 style: {
                   label: {
                     color: '#FFF',
@@ -972,8 +973,8 @@ function LearnScreen({navigation, route}) {
               right: {
                 title:
                   progress?.data?.[level.id]?.[words[CardIndex]?.id]?.status > 0
-                    ? 'Забыл'
-                    : 'Учить',
+                    ? t('learn.swipe.dontKnow')
+                    : t('learn.swipe.learn'),
                 style: {
                   label: {
                     color: '#FFF',
@@ -1090,12 +1091,10 @@ function LearnScreen({navigation, route}) {
               fontSize: 24,
               lineHeight: 32,
             }}>
-            {`Учу новые слова: ${Math.min(recentItemsCount, 10)} / 10`}
+            {t('learn.counter.studyingNew', {count: Math.min(recentItemsCount, 10)})}
           </Text>
           <Text style={styles.headerDescription}>
-            {
-              'Подключите MiroLang Pro и учите\nнеограниченное количество слов в день'
-            }
+            {t('learn.promo.unlimited')}
           </Text>
         </View>
         <TouchableOpacity
@@ -1122,7 +1121,7 @@ function LearnScreen({navigation, route}) {
               color: '#14161B',
               paddingLeft: 10,
             }}>
-            Возможности MiroLang Pro
+            {t('learn.promo.title')}
           </Text>
         </TouchableOpacity>
       </BottomSheetModal>

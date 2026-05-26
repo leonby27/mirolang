@@ -1,12 +1,14 @@
 import React from 'react';
 import {TouchableOpacity, View, StyleSheet, Image, Text, Linking, Alert} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
+import {useTranslation} from 'react-i18next';
 
 function Support({navigation}) {
+  const {t} = useTranslation();
   const sendEmail = () => {
     const email = 'support@mirolang.ru';
-    const subject = 'Поддержка MiroLang';
-    const body = 'Здравствуйте, ';
+    const subject = t('support.mailSubject');
+    const body = t('support.mailGreeting');
 
     const url = `mailto:${email}?subject=${encodeURIComponent(
       subject,
@@ -15,7 +17,7 @@ function Support({navigation}) {
     Linking.canOpenURL(url)
       .then(supported => {
         if (!supported) {
-          Alert.alert('Error', 'Почтовое приложение не поддерживается');
+          Alert.alert('Error', t('support.mailUnsupported'));
         } else {
           return Linking.openURL(url);
         }
@@ -23,7 +25,7 @@ function Support({navigation}) {
       .catch(err => console.error('An error occurred', err));
   };
 
-  const supportText = ` — это приложение, где вы можете\nизучать слова по уровню сложности, повторять\nто, что уже выучили, и закреплять материал.`;
+  const supportText = t('support.description');
 
   return (
     <View style={{backgroundColor: '#000000', flex: 1, alignItems: 'center'}}>
@@ -97,7 +99,7 @@ function Support({navigation}) {
               fontSize: 14,
               lineHeight: 16,
             }}>
-            Email для обратной связи
+            {t('support.emailLabel')}
           </Text>
         </View>
         <Svg
@@ -146,7 +148,7 @@ function Support({navigation}) {
               fontSize: 14,
               lineHeight: 16,
             }}>
-            Сайт со всей информацией
+            {t('support.websiteLabel')}
           </Text>
         </View>
         <Svg

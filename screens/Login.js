@@ -6,8 +6,10 @@ import {appleAuth} from '@invertase/react-native-apple-authentication';
 import {loadProgress, saveProgress} from '../src/progress';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import {useTranslation} from 'react-i18next';
 
 function Login({navigation}) {
+  const {t} = useTranslation();
   useEffect(() => {
     GoogleSignin.configure({
       webClientId:
@@ -66,7 +68,7 @@ function Login({navigation}) {
       const msg = e?.message || 'An error occurred';
       console.warn('GoogleSignIn:', msg);
       if (!String(msg).toLowerCase().includes('cancel')) {
-        Alert.alert('Ошибка входа', msg);
+        Alert.alert(t('login.errorTitle'), msg);
       }
     }
   };
@@ -128,7 +130,7 @@ function Login({navigation}) {
       const msg = error?.message || String(error);
       console.warn('AppleSignIn:', msg);
       if (error?.code !== '1001' && !String(msg).toLowerCase().includes('cancel')) {
-        Alert.alert('Ошибка входа', msg);
+        Alert.alert(t('login.errorTitle'), msg);
       }
     }
   };
@@ -147,7 +149,7 @@ function Login({navigation}) {
           fontFamily: 'Inter-Bold',
           marginTop: 4,
         }}>
-        Авторизуйтесь
+        {t('login.title')}
       </Text>
       <Text
         style={{
@@ -157,7 +159,7 @@ function Login({navigation}) {
           fontFamily: 'Inter-Regular',
           marginTop: 4,
         }}>
-        Так вы не потеряете ваш прогресс
+        {t('login.subtitle')}
       </Text>
       <TouchableOpacity
         onPress={GoogleSignIn}
@@ -210,7 +212,7 @@ function Login({navigation}) {
             color: 'white',
             fontFamily: 'Inter-Medium',
           }}>
-          Войти через Google
+          {t('login.google')}
         </Text>
       </TouchableOpacity>
       {Platform.OS === 'ios' && appleAuth.isSupported && (
@@ -278,7 +280,7 @@ function Login({navigation}) {
             color: 'white',
             fontFamily: 'Inter-Medium',
           }}>
-          Войти через Apple
+          {t('login.apple')}
         </Text>
       </TouchableOpacity>
       )}
