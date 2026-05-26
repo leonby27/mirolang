@@ -24,7 +24,7 @@
  *     return just the data array.
  */
 
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {
   getNativeLanguage,
   getTargetLanguage,
@@ -187,6 +187,27 @@ export function useContentInfo() {
     getNativeLanguage(),
     getTargetLanguage(),
   ]);
+}
+
+/**
+ * Mid-session pair-change guard for nested learning screens (Prestart,
+ * Learn, Overview). They take their data from route.params at mount,
+ * so a language switch in Settings mid-session leaves them showing the
+ * wrong words / wrong language while progress writes route to the new
+ * pair's bucket. Pop back to the top of the stack and force the user
+ * to re-enter the level under the new pair.
+ */
+export function useGuardAgainstPairChange(navigation) {
+  const {native, target} = useContentInfo();
+  const initialRef = useRef(`${native}:${target}`);
+  useEffect(() => {
+    const current = `${native}:${target}`;
+    if (initialRef.current !== current) {
+      try {
+        navigation?.popToTop?.();
+      } catch {}
+    }
+  }, [native, target, navigation]);
 }
 
 // ---------- Back-compat helpers (unchanged shape) ----------

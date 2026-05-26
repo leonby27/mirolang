@@ -9,6 +9,7 @@ import {useNativeLanguage, useTargetLanguage} from '../src/i18n';
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import {loadProgress} from '../src/progress';
 import {restorePurchases} from '../src/components/iap';
+import {consumePaywallIntent} from '../src/paywallIntent';
 
 function AccountMain({navigation}) {
   const {t} = useTranslation();
@@ -25,8 +26,13 @@ function AccountMain({navigation}) {
   const [showProScreen, setShowProScreen] = useState(false);
 
   useEffect(() => {
-    const focusHandler = navigation.addListener('focus', () => {
+    const focusHandler = navigation.addListener('focus', async () => {
       getProgress();
+      // Re-open paywall if the user came back from a Login-detour started
+      // by tapping Подключить Pro while not signed in.
+      if (await consumePaywallIntent()) {
+        setShowProScreen(true);
+      }
     });
     return focusHandler;
   }, [navigation]);

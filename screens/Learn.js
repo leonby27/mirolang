@@ -7,7 +7,7 @@ import {StackActions} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import Sound from 'react-native-sound';
 import Swiper from 'react-native-deck-swiper';
-import {useContentInfo} from '../src/contentData';
+import {useContentInfo, useGuardAgainstPairChange} from '../src/contentData';
 import {BottomSheetModal, BottomSheetBackdrop} from '@gorhom/bottom-sheet';
 import MirolangPro from './MirolangPro';
 
@@ -39,6 +39,7 @@ function LearnScreen({navigation, route}) {
   const [nextCardTime, setNextCardTime] = useState(null);
   const [isSwipeRight, setIsSwipeRight] = useState(false);
   const {ttsLang} = useContentInfo();
+  useGuardAgainstPairChange(navigation);
 
   useEffect(() => {
     // TTS pronounces the "front of card" word, so we pick the locale that

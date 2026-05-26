@@ -4,6 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 
 import {getContentData, useContentInfo} from '../src/contentData';
+import {consumePaywallIntent} from '../src/paywallIntent';
 import InactiveIcon from '../src/icons/inactive';
 import ActiveIcon from '../src/icons/active';
 import FinishedIcon from '../src/icons/finished';
@@ -117,8 +118,13 @@ function LevelsMain({navigation}) {
   useEffect(() => {
     setCategories([]);
     getProgress();
-    const focusHandler = navigation.addListener('focus', () => {
+    const focusHandler = navigation.addListener('focus', async () => {
       getProgress();
+      // If the user just came back from a Login-detour that started at the
+      // paywall, re-open it so they don't have to navigate back to find it.
+      if (await consumePaywallIntent()) {
+        setShowProScreen(true);
+      }
     });
     return focusHandler;
     // contentKey in deps so switching either side of the pair re-runs

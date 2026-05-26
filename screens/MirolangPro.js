@@ -36,6 +36,7 @@ import {
   purchasePro,
   restorePurchases,
 } from '../src/components/iap';
+import {setPaywallIntent} from '../src/paywallIntent';
 
 const TIER_TO_PRODUCT = {
   lifetime: 'mirolang_pro_lifetime',
@@ -126,7 +127,10 @@ function MirolangPro({
         [
           {
             text: 'OK',
-            onPress: () => {
+            onPress: async () => {
+              // Remember intent so the host screen re-opens paywall after
+              // the user finishes signing in.
+              await setPaywallIntent();
               close();
               navigation?.navigate('Login');
             },

@@ -16,10 +16,12 @@ import {
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import {loadProgress, saveProgress} from '../src/progress';
+import {useGuardAgainstPairChange} from '../src/contentData';
 import firestore from '@react-native-firebase/firestore';
 
 function Prestart({navigation, route}) {
   const {level, description} = route.params;
+  useGuardAgainstPairChange(navigation);
   const [progress, setProgress] = useState({
     user: null,
     data: {},

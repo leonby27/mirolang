@@ -16,10 +16,11 @@ import {saveProgress} from '../src/progress';
 import firestore from '@react-native-firebase/firestore';
 import Tts from 'react-native-tts';
 import Sound from 'react-native-sound';
-import {useContentInfo} from '../src/contentData';
+import {useContentInfo, useGuardAgainstPairChange} from '../src/contentData';
 
 function Overview({navigation, route}) {
   const {ttsLang} = useContentInfo();
+  useGuardAgainstPairChange(navigation);
   const width = Dimensions.get('window').width;
   const height = Dimensions.get('window').height;
   const [index, setIndex] = useState(1);
