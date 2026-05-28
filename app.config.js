@@ -2,7 +2,7 @@ export default {
   "expo": {
     "name": "MiroLang",
     "slug": "mirolang",
-    "version": "2.3.2",
+    "version": "1.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
