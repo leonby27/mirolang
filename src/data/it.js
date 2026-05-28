@@ -15,12 +15,9 @@
 export default [
   {
     "id": 1,
-    "title": "Модуль 1: для новичков. 1,500 слов",
     "data": [
       {
         "id": 1,
-        "title": "Первый шаг",
-        "description": "100 очень простых слов",
         "words": [
           {
             "id": 0,
@@ -626,8 +623,6 @@ export default [
       },
       {
         "id": 2,
-        "title": "Мой старт",
-        "description": "200 очень простых слов",
         "words": [
           {
             "id": 0,
@@ -1833,8 +1828,6 @@ export default [
       },
       {
         "id": 3,
-        "title": "Начало пути",
-        "description": "300 очень простых слов",
         "words": [
           {
             "id": 0,
@@ -3640,8 +3633,6 @@ export default [
       },
       {
         "id": 4,
-        "title": "Первый поворот",
-        "description": "400 очень простых слов",
         "words": [
           {
             "id": 0,
@@ -6047,8 +6038,6 @@ export default [
       },
       {
         "id": 5,
-        "title": "Перед привалом",
-        "description": "500 очень простых слов",
         "words": [
           {
             "id": 0,
@@ -9056,12 +9045,9 @@ export default [
   },
   {
     "id": 2,
-    "title": "Модуль 2: основа основ. 1,500 слов",
     "data": [
       {
         "id": 6,
-        "title": "Новый старт",
-        "description": "100 простых слов",
         "words": [
           {
             "id": 0,
@@ -9667,8 +9653,6 @@ export default [
       },
       {
         "id": 7,
-        "title": "На всех порах",
-        "description": "200 простых слов",
         "words": [
           {
             "id": 0,
@@ -10874,8 +10858,6 @@ export default [
       },
       {
         "id": 8,
-        "title": "Попутный ветер",
-        "description": "300 простых слов",
         "words": [
           {
             "id": 0,
@@ -12681,8 +12663,6 @@ export default [
       },
       {
         "id": 9,
-        "title": "Лёгкая дорога",
-        "description": "400 простых слов",
         "words": [
           {
             "id": 0,
@@ -15088,8 +15068,6 @@ export default [
       },
       {
         "id": 10,
-        "title": "Чуть-чуть поднажать",
-        "description": "500 простых слов",
         "words": [
           {
             "id": 0,
@@ -18097,12 +18075,9 @@ export default [
   },
   {
     "id": 3,
-    "title": "Модуль 3: в середине пути. 1,300 слов",
     "data": [
       {
         "id": 11,
-        "title": "Пора в путь",
-        "description": "100 средних слов",
         "words": [
           {
             "id": 0,
@@ -18708,8 +18683,6 @@ export default [
       },
       {
         "id": 12,
-        "title": "Не всё так просто",
-        "description": "200 средних слов",
         "words": [
           {
             "id": 0,
@@ -19915,8 +19888,6 @@ export default [
       },
       {
         "id": 13,
-        "title": "Половина пути",
-        "description": "300 средних слов",
         "words": [
           {
             "id": 0,
@@ -21722,8 +21693,6 @@ export default [
       },
       {
         "id": 14,
-        "title": "В самом разгаре",
-        "description": "300 средних слов",
         "words": [
           {
             "id": 0,
@@ -23529,8 +23498,6 @@ export default [
       },
       {
         "id": 15,
-        "title": "Отличная работа",
-        "description": "400 средних слов",
         "words": [
           {
             "id": 0,
@@ -25938,12 +25905,9 @@ export default [
   },
   {
     "id": 4,
-    "title": "Модуль 4: ядро нового языка. 1,200 слов",
     "data": [
       {
         "id": 16,
-        "title": "Что-то на горизонте",
-        "description": "100 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -26549,8 +26513,6 @@ export default [
       },
       {
         "id": 17,
-        "title": "Бывалый",
-        "description": "200 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -27756,8 +27718,6 @@ export default [
       },
       {
         "id": 18,
-        "title": "Мне всё по зубам",
-        "description": "250 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -29263,8 +29223,6 @@ export default [
       },
       {
         "id": 19,
-        "title": "Ещё чуть-чуть",
-        "description": "300 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -31070,8 +31028,6 @@ export default [
       },
       {
         "id": 20,
-        "title": "На морально-волевых",
-        "description": "350 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -33179,12 +33135,9 @@ export default [
   },
   {
     "id": 5,
-    "title": "Модуль 5: Вершина вершин. 1,200 слов",
     "data": [
       {
         "id": 21,
-        "title": "Последний рывок",
-        "description": "100 сложных слов",
         "words": [
           {
             "id": 0,
@@ -33790,8 +33743,6 @@ export default [
       },
       {
         "id": 22,
-        "title": "У подножья горы",
-        "description": "200 сложных слов",
         "words": [
           {
             "id": 0,
@@ -34997,8 +34948,6 @@ export default [
       },
       {
         "id": 23,
-        "title": "Надвигается шторм",
-        "description": "250 сложных слов",
         "words": [
           {
             "id": 0,
@@ -36504,8 +36453,6 @@ export default [
       },
       {
         "id": 24,
-        "title": "Из последних сил",
-        "description": "300 сложных слов",
         "words": [
           {
             "id": 0,
@@ -38311,8 +38258,6 @@ export default [
       },
       {
         "id": 25,
-        "title": "Кто ты, воин?",
-        "description": "350 сложных слов",
         "words": [
           {
             "id": 0,

@@ -25,7 +25,8 @@ function Prestart({navigation, route}) {
   const {native, target} = useContentInfo();
   const targetLangName = t(`settings.targetLanguageNames.${target}`);
   const nativeLangName = t(`settings.nativeLanguageNames.${native}`);
-  const {level, description} = route.params;
+  const {level, moduleId} = route.params;
+  const description = t(`levelsData.module${moduleId}.level${level.id}.description`);
   useGuardAgainstPairChange(navigation);
   const [progress, setProgress] = useState({
     user: null,

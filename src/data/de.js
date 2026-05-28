@@ -15,12 +15,9 @@
 export default [
   {
     "id": 1,
-    "title": "Modul 1: Für Anfänger. 1.500 Wörter",
     "data": [
       {
         "id": 1,
-        "title": "Erster Schritt",
-        "description": "100 sehr einfache Wörter",
         "words": [
           {
             "id": 0,
@@ -626,8 +623,6 @@ export default [
       },
       {
         "id": 2,
-        "title": "Mein Start",
-        "description": "200 sehr einfache Wörter",
         "words": [
           {
             "id": 0,
@@ -1833,8 +1828,6 @@ export default [
       },
       {
         "id": 3,
-        "title": "Der Anfang",
-        "description": "300 sehr einfache Wörter",
         "words": [
           {
             "id": 0,
@@ -3640,8 +3633,6 @@ export default [
       },
       {
         "id": 4,
-        "title": "Die erste Kurve",
-        "description": "400 sehr einfache Wörter",
         "words": [
           {
             "id": 0,
@@ -6047,8 +6038,6 @@ export default [
       },
       {
         "id": 5,
-        "title": "Vor der Rast",
-        "description": "500 sehr einfache Wörter",
         "words": [
           {
             "id": 0,
@@ -9056,42 +9045,29 @@ export default [
   },
   {
     "id": 2,
-    "title": "Modul 2: Das Fundament. 1.500 Wörter",
     "data": [
       {
         "id": 1,
-        "title": "Neustart",
-        "description": "100 einfache Wörter",
         "words": []
       },
       {
         "id": 2,
-        "title": "Volle Fahrt voraus",
-        "description": "200 einfache Wörter",
         "words": []
       },
       {
         "id": 3,
-        "title": "Rückenwind",
-        "description": "300 einfache Wörter",
         "words": []
       },
       {
         "id": 4,
-        "title": "Leichter Weg",
-        "description": "400 einfache Wörter",
         "words": []
       },
       {
         "id": 5,
-        "title": "Noch ein bisschen Druck",
-        "description": "500 einfache Wörter",
         "words": []
       },
       {
         "id": 6,
-        "title": "Новый старт",
-        "description": "100 простых слов",
         "words": [
           {
             "id": 0,
@@ -9697,8 +9673,6 @@ export default [
       },
       {
         "id": 7,
-        "title": "На всех порах",
-        "description": "200 простых слов",
         "words": [
           {
             "id": 0,
@@ -10904,8 +10878,6 @@ export default [
       },
       {
         "id": 8,
-        "title": "Попутный ветер",
-        "description": "300 простых слов",
         "words": [
           {
             "id": 0,
@@ -12711,8 +12683,6 @@ export default [
       },
       {
         "id": 9,
-        "title": "Лёгкая дорога",
-        "description": "400 простых слов",
         "words": [
           {
             "id": 0,
@@ -15118,8 +15088,6 @@ export default [
       },
       {
         "id": 10,
-        "title": "Чуть-чуть поднажать",
-        "description": "500 простых слов",
         "words": [
           {
             "id": 0,
@@ -18127,42 +18095,29 @@ export default [
   },
   {
     "id": 3,
-    "title": "Modul 3: Auf halbem Weg. 1.300 Wörter",
     "data": [
       {
         "id": 1,
-        "title": "Zeit aufzubrechen",
-        "description": "100 mittlere Wörter",
         "words": []
       },
       {
         "id": 2,
-        "title": "Nicht alles ist einfach",
-        "description": "200 mittlere Wörter",
         "words": []
       },
       {
         "id": 3,
-        "title": "Halber Weg",
-        "description": "300 mittlere Wörter",
         "words": []
       },
       {
         "id": 4,
-        "title": "Mittendrin",
-        "description": "300 mittlere Wörter",
         "words": []
       },
       {
         "id": 5,
-        "title": "Gute Arbeit",
-        "description": "400 mittlere Wörter",
         "words": []
       },
       {
         "id": 11,
-        "title": "Пора в путь",
-        "description": "100 средних слов",
         "words": [
           {
             "id": 0,
@@ -18768,8 +18723,6 @@ export default [
       },
       {
         "id": 12,
-        "title": "Не всё так просто",
-        "description": "200 средних слов",
         "words": [
           {
             "id": 0,
@@ -19975,8 +19928,6 @@ export default [
       },
       {
         "id": 13,
-        "title": "Половина пути",
-        "description": "300 средних слов",
         "words": [
           {
             "id": 0,
@@ -21782,8 +21733,6 @@ export default [
       },
       {
         "id": 14,
-        "title": "В самом разгаре",
-        "description": "300 средних слов",
         "words": [
           {
             "id": 0,
@@ -23589,8 +23538,6 @@ export default [
       },
       {
         "id": 15,
-        "title": "Отличная работа",
-        "description": "400 средних слов",
         "words": [
           {
             "id": 0,
@@ -25998,42 +25945,29 @@ export default [
   },
   {
     "id": 4,
-    "title": "Modul 4: Der Kern der Sprache. 1.200 Wörter",
     "data": [
       {
         "id": 1,
-        "title": "Etwas am Horizont",
-        "description": "100 fortgeschrittene Wörter",
         "words": []
       },
       {
         "id": 2,
-        "title": "Routiniert",
-        "description": "200 fortgeschrittene Wörter",
         "words": []
       },
       {
         "id": 3,
-        "title": "Mir ist nichts zu schwer",
-        "description": "250 fortgeschrittene Wörter",
         "words": []
       },
       {
         "id": 4,
-        "title": "Nur noch ein wenig",
-        "description": "300 fortgeschrittene Wörter",
         "words": []
       },
       {
         "id": 5,
-        "title": "Aus reiner Willenskraft",
-        "description": "350 fortgeschrittene Wörter",
         "words": []
       },
       {
         "id": 16,
-        "title": "Что-то на горизонте",
-        "description": "100 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -26639,8 +26573,6 @@ export default [
       },
       {
         "id": 17,
-        "title": "Бывалый",
-        "description": "200 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -27846,8 +27778,6 @@ export default [
       },
       {
         "id": 18,
-        "title": "Мне всё по зубам",
-        "description": "250 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -29353,8 +29283,6 @@ export default [
       },
       {
         "id": 19,
-        "title": "Ещё чуть-чуть",
-        "description": "300 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -31160,8 +31088,6 @@ export default [
       },
       {
         "id": 20,
-        "title": "На морально-волевых",
-        "description": "350 продвинутых слов",
         "words": [
           {
             "id": 0,
@@ -33269,42 +33195,29 @@ export default [
   },
   {
     "id": 5,
-    "title": "Modul 5: Der Gipfel. 1.200 Wörter",
     "data": [
       {
         "id": 1,
-        "title": "Der letzte Spurt",
-        "description": "100 schwierige Wörter",
         "words": []
       },
       {
         "id": 2,
-        "title": "Am Fuße des Berges",
-        "description": "200 schwierige Wörter",
         "words": []
       },
       {
         "id": 3,
-        "title": "Der Sturm naht",
-        "description": "250 schwierige Wörter",
         "words": []
       },
       {
         "id": 4,
-        "title": "Mit letzter Kraft",
-        "description": "300 schwierige Wörter",
         "words": []
       },
       {
         "id": 5,
-        "title": "Wer bist du, Krieger?",
-        "description": "350 schwierige Wörter",
         "words": []
       },
       {
         "id": 21,
-        "title": "Последний рывок",
-        "description": "100 сложных слов",
         "words": [
           {
             "id": 0,
@@ -33910,8 +33823,6 @@ export default [
       },
       {
         "id": 22,
-        "title": "У подножья горы",
-        "description": "200 сложных слов",
         "words": [
           {
             "id": 0,
@@ -35117,8 +35028,6 @@ export default [
       },
       {
         "id": 23,
-        "title": "Надвигается шторм",
-        "description": "250 сложных слов",
         "words": [
           {
             "id": 0,
@@ -36624,8 +36533,6 @@ export default [
       },
       {
         "id": 24,
-        "title": "Из последних сил",
-        "description": "300 сложных слов",
         "words": [
           {
             "id": 0,
@@ -38431,8 +38338,6 @@ export default [
       },
       {
         "id": 25,
-        "title": "Кто ты, воин?",
-        "description": "350 сложных слов",
         "words": [
           {
             "id": 0,

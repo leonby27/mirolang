@@ -21,6 +21,48 @@
     "modalDescription": "Пройдите предыдущие уровни хотя бы на\n90%, чтобы открыть этот.",
     "modalUnlockCta": "Хочу открыть уровень"
   },
+  "levelsData": {
+    "module1": {
+      "title": "Модуль 1: для новичков. 1,500 слов",
+      "level1": {"title": "Первый шаг", "description": "100 очень простых слов"},
+      "level2": {"title": "Мой старт", "description": "200 очень простых слов"},
+      "level3": {"title": "Начало пути", "description": "300 очень простых слов"},
+      "level4": {"title": "Первый поворот", "description": "400 очень простых слов"},
+      "level5": {"title": "Перед привалом", "description": "500 очень простых слов"}
+    },
+    "module2": {
+      "title": "Модуль 2: основа основ. 1,500 слов",
+      "level1": {"title": "Новый старт", "description": "100 простых слов"},
+      "level2": {"title": "На всех порах", "description": "200 простых слов"},
+      "level3": {"title": "Попутный ветер", "description": "300 простых слов"},
+      "level4": {"title": "Лёгкая дорога", "description": "400 простых слов"},
+      "level5": {"title": "Чуть-чуть поднажать", "description": "500 простых слов"}
+    },
+    "module3": {
+      "title": "Модуль 3: в середине пути. 1,300 слов",
+      "level1": {"title": "Пора в путь", "description": "100 средних слов"},
+      "level2": {"title": "Не всё так просто", "description": "200 средних слов"},
+      "level3": {"title": "Половина пути", "description": "300 средних слов"},
+      "level4": {"title": "В самом разгаре", "description": "300 средних слов"},
+      "level5": {"title": "Отличная работа", "description": "400 средних слов"}
+    },
+    "module4": {
+      "title": "Модуль 4: ядро нового языка. 1,200 слов",
+      "level1": {"title": "Что-то на горизонте", "description": "100 продвинутых слов"},
+      "level2": {"title": "Бывалый", "description": "200 продвинутых слов"},
+      "level3": {"title": "Мне всё по зубам", "description": "250 продвинутых слов"},
+      "level4": {"title": "Ещё чуть-чуть", "description": "300 продвинутых слов"},
+      "level5": {"title": "На морально-волевых", "description": "350 продвинутых слов"}
+    },
+    "module5": {
+      "title": "Модуль 5: Вершина вершин. 1,200 слов",
+      "level1": {"title": "Последний рывок", "description": "100 сложных слов"},
+      "level2": {"title": "У подножья горы", "description": "200 сложных слов"},
+      "level3": {"title": "Надвигается шторм", "description": "250 сложных слов"},
+      "level4": {"title": "Из последних сил", "description": "300 сложных слов"},
+      "level5": {"title": "Кто ты, воин?", "description": "350 сложных слов"}
+    }
+  },
   "paywall": {
     "subtitle": "Прорвись через языковое плато —\nзапомни 6,500 слов, которыми\nпользуются образованные носители",
     "yearly": "Ежегодно",
@@ -41,7 +83,7 @@
     "tier.monthly": "Месяц",
     "tier.lifetimeHint": "Один раз — и навсегда",
     "tier.yearlyHint": "{{price}} в месяц",
-    "tier.yearlyHintFallback": "Экономия 52% против месячной",
+    "tier.yearlyHintFallback": "Экономия 58% против месячной",
     "tier.monthlyHint": "Гибкая отписка",
     "bestValue": "Лучшее предложение",
     "restore": "Восстановить покупки",
@@ -55,7 +97,26 @@
     "alert.restoredTitle": "Покупки восстановлены",
     "alert.restoredBody": "Pro-доступ активирован.",
     "alert.notRestoredTitle": "Активных покупок не найдено",
-    "alert.notRestoredBody": "Если вы оформляли подписку — войдите тем же аккаунтом."
+    "alert.notRestoredBody": "Если вы оформляли подписку — войдите тем же аккаунтом.",
+    "alert.errorTitle": "Ошибка"
+  },
+  "proVersion": {
+    "subtitle": "Без ограничения по 10 словам в день. Все уровни сразу. Поддержка разработки.",
+    "tierWithPrice": "{{tier}} · {{price}}",
+    "yearlyFallback": "Подписка на год",
+    "monthlyFallback": "Подписка на месяц"
+  },
+  "rateApp": {
+    "title": "Оцените приложение",
+    "subtitle": "Будем рады, если вы оставите оценку или отзыв. Вам нравится приложение?",
+    "dontShowAgain": "Не показывать больше",
+    "positive.title": "Нам нет и года и ваш отзыв\nправда нам важен!",
+    "positive.subtitle": "Мы будем очень признательны, если вы поделитесь отзывом с другими людьми.",
+    "positive.openAppStore": "Перейти в App Store",
+    "positive.openPlayStore": "Перейти в Google Play",
+    "negative.title": "Нам очень жаль!",
+    "negative.subtitle": "Напишите нам на support@mirolang.ru,\nесли вы столкнулись с проблемой.",
+    "negative.close": "Закрыть окно"
   },
   "common": {
     "close": "Закрыть",

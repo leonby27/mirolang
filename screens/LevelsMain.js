@@ -174,9 +174,9 @@ function LevelsMain({navigation}) {
             </Text>
           </View>
         }
-        renderSectionHeader={({section: {title}}) => (
+        renderSectionHeader={({section: {id}}) => (
           <View style={{width: '100%'}}>
-            <Text style={styles.sectionHeader}>{title}</Text>
+            <Text style={styles.sectionHeader}>{t(`levelsData.module${id}.title`)}</Text>
           </View>
         )}
         getItemLayout={(data, index) => {
@@ -191,9 +191,8 @@ function LevelsMain({navigation}) {
               item.state != 'inactive'
                 ? () =>
                     navigation.navigate('Prestart', {
-                      title: item.title,
+                      moduleId: section.id,
                       level: item,
-                      description: item.description,
                       progress: progress,
                     })
                 : handlePresentModalPress
@@ -249,7 +248,9 @@ function LevelsMain({navigation}) {
                     lineHeight: 20,
                     fontFamily: 'Inter-Bold',
                   }}>
-                  {item.state != 'inactive' ? item.title : t('levels.levelClosed')}
+                  {item.state != 'inactive'
+                    ? t(`levelsData.module${section.id}.level${item.id}.title`)
+                    : t('levels.levelClosed')}
                   {item.state != 'finished' && item.state != 'inactive' && (
                     <>
                       {Math.round(
@@ -283,7 +284,7 @@ function LevelsMain({navigation}) {
                     lineHeight: 16,
                     fontFamily: 'Inter-Regular',
                   }}>
-                  {item.description}
+                  {t(`levelsData.module${section.id}.level${item.id}.description`)}
                 </Text>
               </View>
               {item.state != 'inactive' && (

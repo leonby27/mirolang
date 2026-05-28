@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, TouchableOpacity, ActivityIndicator, Alert, ScrollView, Linking} from 'react-native';
 import Svg, {Path} from 'react-native-svg';
+import {useTranslation} from 'react-i18next';
 import auth from '@react-native-firebase/auth';
 import {
   initIAP,
@@ -13,6 +14,11 @@ import {
 } from './iap';
 
 function ProVersion({closeModal, navigation, learn}) {
+  const {t, i18n} = useTranslation();
+  // Locale-aware legal URLs. Hosted on GitHub Pages from /docs.
+  const legalLang = i18n.language === 'ru' ? 'ru' : 'en';
+  const termsUrl = `https://leonby27.github.io/mirolang/terms-${legalLang}.html`;
+  const privacyUrl = `https://leonby27.github.io/mirolang/privacy-${legalLang}.html`;
   const [products, setProducts] = useState([]);
   const [busy, setBusy] = useState(false);
 
@@ -23,14 +29,14 @@ function ProVersion({closeModal, navigation, learn}) {
       setupPurchaseListeners(
         () => {
           if (!mounted) return;
-          Alert.alert('Готово', 'Подписка активирована.', [
-            {text: 'OK', onPress: () => { closeModal?.(); if (learn) navigation?.goBack(); }},
+          Alert.alert(t('paywall.alert.purchaseSuccessTitle'), t('paywall.alert.purchaseSuccessBody'), [
+            {text: t('common.ok'), onPress: () => { closeModal?.(); if (learn) navigation?.goBack(); }},
           ]);
           setBusy(false);
         },
         (err) => {
           if (!mounted) return;
-          Alert.alert('Ошибка покупки', err?.message || String(err));
+          Alert.alert(t('paywall.alert.purchaseErrorTitle'), err?.message || String(err));
           setBusy(false);
         }
       );
@@ -46,9 +52,9 @@ function ProVersion({closeModal, navigation, learn}) {
   const onBuy = async (productId) => {
     if (!auth().currentUser?.uid) {
       Alert.alert(
-        'Войдите в аккаунт',
-        'Чтобы оформить подписку, войдите через Google или Apple.',
-        [{text: 'OK', onPress: () => { closeModal?.(); navigation?.navigate('Login'); }}],
+        t('paywall.alert.signInTitle'),
+        t('paywall.alert.signInBody'),
+        [{text: t('common.ok'), onPress: () => { closeModal?.(); navigation?.navigate('Login'); }}],
       );
       return;
     }
@@ -57,7 +63,7 @@ function ProVersion({closeModal, navigation, learn}) {
       await purchasePro(productId);
     } catch (e) {
       setBusy(false);
-      Alert.alert('Ошибка', e?.message || String(e));
+      Alert.alert(t('paywall.alert.errorTitle'), e?.message || String(e));
     }
   };
 
@@ -67,13 +73,13 @@ function ProVersion({closeModal, navigation, learn}) {
       const restored = await restorePurchases();
       setBusy(false);
       Alert.alert(
-        restored ? 'Покупки восстановлены' : 'Активных подписок не найдено',
-        restored ? 'Pro-доступ активирован.' : 'Если вы оформляли подписку — войдите тем же аккаунтом.',
-        [{text: 'OK', onPress: () => restored && closeModal?.()}]
+        restored ? t('paywall.alert.restoredTitle') : t('paywall.alert.notRestoredTitle'),
+        restored ? t('paywall.alert.restoredBody') : t('paywall.alert.notRestoredBody'),
+        [{text: t('common.ok'), onPress: () => restored && closeModal?.()}]
       );
     } catch (e) {
       setBusy(false);
-      Alert.alert('Ошибка', e?.message || String(e));
+      Alert.alert(t('paywall.alert.errorTitle'), e?.message || String(e));
     }
   };
 
@@ -94,14 +100,14 @@ function ProVersion({closeModal, navigation, learn}) {
           MiroLang Pro
         </Text>
         <Text style={{color: 'rgba(255,255,255,0.7)', fontFamily: 'Inter-Regular', fontSize: 14, marginTop: 8, lineHeight: 20}}>
-          Без ограничения по 10 словам в день. Все уровни сразу. Поддержка разработки.
+          {t('proVersion.subtitle')}
         </Text>
 
         {products.length === 0 ? (
           <View style={{marginTop: 32, alignItems: 'center'}}>
             <ActivityIndicator color="white" />
             <Text style={{color: 'rgba(255,255,255,0.5)', marginTop: 8, fontFamily: 'Inter-Regular', fontSize: 14}}>
-              Загрузка тарифов…
+              {t('paywall.loadingPrices')}
             </Text>
           </View>
         ) : (
@@ -111,8 +117,12 @@ function ProVersion({closeModal, navigation, learn}) {
                 disabled={busy}
                 onPress={() => onBuy(yearly.productId)}
                 style={{marginTop: 24, padding: 16, borderRadius: 12, backgroundColor: '#1C1F26', borderWidth: 1, borderColor: '#F6A022'}}>
-                <Text style={{color: 'white', fontFamily: 'Inter-Bold', fontSize: 16}}>Годовая · {yearly.localizedPrice}</Text>
-                <Text style={{color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter-Regular', fontSize: 13, marginTop: 4}}>{yearly.title || 'Подписка на год'}</Text>
+                <Text style={{color: 'white', fontFamily: 'Inter-Bold', fontSize: 16}}>
+                  {t('proVersion.tierWithPrice', {tier: t('paywall.tier.yearly'), price: yearly.localizedPrice})}
+                </Text>
+                <Text style={{color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter-Regular', fontSize: 13, marginTop: 4}}>
+                  {yearly.title || t('proVersion.yearlyFallback')}
+                </Text>
               </TouchableOpacity>
             )}
             {monthly && (
@@ -120,8 +130,12 @@ function ProVersion({closeModal, navigation, learn}) {
                 disabled={busy}
                 onPress={() => onBuy(monthly.productId)}
                 style={{marginTop: 12, padding: 16, borderRadius: 12, backgroundColor: '#1C1F26', borderWidth: 1, borderColor: '#313843'}}>
-                <Text style={{color: 'white', fontFamily: 'Inter-Bold', fontSize: 16}}>Месячная · {monthly.localizedPrice}</Text>
-                <Text style={{color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter-Regular', fontSize: 13, marginTop: 4}}>{monthly.title || 'Подписка на месяц'}</Text>
+                <Text style={{color: 'white', fontFamily: 'Inter-Bold', fontSize: 16}}>
+                  {t('proVersion.tierWithPrice', {tier: t('paywall.tier.monthly'), price: monthly.localizedPrice})}
+                </Text>
+                <Text style={{color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter-Regular', fontSize: 13, marginTop: 4}}>
+                  {monthly.title || t('proVersion.monthlyFallback')}
+                </Text>
               </TouchableOpacity>
             )}
             {busy && (
@@ -133,20 +147,20 @@ function ProVersion({closeModal, navigation, learn}) {
         )}
 
         <TouchableOpacity onPress={onRestore} disabled={busy} style={{marginTop: 24, padding: 12, alignItems: 'center'}}>
-          <Text style={{color: 'rgba(255,255,255,0.7)', fontFamily: 'Inter-Regular', fontSize: 14}}>Восстановить покупки</Text>
+          <Text style={{color: 'rgba(255,255,255,0.7)', fontFamily: 'Inter-Regular', fontSize: 14}}>{t('paywall.restore')}</Text>
         </TouchableOpacity>
 
         {/* Subscription disclosure — required by App Store guideline 3.1.2 */}
         <Text style={{color: 'rgba(255,255,255,0.45)', fontFamily: 'Inter-Regular', fontSize: 12, lineHeight: 16, marginTop: 16}}>
-          Подписка продлевается автоматически, если не отменена за 24 часа до окончания периода. Оплата списывается с аккаунта iTunes / Google Play при подтверждении покупки. Управление подпиской — в настройках вашего аккаунта.
+          {t('paywall.autoRenewDisclosure')}
         </Text>
 
         <View style={{flexDirection: 'row', justifyContent: 'center', marginTop: 12, marginBottom: 24}}>
-          <TouchableOpacity onPress={() => Linking.openURL('https://mirolang.ru/terms').catch(() => {})} style={{padding: 8}}>
-            <Text style={{color: 'rgba(255,255,255,0.6)', fontFamily: 'Inter-Regular', fontSize: 12, textDecorationLine: 'underline'}}>Условия</Text>
+          <TouchableOpacity onPress={() => Linking.openURL(termsUrl).catch(() => {})} style={{padding: 8}}>
+            <Text style={{color: 'rgba(255,255,255,0.6)', fontFamily: 'Inter-Regular', fontSize: 12, textDecorationLine: 'underline'}}>{t('paywall.terms.terms')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL('https://mirolang.ru/privacy').catch(() => {})} style={{padding: 8}}>
-            <Text style={{color: 'rgba(255,255,255,0.6)', fontFamily: 'Inter-Regular', fontSize: 12, textDecorationLine: 'underline'}}>Конфиденциальность</Text>
+          <TouchableOpacity onPress={() => Linking.openURL(privacyUrl).catch(() => {})} style={{padding: 8}}>
+            <Text style={{color: 'rgba(255,255,255,0.6)', fontFamily: 'Inter-Regular', fontSize: 12, textDecorationLine: 'underline'}}>{t('paywall.terms.privacy')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

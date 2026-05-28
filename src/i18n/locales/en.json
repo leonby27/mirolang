@@ -21,6 +21,48 @@
     "modalDescription": "Finish the previous levels at 90%+\nto unlock this one.",
     "modalUnlockCta": "Unlock this level"
   },
+  "levelsData": {
+    "module1": {
+      "title": "Module 1: for beginners. 1,500 words",
+      "level1": {"title": "First step", "description": "100 very simple words"},
+      "level2": {"title": "My start", "description": "200 very simple words"},
+      "level3": {"title": "Beginning of the journey", "description": "300 very simple words"},
+      "level4": {"title": "First turn", "description": "400 very simple words"},
+      "level5": {"title": "Before the rest stop", "description": "500 very simple words"}
+    },
+    "module2": {
+      "title": "Module 2: the foundation. 1,500 words",
+      "level1": {"title": "New start", "description": "100 simple words"},
+      "level2": {"title": "Full speed ahead", "description": "200 simple words"},
+      "level3": {"title": "Tailwind", "description": "300 simple words"},
+      "level4": {"title": "Easy road", "description": "400 simple words"},
+      "level5": {"title": "Push a little harder", "description": "500 simple words"}
+    },
+    "module3": {
+      "title": "Module 3: halfway there. 1,300 words",
+      "level1": {"title": "Time to set out", "description": "100 intermediate words"},
+      "level2": {"title": "Not so simple", "description": "200 intermediate words"},
+      "level3": {"title": "Halfway point", "description": "300 intermediate words"},
+      "level4": {"title": "In the thick of it", "description": "300 intermediate words"},
+      "level5": {"title": "Great work", "description": "400 intermediate words"}
+    },
+    "module4": {
+      "title": "Module 4: the language core. 1,200 words",
+      "level1": {"title": "Something on the horizon", "description": "100 advanced words"},
+      "level2": {"title": "Old hand", "description": "200 advanced words"},
+      "level3": {"title": "I can handle anything", "description": "250 advanced words"},
+      "level4": {"title": "Almost there", "description": "300 advanced words"},
+      "level5": {"title": "Pushing through", "description": "350 advanced words"}
+    },
+    "module5": {
+      "title": "Module 5: the peak of peaks. 1,200 words",
+      "level1": {"title": "Final push", "description": "100 hard words"},
+      "level2": {"title": "At the foot of the mountain", "description": "200 hard words"},
+      "level3": {"title": "Storm on the horizon", "description": "250 hard words"},
+      "level4": {"title": "Last reserves", "description": "300 hard words"},
+      "level5": {"title": "Who are you, warrior?", "description": "350 hard words"}
+    }
+  },
   "paywall": {
     "subtitle": "Break through your language plateau —\nmaster the 6,500 words educated\nnative speakers actually use",
     "yearly": "Yearly",
@@ -41,7 +83,7 @@
     "tier.monthly": "Monthly",
     "tier.lifetimeHint": "One payment — forever",
     "tier.yearlyHint": "{{price}} / month",
-    "tier.yearlyHintFallback": "Save 52% vs monthly",
+    "tier.yearlyHintFallback": "Save 58% vs monthly",
     "tier.monthlyHint": "Cancel anytime",
     "bestValue": "Best value",
     "restore": "Restore purchases",
@@ -55,7 +97,26 @@
     "alert.restoredTitle": "Purchases restored",
     "alert.restoredBody": "Pro access is active.",
     "alert.notRestoredTitle": "No active purchases",
-    "alert.notRestoredBody": "If you've subscribed before, sign in with the same account."
+    "alert.notRestoredBody": "If you've subscribed before, sign in with the same account.",
+    "alert.errorTitle": "Error"
+  },
+  "proVersion": {
+    "subtitle": "No 10-word daily cap. All levels unlocked. Support the developer.",
+    "tierWithPrice": "{{tier}} · {{price}}",
+    "yearlyFallback": "Yearly subscription",
+    "monthlyFallback": "Monthly subscription"
+  },
+  "rateApp": {
+    "title": "Rate the app",
+    "subtitle": "We'd love a rating or a review. Do you like the app?",
+    "dontShowAgain": "Don't show again",
+    "positive.title": "We're not even a year old and\nyour feedback really matters!",
+    "positive.subtitle": "We'd be very grateful if you'd share your review with others.",
+    "positive.openAppStore": "Open App Store",
+    "positive.openPlayStore": "Open Google Play",
+    "negative.title": "We're really sorry!",
+    "negative.subtitle": "Email us at support@mirolang.ru\nif you ran into a problem.",
+    "negative.close": "Close"
   },
   "common": {
     "close": "Close",

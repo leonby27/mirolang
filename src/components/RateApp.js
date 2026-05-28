@@ -8,8 +8,10 @@ import {
   Linking,
 } from 'react-native';
 import Svg, {Path, G, Defs, ClipPath, Rect} from 'react-native-svg';
+import {useTranslation} from 'react-i18next';
 
 function RateApp({closeModal, showDontShowAgainButton}) {
+  const {t} = useTranslation();
   const [goodRate, setGoodRate] = useState(null);
   if (goodRate == null) {
     return (
@@ -49,7 +51,7 @@ function RateApp({closeModal, showDontShowAgainButton}) {
               color: 'white',
               lineHeight: 32,
             }}>
-            Оцените приложение
+            {t('rateApp.title')}
           </Text>
           <Text
             style={{
@@ -61,8 +63,7 @@ function RateApp({closeModal, showDontShowAgainButton}) {
               width: '90%',
               marginTop: 9,
             }}>
-            Будем рады, если вы оставите оценку или отзыв. Вам нравится
-            приложение?
+            {t('rateApp.subtitle')}
           </Text>
           <View style={{gap: 32, flexDirection: 'row', marginTop: 30}}>
             <TouchableOpacity
@@ -157,7 +158,7 @@ function RateApp({closeModal, showDontShowAgainButton}) {
                 fontFamily: 'Inter-Regular',
                 color: 'rgba(255, 255, 255, 0.50)',
               }}>
-              Не показывать больше
+              {t('rateApp.dontShowAgain')}
             </Text>
           </TouchableOpacity>
         )}
@@ -197,7 +198,7 @@ function RateApp({closeModal, showDontShowAgainButton}) {
             lineHeight: 32,
             textAlign: 'center',
           }}>
-          {'Нам нет и года и ваш отзыв\nправда нам важен!'}
+          {t('rateApp.positive.title')}
         </Text>
         <Svg
           style={{marginTop: -8, left: 45}}
@@ -232,8 +233,7 @@ function RateApp({closeModal, showDontShowAgainButton}) {
             width: '90%',
             marginTop: 6,
           }}>
-          Мы будем очень признательны, если вы поделитесь отзывом с другими
-          людьми.
+          {t('rateApp.positive.subtitle')}
         </Text>
         <TouchableOpacity
           onPress={() =>
@@ -260,8 +260,8 @@ function RateApp({closeModal, showDontShowAgainButton}) {
               textAlign: 'center',
             }}>
             {Platform.OS == 'ios'
-              ? 'Перейти в App Store'
-              : 'Перейти в Google Play'}
+              ? t('rateApp.positive.openAppStore')
+              : t('rateApp.positive.openPlayStore')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -300,7 +300,7 @@ function RateApp({closeModal, showDontShowAgainButton}) {
             lineHeight: 32,
             textAlign: 'center',
           }}>
-          Нам очень жаль!
+          {t('rateApp.negative.title')}
         </Text>
         <Text
           style={{
@@ -312,9 +312,7 @@ function RateApp({closeModal, showDontShowAgainButton}) {
             width: '100%',
             marginTop: 9,
           }}>
-          {
-            'Напишите нам на support@mirolang.ru,\nесли вы столкнулись с проблемой.'
-          }
+          {t('rateApp.negative.subtitle')}
         </Text>
         <TouchableOpacity
           onPress={() => closeModal()}
@@ -336,7 +334,7 @@ function RateApp({closeModal, showDontShowAgainButton}) {
               width: '100%',
               textAlign: 'center',
             }}>
-            Закрыть окно
+            {t('rateApp.negative.close')}
           </Text>
         </TouchableOpacity>
       </View>
