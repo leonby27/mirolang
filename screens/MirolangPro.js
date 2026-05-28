@@ -8,9 +8,11 @@
  * purchases link sits below the CTA.
  *
  * Replaces the older two-step flow (this screen → ProVersion bottom
- * sheet) with a single purchase surface for less friction. Per-pair
- * pricing strategy: $71.99 lifetime / $39.99 yearly / $6.99 monthly
- * (US baseline; App Store auto-converts to other currencies).
+ * sheet) with a single purchase surface for less friction. Pricing
+ * strategy: $49.99 lifetime / $19.99 yearly / $3.99 monthly (US
+ * baseline; App Store / Play Store auto-convert to other currencies).
+ * Yearly is the conversion target — ~58% off vs paying monthly for
+ * 12 months — with lifetime as the anchor for anti-subscription users.
  */
 
 import React, {useEffect, useState} from 'react';
@@ -50,7 +52,11 @@ function MirolangPro({
   progress,
   navigation,
 }) {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
+  // Locale-aware legal URLs. Hosted on GitHub Pages from /docs.
+  const legalLang = i18n.language === 'ru' ? 'ru' : 'en';
+  const termsUrl = `https://leonby27.github.io/mirolang/terms-${legalLang}.html`;
+  const privacyUrl = `https://leonby27.github.io/mirolang/privacy-${legalLang}.html`;
   const [prices, setPrices] = useState({
     lifetime: '',
     yearly: '',
@@ -265,14 +271,14 @@ function MirolangPro({
           <View style={{flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center'}}>
             <TouchableOpacity
               onPress={() =>
-                Linking.openURL('https://mirolang.ru/terms').catch(() => {})
+                Linking.openURL(termsUrl).catch(() => {})
               }>
               <Text style={styles.termsLink}>{t('paywall.terms.terms')}</Text>
             </TouchableOpacity>
             <Text style={styles.termsText}> {t('paywall.terms.and')} </Text>
             <TouchableOpacity
               onPress={() =>
-                Linking.openURL('https://mirolang.ru/privacy').catch(() => {})
+                Linking.openURL(privacyUrl).catch(() => {})
               }>
               <Text style={styles.termsLink}>{t('paywall.terms.privacy')}</Text>
             </TouchableOpacity>
